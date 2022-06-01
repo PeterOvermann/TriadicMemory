@@ -191,7 +191,9 @@ int main(int argc, char *argv[])
 						if (delete == 0) // store
 							for( k = 0; k < ymax; k++) ++ *( T + u + y[k] );
 						else // delete
-							for( k = 0; k < ymax; k++) -- *( T + u + y[k] );
+							for( k = 0; k < ymax; k++)
+								if (*( T + u + y[k] ) > 0 )
+									-- *( T + u + y[k] );
 						}
 				}
 				
