@@ -1,10 +1,8 @@
 """
-Copyright (c) 2022 Cezar Totth
-
-This code is a python implementation of the Triadic Memory and Dyadic Memory algorithms
-see https://peterovermann.com/TriadicMemory.pdf
+This code is an implementation of the Triadic Memory and Dyadic Memory algorithms
 
 Copyright (c) 2021-2022 Peter Overmann
+Copyright (c) 2022 Cezar Totth
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
@@ -26,28 +24,35 @@ import numba
 
 @numba.jit
 def xaddr(x):
-    # Computes memory address for DiadicMemory
     addr = []
     for i in range(1,len(x)):
         for j in range(i):
             addr.append(x[i]*(x[i]-1)//2 + x[j])
     return addr
 
+
 @numba.jit
 def store_xy(mem, x, y):
     """
-    Stores Y at address X
+    Stores Y under key X
     Y and X have to be sorted sparsely encoded SDRs
     """ 
     for addr in xaddr(x):
         for j in y:
             mem[addr,j] += 1
 
+@numba.jit 
+def remove_xy(mem, x, y): 
+    for addr in xaddr(x):
+        for j in y:
+            if mem[addr,j]:
+                mem[addr,j] -= 1
+
 @numba.jit
 def store_xyz(mem, x, y, z): 
     """
-    Stores X, Y, Z triple in mem
-    All X, Y, Z have to be sorted sparse encoded SDRs
+    Stores X, Y, Z triplet in mem
+    All X, Y, Z have to be sparse encoded SDRs
     """
     for ax in x:
         for ay in y:
@@ -55,8 +60,15 @@ def store_xyz(mem, x, y, z):
                 mem[ax, ay, az] += 1
 
 @numba.jit
+def remove_xyz(mem, x, y, z):
+    for ax in x:
+        for ay in y:
+            for az in z:
+                if mem[ax,ay,az]:
+                    mem[ax, ay, az] -= 1
+    
+@numba.jit
 def query(mem, P, x):
-    # Used by DiadicMemory to retrieve y from x
     sums = np.zeros(mem.shape[1],dtype=np.uint32)
     for addr in xaddr(x):
         sums += mem[addr]
@@ -64,7 +76,6 @@ def query(mem, P, x):
 
 @numba.jit
 def queryZ(mem, P, x, y):
-    # retrieves z from x, y in TriadicMemory
     N = mem.shape[0]
     sums = np.zeros(N, dtype = np.uint32)
     for ax in x:
@@ -74,7 +85,6 @@ def queryZ(mem, P, x, y):
 
 @numba.jit
 def queryX(mem, P, y, z):
-    # retrieves x from y, z in TriadicMemory
     N = mem.shape[0]
     sums = np.zeros(N, dtype = np.uint32)
     for ay in y:
@@ -84,7 +94,6 @@ def queryX(mem, P, y, z):
 
 @numba.jit
 def queryY(mem, P, x, z):
-    # retrieves y from x, z in TriadicMemory
     N = mem.shape[0]
     sums = np.zeros(N, dtype = np.uint32)
     for ax in x:
@@ -94,7 +103,7 @@ def queryY(mem, P, x, z):
 
 @numba.jit
 def sums2sdr(sums, P):
-    # this does what binarize() does in C example
+    # this does what binarize() does in C
     ssums = sums.copy()
     ssums.sort()
     threshval = ssums[-P]
@@ -110,6 +119,9 @@ class TriadicMemory:
 
     def store(self, x, y, z):
         store_xyz(self.mem, x, y, z)
+
+    def remove(self, x, y, z):
+        remove_xyz(self.mem, x, y, z)
 
     def query(self, x, y, z = None): 
         # query for either x, y or z. 
@@ -138,16 +150,20 @@ class DiadicMemory:
     def store(self, x, y):
         store_xy(self.mem, x, y)
 
+    def remove(self, x, y):
+        remove_xy(self.mem, x, y)
+
     def query(self, x):
         return query(self.mem, self.P, x)
 
 @numba.jit
 def randomSDR(count, N=1000,P=10): 
-    # Utility to generate count random SDRs of size N with solidity P
     res = np.zeros((count, P), dtype = np.uint16)
     x = np.arange(N) 
     for cnt in range(count): 
         np.random.shuffle(x)
         res[cnt] = x[:P].copy()
         res[cnt].sort()
+        
     return res
+    
