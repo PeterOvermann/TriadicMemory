@@ -49,6 +49,9 @@ Recall y:
 Recall z:
 {37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, _}
 
+Delete {x,y,z}:
+-{37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, 60 91 94 128 249 517 703 906 962 980}
+
 Terminate process:
 quit
 
@@ -59,7 +62,7 @@ version
 
 
 #define VERSIONMAJOR 1
-#define VERSIONMINOR 0
+#define VERSIONMINOR 1
 
 #define SEPARATOR ','
 #define QUERY '_'
@@ -138,6 +141,8 @@ int main(int argc, char *argv[])
 	int *x, *y, *z;
 	int xmax, ymax, zmax;
 	
+	int delete;
+	
 	int i, j, k;
 	int N, P;  // vector dimension and target sparse population
 	
@@ -174,22 +179,35 @@ int main(int argc, char *argv[])
 			
 		else // parse triple
 			{
+			delete = 0;
+			buf = inputline;
+			
+			if (*buf == '-')
+				{
+				delete = 1; ++buf;
+				}
 		
-			if (*inputline != '{')
+			if (*buf != '{')
 				{
 				printf("expecting triple of the form {x,y,z}, found %s\n ", inputline); exit(4);
 				}
 		
-			buf = parse(parse(parse(inputline+1, x, &xmax, N), y, &ymax, N), z, &zmax, N);
+			buf = parse(parse(parse(buf+1, x, &xmax, N), y, &ymax, N), z, &zmax, N);
 		
 			if( *buf != '}')
 				{
 				printf("expecting triple of the form {x,y,z}, found %s\n ", inputline); exit(4);
 				}
 		
-			if ( xmax >= 0 && ymax >= 0 && zmax >= 0) // store x, y, z
-				for( i = 0; i < xmax; i++) for( j = 0; j < ymax; j++) for( k = 0; k < zmax; k++)
-					++ *( cube + N*N*x[i] + N*y[j] + z[k] ); // counter overflow is unlikely
+			if ( xmax >= 0 && ymax >= 0 && zmax >= 0) // store or delete x, y, z
+			
+				if (delete == 0) // store
+					for( i = 0; i < xmax; i++) for( j = 0; j < ymax; j++) for( k = 0; k < zmax; k++)
+						++ *( cube + N*N*x[i] + N*y[j] + z[k] ); // counter overflow is unlikely
+						
+				else // delete
+					for( i = 0; i < xmax; i++) for( j = 0; j < ymax; j++) for( k = 0; k < zmax; k++)
+						-- *( cube + N*N*x[i] + N*y[j] + z[k] ); // not checking for counter underflow
 	
 			else if ( xmax >= 0 && ymax >= 0 && zmax == -1) // recall z
 				{
