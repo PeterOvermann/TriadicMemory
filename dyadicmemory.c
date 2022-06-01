@@ -47,6 +47,9 @@ Store x->y:
 Recall y:
 1 20 195 355 371 471 603  814 911 999
 
+Delete x->y:
+- 1 20 195 355 371 471 603  814 911 999, 13 29 41 182 590 711 714 773 925 967
+
 Terminate process:
 quit
 
@@ -57,7 +60,7 @@ version
 
 
 #define VERSIONMAJOR 1
-#define VERSIONMINOR 0
+#define VERSIONMINOR 1
 
 #define SEPARATOR ','
 
@@ -133,6 +136,8 @@ int main(int argc, char *argv[])
 	int *x, *y;
 	int xmax, ymax;
 	
+	int delete;
+	
 	int i, j, k, u;
 	int N, P;  // vector dimension and target sparse population
 	
@@ -168,18 +173,25 @@ int main(int argc, char *argv[])
 			
 		else // parse x
 			{
-			buf = parse(inputline, x, &xmax, N);
+			delete = 0;
+			if (*inputline == '-')
+				delete = 1;
+			
+			buf = parse(inputline + delete, x, &xmax, N);
 			
 			if (*buf == SEPARATOR) // parse y
 				{
 				parse(buf+1, y, &ymax, N);
 				
-				// store x->y
+				// store or delete x->y
 				for( i = 0; i < xmax-1; i++)
 					for( j = i+1; j < xmax; j++)
 						{
 						u = N *(-2 - 3*x[i] - x[i]*x[i] + 2*x[j] + 2*x[i]*N) / 2 ;
-						for( k = 0; k < ymax; k++) ++ *( T + u + y[k] );
+						if (delete == 0) // store
+							for( k = 0; k < ymax; k++) ++ *( T + u + y[k] );
+						else // delete
+							for( k = 0; k < ymax; k++) -- *( T + u + y[k] );
 						}
 				}
 				
