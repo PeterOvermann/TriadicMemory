@@ -206,8 +206,11 @@ int main(int argc, char *argv[])
 						++ *( cube + N*N*x[i] + N*y[j] + z[k] ); // counter overflow is unlikely
 						
 				else // delete
+					{
 					for( i = 0; i < xmax; i++) for( j = 0; j < ymax; j++) for( k = 0; k < zmax; k++)
-						-- *( cube + N*N*x[i] + N*y[j] + z[k] ); // not checking for counter underflow
+						if (*( cube + N*N*x[i] + N*y[j] + z[k] ) > 0) // checking for counter underflow
+							-- *( cube + N*N*x[i] + N*y[j] + z[k] );
+					}
 	
 			else if ( xmax >= 0 && ymax >= 0 && zmax == -1) // recall z
 				{
