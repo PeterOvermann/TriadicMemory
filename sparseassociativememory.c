@@ -23,7 +23,7 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMA
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-This self-contained C implementation is optimized for memory usage and allows the storage and
+This self-contained C implementation is optimized for memory usage, allowing the storage and
 retrieval of vectors with dimensions up to 20,000. In contrast, the original reference implementation
 (dyadicmemory.c) works with dimensions up to 1,000.
 
@@ -119,8 +119,7 @@ int ycmp (const void * a, const void * b)
 	return  *(YTYPE*)a - *(YTYPE*)b;
 	}
 	
-	
-	
+
 void binarize (int *v, int n, int p)
 	{
 	int sorted[n];
@@ -197,8 +196,6 @@ int main(int argc, char *argv[])
 					if( y[ymax-1] > Ny)
 						Ny = y[ymax-1];
 					}
-					
-				// Ny = 10000;//debugging
 				
 				// store x->y
 				for( int i = 0; i < xmax-1; i++)
@@ -211,7 +208,7 @@ int main(int argc, char *argv[])
 						if (! T[u]) // initial allocation of memory chunk
 							{
 							// allocate twice the average sparse population of y
-							int newchunksize = 2 * (int) ceil(P);
+							int newchunksize = 2 * (int) round(P);
 							if (newchunksize > chunk) chunk = newchunksize;
 							
 							T[u] = (YTYPE*) malloc(chunk * sizeof(YTYPE));
@@ -282,7 +279,7 @@ int main(int argc, char *argv[])
 								}
 						}
 						
-				binarize(y, Ny, (int)ceil(P));
+				binarize(y, Ny, (int)round(P));
 				}
 			else
 				{
