@@ -1,8 +1,11 @@
 /*
-
 triadicmemory.c
 
 Copyright (c) 2022 Peter Overmann
+
+C-language reference implementation of the Triadic Memory algorithm published in
+   https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
+This source file can be compiled as a stand-alone command line program or as a library.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
@@ -19,10 +22,7 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMA
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-This is the reference implementation of the Triadic Memory algorithm as command line tool.
-
-Build: cc -Ofast triadicmemory.c -o /usr/local/bin/triadicmemory
+Building the command line version: cc -Ofast triadicmemory.c -o /usr/local/bin/triadicmemory
 
 This command line tool instantiates a new memory instance. It can be used
 to store triples {x,y,z} of sparse distributed representations (SDRs), and to
@@ -30,12 +30,12 @@ recall one part of a triple by specifying the other two parts.
 {x,y,_} recalls the third part, {x,_,z} recalls the second part, {_,y,z} recalls
 the first part.
 
-An SDR is given by a set of p integers in the range from 1 to n
-Typical values are n = 1000 and p = 10
-Command line usage: triadicmemory n p
+An SDR is given by a set of p integers in the range from 1 to n.
+Typical values are n = 1000 and p = 10.
 
+Command line arguments: triadicmemory <n> <p>
 
-Examples:
+Command line usage examples:
 
 Store {x,y,z}:
 {37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, 60 91 94 128 249 517 703 906 962 980}
@@ -52,101 +52,258 @@ Recall z:
 Delete {x,y,z}:
 -{37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, 60 91 94 128 249 517 703 906 962 980}
 
-Terminate process:
-quit
+Print random SDR:
+random
 
 Print version number:
 version
 
+Terminate process:
+quit
+
 */
 
+// remove the following if compiling as library
+#define TRIADICMEMORY_COMMANDLINE
 
-#define VERSIONMAJOR 1
-#define VERSIONMINOR 1
 
-#define SEPARATOR ','
-#define QUERY '_'
-#define MEMORYTYPE unsigned char
+// pull out the following if compiling as library
 
-#define INPUTBUFFER 10000
+// -------------------- begin triadicmemory.h --------------------
+
+#define MEMTYPE unsigned char
+
+typedef struct
+	{
+	MEMTYPE* m;
+	int n, p;
+	} TriadicMemory;
+	
+typedef struct
+	{
+	int *a, n, p;
+	} SDR;
+	
+SDR *sdr_random (SDR*, int n);
+SDR *sdr_new (int n);
+int sdr_distance( SDR*x, SDR*y);
+
+TriadicMemory *triadicmemory_new(int n, int p);
+
+void triadicmemory_write  (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
+void triadicmemory_delete (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
+
+SDR* triadicmemory_read_x  (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
+SDR* triadicmemory_read_y  (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
+SDR* triadicmemory_read_z  (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
+	
+// -------------------- end triadicmemory.h --------------------
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <time.h>
 
-
-char* parse (char *buf, int *vec, int *len, int n)
+static int cmpfunc (const void * a, const void * b)
+	{ return  *(int*)a - *(int*)b; }
+		
+static SDR* binarize (SDR *v, int targetsparsity)
 	{
-	int *p;
-	*len = 0;
+	int sorted[v->n], rankedmax;
+	
+	for ( int i=0; i < v->n; i++ )
+		sorted[i] = v->a[i];
+	
+	qsort( sorted, v->n, sizeof(int), cmpfunc);
+	
+	rankedmax = sorted[ v->n - targetsparsity ];
+	
+	if(rankedmax == 0)
+		rankedmax = 1;
+		
+	v->p = 0;
+	for ( int i = 0; i < v->n; i++)
+		if (v->a[i] >= rankedmax)
+			v->a[v->p++] = i;
+	
+	return (v);
+	}
+
+
+SDR* sdr_random( SDR*s, int p)
+	{
+	static int *range = 0;
+	int n = s->n;
+	s->p = p;
+	
+	if (! range)
+		{
+		srand((unsigned int)time(NULL));				// make sure this is only called once
+		range = malloc(n*sizeof(int));					// integers 0 to n-1
+		for (int i = 0; i < n; i++) range[i] = i;
+		}
+		
+	for (int k = 0; k < p; k++) // random selection of p integers in the range 0 to n-1
+		{
+		int r = rand() % n;
+		s->a[k] = range[r];
+		int tmp = range[n-1]; range[n-1] = range[r]; range[r] = tmp; // swap selected value to the end
+		n--; // values swapped to the end won't get picked again
+		}
+		
+	qsort( s->a, p, sizeof(int), cmpfunc);
+	return (s);
+	}
+	
+	
+int sdr_distance( SDR*x, SDR*y) // Hamming distance
+	{
+	int i = 0, j = 0, h = x->p + y->p;
+	
+	while (i < x->p && j < y->p )
+		{
+		if (x->a[i] == y->a[j])
+			{ h -= 2; i++; j++; }
+		else if (x->a[i] < y->a[j]) ++i;
+		else ++j;
+		}
+	
+	return h;
+	}
+	
+SDR *sdr_new(int n)
+	{
+	SDR *s = malloc(sizeof(SDR));
+	s->a = malloc(n*sizeof(int));
+	s->n = n;
+	s->p = 0;
+	return s;
+	}
+	
+TriadicMemory *triadicmemory_new(int n, int p)
+	{
+	TriadicMemory *t = malloc(sizeof(TriadicMemory));
+	// limitation: malloc may fail for large n, use virtual memory instead in this case
+	
+	t->m = (MEMTYPE*) malloc( n*n*n * sizeof(MEMTYPE));
+	t->n = n;
+	t->p = p;
+	
+	MEMTYPE *cube = t->m;
+	
+	for (int i = 0; i < n*n*n; i++)  *(cube ++) = 0;
+	
+	return t;
+	}
+	
+void triadicmemory_write (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
+	{
+	int N = T->n;
+	
+	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
+		++ *( T->m + N*N*x->a[i] + N*y->a[j] + z->a[k] ); // counter overflow is unlikely
+	}
+	
+void triadicmemory_delete (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
+	{
+	int N = T->n;
+	
+	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
+		if (*( T->m + N*N*x->a[i] + N*y->a[j] + z->a[k] ) > 0) // checking for counter underflow
+			-- *( T->m + N*N*x->a[i] + N*y->a[j] + z->a[k] );
+	}
+	
+
+
+SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
+	{
+	int N = T->n;
+	
+	for( int i = 0; i < N; i++ ) x->a[i] = 0;
+		for( int j = 0; j < y->p; j++)  for( int k = 0; k < z->p; k++) for( int i = 0; i < N; i++)
+			x->a[i] += *( T->m + N*N*i + N*y->a[j] + z->a[k]);
+						
+	return( binarize(x, T->p) );
+	}
+
+SDR* triadicmemory_read_y (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
+	{
+	int N = T->n;
+	
+	for( int j = 0; j < N; j++ ) y->a[j] = 0;
+		for( int i = 0; i < x->p; i++) for( int j = 0; j < N; j++) for( int k = 0; k < z->p; k++)
+			y->a[j] += *( T->m + N*N*x->a[i] + N*j + z->a[k]);
+						
+	return( binarize(y, T->p) );
+	}
+
+SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
+	{
+	int N = T->n;
+	
+	for( int k = 0; k < N; k++ ) z->a[k] = 0;
+	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < N; k++)
+		z->a[k] += *( T->m + N*N*x->a[i] + N*y->a[j] + k);
+						
+	return( binarize(z, T->p));
+	}
+	
+	
+#ifdef TRIADICMEMORY_COMMANDLINE
+	
+#define SEPARATOR ','
+#define QUERY '_'
+
+#define VERSIONMAJOR 1
+#define VERSIONMINOR 2
+
+
+static char* parse (char *buf, SDR *s)
+	{
+	int *i;
+	s->p = 0;
 	
 	while ( *buf != 0 && *buf != SEPARATOR && *buf != '}')
 		{
 		while (isspace(*buf)) buf++;
 		if (! isdigit(*buf)) break;
 		
-		p = vec + *len;
-		sscanf( buf, "%d", p);
+		i = s->a + s->p;
+		sscanf( buf, "%d", i);
 		
-		if ( (*p)-- > n || *p < 0 )
+		if ( (*i)-- > s->n || *i < 0 )
 			{
-			printf("vector position out of range: %s\n", buf);
+			printf("position out of range: %s\n", buf);
 			exit(2);
 			}
-		(*len)++;
+		s->p ++;
 		
 		while (isdigit(*buf)) buf++;
 		while (isspace(*buf)) buf++;
 		}
 		
-	if (*buf == QUERY && *len == 0)  { *len = -1; buf++; while (isspace(*buf)) buf++;}
+	if (*buf == QUERY && s->p == 0)  { s->p = -1; buf++; while (isspace(*buf)) buf++;}
 	
 	if (*buf == SEPARATOR) buf++;
 	
 	return buf;
 	}
 
-
-int cmpfunc (const void * a, const void * b)
+static void sdr_print(SDR *s)
 	{
-	return  *(int*)a - *(int*)b;
+	for (int r = 0; r < s->p; r++)
+		{
+		printf("%d", s->a[r] + 1);
+		if (r < s->p -1) printf(" ");
+		}
+	printf("\n"); fflush(stdout);
 	}
-	
-void binarize (int *v, int n, int p)
-	{
-	int i, sorted[n], rankedmax;
-	
-	for ( i=0; i < n; i++ )
-		sorted[i] = v[i];
-	
-	qsort( sorted, n, sizeof(int), cmpfunc);
-	
-	rankedmax = sorted[ n - p ];
-	
-	if(rankedmax == 0)
-		rankedmax = 1;
-		
-	for ( i=0; i<n; i++) if (v[i] >= rankedmax) printf( "%d ", i+1 );
-	
-	printf( "\n");
-	fflush(stdout);
-	}
-
 
 int main(int argc, char *argv[])
 	{
-	char *buf, inputline[INPUTBUFFER];
-	int *x, *y, *z;
-	int xmax, ymax, zmax;
-	
-	int delete;
-	
-	int i, j, k;
-	int N, P;  // vector dimension and target sparse population
-	
-	MEMORYTYPE *cube;
+	char *buf, inputline[10000];
 	
 	if (argc != 3)
 		{
@@ -156,102 +313,67 @@ int main(int argc, char *argv[])
 		exit(1);
 		}
         
+	int N, P;  // SDR dimension and target sparse population, received from command line
+
     sscanf( argv[1], "%d", &N);
     sscanf( argv[2], "%d", &P);
    
+   	TriadicMemory *T = triadicmemory_new(N, P);
     	
-	x = (int*)malloc(N*sizeof(int));
-	y = (int*)malloc(N*sizeof(int));
-	z = (int*)malloc(N*sizeof(int));
+	SDR *x = sdr_new(N);
+	SDR *y = sdr_new(N);
+	SDR *z = sdr_new(N);
 	
-	cube = (MEMORYTYPE*) malloc( N*N*N * sizeof(MEMORYTYPE)); // limitation: malloc may fail for large n, use virtual memory in this case
-
-	for(i = 0; i < N*N*N; i++)  *(cube + i) = 0;
-
 	while (	fgets(inputline, sizeof(inputline), stdin) != NULL)
 		{
+		if (! strcmp(inputline, "quit\n"))
+			exit(0);
+		
+		else if (! strcmp(inputline, "random\n"))
+			sdr_print(sdr_random(x, P));
 
-		if ( strcmp(inputline, "quit\n") == 0)
-			return 0;
-			
 		else if ( strcmp(inputline, "version\n") == 0)
 			printf("%d.%d\n", VERSIONMAJOR, VERSIONMINOR);
 			
-		else // parse triple
+		else // parse input of the form { 1 2 3, 4 5 6, 7 8 9 }
 			{
-			delete = 0;
+			int delete = 0;
 			buf = inputline;
 			
 			if (*buf == '-')
-				{
-				delete = 1; ++buf;
-				}
+				{ delete = 1; ++buf; }
 		
 			if (*buf != '{')
-				{
-				printf("expecting triple of the form {x,y,z}, found %s\n ", inputline); exit(4);
-				}
+				{ printf("expecting '{', found %s\n ", inputline); exit(4); }
 		
-			buf = parse(parse(parse(buf+1, x, &xmax, N), y, &ymax, N), z, &zmax, N);
+			buf = parse(parse(parse(buf+1, x), y), z);
 		
 			if( *buf != '}')
-				{
-				printf("expecting triple of the form {x,y,z}, found %s\n ", inputline); exit(4);
-				}
+				{ printf("expecting '}', found %s\n ", inputline); exit(4); }
 		
-			if ( xmax >= 0 && ymax >= 0 && zmax >= 0) // store or delete x, y, z
-			
-				if (delete == 0) // store
-					for( i = 0; i < xmax; i++) for( j = 0; j < ymax; j++) for( k = 0; k < zmax; k++)
-						++ *( cube + N*N*x[i] + N*y[j] + z[k] ); // counter overflow is unlikely
-						
+			if ( x->p >= 0 && y->p >= 0 && z->p >= 0) // write or delete x, y, z
+				{
+				if (delete == 0) // write
+					triadicmemory_write  (T, x, y, z);
 				else // delete
-					{
-					for( i = 0; i < xmax; i++) for( j = 0; j < ymax; j++) for( k = 0; k < zmax; k++)
-						if (*( cube + N*N*x[i] + N*y[j] + z[k] ) > 0) // checking for counter underflow
-							-- *( cube + N*N*x[i] + N*y[j] + z[k] );
-					}
-	
-			else if ( xmax >= 0 && ymax >= 0 && zmax == -1) // recall z
-				{
-				for( k = 0; k < N; k++ ) z[k] = 0;
-			
-				for( i = 0; i < xmax; i++) for( j = 0; j < ymax; j++) for( k = 0; k < N; k++)
-					z[k] += *( cube + N*N*x[i] + N*y[j] + k);
-						
-				binarize(z, N, P);
+					triadicmemory_delete (T, x, y, z);
 				}
 
-			else if ( xmax >= 0 && ymax == -1 && zmax >= 0) // recall y
-				{
-				for( j = 0; j < N; j++ ) y[j] = 0;
-			
-				for( i = 0; i < xmax; i++) for( j = 0; j < N; j++)  for( k = 0; k < zmax; k++)
-					y[j] += *( cube + N*N*x[i] + N*j + z[k]);
-						
-				binarize(y, N, P);
-				}
-			
-			else if ( xmax == -1 && ymax >= 0 && zmax >= 0) // recall x
-				{
-				for( i = 0; i < N; i++ ) x[i] = 0;
-			
-				for( j = 0; j < ymax; j++)  for( k = 0; k < zmax; k++) for( i = 0; i < N; i++)
-					x[i] += *( cube + N*N*i + N*y[j] + z[k]);
-						
-				binarize(x, N, P);
-				}
-		
+			else if ( x->p >= 0 && y->p >= 0 && z->p == -1) // read z
+				sdr_print( triadicmemory_read_z (T, x, y, z));
+				
+			else if ( x->p >= 0 && y->p == -1 && z->p >= 0) // read y
+				sdr_print( triadicmemory_read_y (T, x, y, z));
+
+			else if ( x->p == -1 && y->p >= 0 && z->p >= 0) // read x
+				sdr_print( triadicmemory_read_x (T, x, y, z));
+
 			else
-				{
-				printf("invalid input\n"); exit(3);
-				}
-			
+				{ printf("invalid input\n"); exit(3); }
 			}
-		
-
 		}
-		
-	
+			
 	return 0;
 	}
+	
+#endif // TRIADICMEMORY_COMMANDLINE
