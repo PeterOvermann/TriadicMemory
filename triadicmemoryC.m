@@ -3,12 +3,7 @@
 
 triadicmemoryC.m
 
-Mathematica reference implementation of the Triadic Memory algorithm, using an external process for core memory functions
-
-Requires triadicmemory command line tool to be installed. Add to enviroment path using:
-SetEnvironment[ "PATH" -> Environment["PATH"] <> ":/usr/local/bin"];
-
-
+Mathematica wrapper for the triadicmemory command line tool.
 
 Copyright (c) 2022 Peter Overmann
 
@@ -28,59 +23,39 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+Requires and installation of /usr/local/bin/triadicmemory. Add to enviroment path using:
+SetEnvironment[ "PATH" -> Environment["PATH"] <> ":/usr/local/bin"];
+
 *)
+
 
 
 
 TriadicMemory[f_Symbol, {n_Integer, p_Integer} ] := 
 
-	Module[ { process, tostr},
+	Module[ {process, tostr},
 				
 		(* random sparse vector with dimension n and sparse population p *)
-		f[] := SparseArray[RandomSample[ Range[n], p] -> Table[1, {p}], {n}];
-
+		f[] := SparseArray[RandomSample[ Range[n], p] -> Table[1, p], {n}];
 
 		process = StartProcess[ {"triadicmemory", ToString[n], ToString[p]}];  Pause[2];
 
 		tostr[x_SparseArray] := StringJoin[ ToString[#] <> " " & /@ Flatten[x["NonzeroPositions"]]] ;
 		tostr[_] = "_";
 
-
-		(* binarize a vector, using sparsity target p *)
-		f[0] = SparseArray[{0}, {n}];
-  	  	f[ x_] := Module[ {t = Max[1, RankedMax[x, p]]}, SparseArray[Boole[# >= t] & /@ x]]; 
-   
-	
+		(* zero vector *)
+		f[0] = SparseArray[_ -> 0, {n}];
+ 
 		(* store {x,y,z} *)
-		f[x_SparseArray, y_SparseArray, z_SparseArray] := Module[ {}, 
-		   WriteLine[ process, "{" <> tostr[x] <> "," <> tostr[y] <> "," <> tostr[z] <> "}" ]; ];
+		f[x_SparseArray, y_SparseArray, z_SparseArray] := 
+		   (WriteLine[ process, "{" <> tostr[x] <> "," <> tostr[y] <> "," <> tostr[z] <> "}" ];);
 		
-		(* autoencoder functions *)
- 		f[ x_SparseArray, y_SparseArray, Automatic ] := Module[ {u, v, z}, 
-	 		z = f[x, y, _]; u = f[_, y, z]; v = f[x, _, z]; 
-	 	   	If [ HammingDistance[ x, u] + HammingDistance[y, v] > p , 
-	  	  	f[x, y, z = f[]]; {x, y, z}, {u, v, z}]];
-   
- 		f[ x_SparseArray, Automatic, z_SparseArray ] := Module[ {u, y, w}, 
-			y = f[x, _, z]; u = f[_, y, z]; w = f[x, y, _]; 
-			If [ HammingDistance[ x, u] + HammingDistance[z, w] > p , 
-			f[x, y = f[], z]; {x, y, z}, {u, y, w}]];
-   
-		f[ Automatic, y_SparseArray, z_SparseArray ] := Module[ {x, v, w}, 
-			x = f[_, y, z];  v = f[x, _, z]; w = f[x, y, _]; 
-			If [ HammingDistance[ y, v] + HammingDistance[z, w] > p , 
-			f[x = f[], y, z ]; {x, y, z}, {x, v, w}]];
-   
 		(* recall x, y, or z *)
 		f[x_, y_, z_]  := Module[ {a},
 			WriteLine[ process, "{" <> tostr[x] <> "," <> tostr[y] <> "," <> tostr[z] <> "}" ]; 
-			a = ToExpression /@ StringSplit[ReadLine[process]]; SparseArray[ a -> Table[1, {Length[a]}] , {n}]];
+			a = ToExpression /@ StringSplit[ReadLine[process]]; SparseArray[ a -> Table[1, Length[a]], {n}]];
 		
-   
-		(* cross-association {x,y} -> z *)
-		f[ {x_SparseArray, y_SparseArray} -> z_SparseArray] := If[HammingDistance[ f[x, y, _], z] > 0, f[x, y, z]];
- 	   	
-		];
+ 		];
 
 
 
