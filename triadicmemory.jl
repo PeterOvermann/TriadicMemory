@@ -155,7 +155,7 @@ function test()
         x = x_input[i,:]
         y = y_input[i,:]
         z = z_input[i,:]
-        qz = query1(mem,x,y,missing)
+        qz = query(mem,x,y,missing)
          if  qz != z
             errors += 1
         end
@@ -171,7 +171,7 @@ function test()
         x = x_input[i,:]
         y = y_input[i,:]
         z = z_input[i,:]
-        qy = query1(mem,x,missing,z)
+        qy = query(mem,x,missing,z)
          if  qy != y
             errors += 1
         end
