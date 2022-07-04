@@ -31,7 +31,7 @@ recall one part of a triple by specifying the other two parts.
 the first part.
 
 An SDR is given by a set of p integers in the range from 1 to n.
-Typical values are n = 1000 and p = 10.
+Typical values are n = 1000 and p = 10 to 20.
 
 Command line arguments: triadicmemory <n> <p>
 
@@ -63,41 +63,6 @@ quit
 
 */
 
-// remove the following if compiling as library
-#define TRIADICMEMORY_COMMANDLINE
-
-
-// pull out the following if compiling as library
-
-// -------------------- begin triadicmemory.h --------------------
-
-#define MEMTYPE unsigned char
-
-typedef struct
-	{
-	MEMTYPE* m;
-	int n, p;
-	} TriadicMemory;
-	
-typedef struct
-	{
-	int *a, n, p;
-	} SDR;
-	
-SDR *sdr_random (SDR*, int n);
-SDR *sdr_new (int n);
-int sdr_distance( SDR*x, SDR*y);
-
-TriadicMemory *triadicmemory_new(int n, int p);
-
-void triadicmemory_write  (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
-void triadicmemory_delete (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
-
-SDR* triadicmemory_read_x  (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
-SDR* triadicmemory_read_y  (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
-SDR* triadicmemory_read_z  (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
-	
-// -------------------- end triadicmemory.h --------------------
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -105,6 +70,8 @@ SDR* triadicmemory_read_z  (TriadicMemory *T, SDR *x, SDR *y, SDR *z);
 #include <ctype.h>
 #include <math.h>
 #include <time.h>
+
+#include "triadicmemory.h"
 
 static int cmpfunc (const void * a, const void * b)
 	{ return  *(int*)a - *(int*)b; }
@@ -131,6 +98,7 @@ static SDR* binarize (SDR *v, int targetsparsity)
 	return (v);
 	}
 
+// various SDR utilities:
 
 SDR* sdr_random( SDR*s, int p)
 	{
@@ -157,6 +125,66 @@ SDR* sdr_random( SDR*s, int p)
 	return (s);
 	}
 	
+SDR *sdr_new(int n)
+	{
+	SDR *s = malloc(sizeof(SDR));
+	s->a = malloc(n*sizeof(int));
+	s->n = n;
+	s->p = 0;
+	return s;
+	}
+	
+SDR *sdr_set( SDR *x, SDR *y) // copy y to x
+	{
+	// x and y need to have the same dimension n
+	for (int i = 0; i < y->p; i++)
+		x->a[i] = y->a[i];
+	x->p = y->p;
+	return x;
+	}
+	
+SDR *sdr_or (SDR*res, SDR *x, SDR *y)
+	{
+	// calculates the logical OR of x and y, stores the result in res
+	// x, y and res need to have the same dimension n
+	res->p = 0;
+	
+	int i = 0, j = 0;
+	
+	while (i < x->p || j < y->p )
+		{
+		if (i == x->p) while (j < y->p)
+			res->a[ res->p++] = y->a[j++];
+				
+		else if (j == y->p) while (i < x->p)
+			res->a[ res->p++] = x->a[i++];
+		
+		else if (x->a[i] < y->a[j] )
+			res->a[ res->p++] = x->a[i++];
+			
+		else if (x->a[i] > y->a[j] )
+			res->a[ res->p++] = y->a[j++];
+		
+		else // x->a[i] == y->a[j]
+			{ res->a[ res->p++] = x->a[i]; i++; j++; }
+			
+		}
+	
+	return (res);
+	}
+	
+int sdr_equal( SDR*x, SDR*y) // test if x and y are identical
+	{
+	int i = 0;
+	
+	if ( x->p != y->p) return 0;
+	
+	for (i = 0; i < x->p; i++)
+		if (x->a[i] != y->a[i]) return 0;
+		
+	return 1; // same
+	}
+	
 	
 int sdr_distance( SDR*x, SDR*y) // Hamming distance
 	{
@@ -173,25 +201,43 @@ int sdr_distance( SDR*x, SDR*y) // Hamming distance
 	return h;
 	}
 	
-SDR *sdr_new(int n)
+int sdr_overlap( SDR*x, SDR*y) // number of common bits
 	{
-	SDR *s = malloc(sizeof(SDR));
-	s->a = malloc(n*sizeof(int));
-	s->n = n;
-	s->p = 0;
-	return s;
+	int i = 0, j = 0, overlap = 0;
+	
+	while (i < x->p && j < y->p )
+		{
+		if (x->a[i] == y->a[j])
+			{ ++overlap; i++; j++; }
+		else if (x->a[i] < y->a[j]) ++i;
+		else ++j;
+		}
+	
+	return overlap;
 	}
+	
+void sdr_print(SDR *s)
+	{
+	for (int r = 0; r < s->p; r++)
+		{
+		printf("%d", s->a[r] + 1);
+		if (r < s->p -1) printf(" ");
+		}
+	printf("\n"); fflush(stdout);
+	}
+	
+
 	
 TriadicMemory *triadicmemory_new(int n, int p)
 	{
 	TriadicMemory *t = malloc(sizeof(TriadicMemory));
 	// limitation: malloc may fail for large n, use virtual memory instead in this case
 	
-	t->m = (MEMTYPE*) malloc( n*n*n * sizeof(MEMTYPE));
+	t->m = (TMEMTYPE*) malloc( n*n*n * sizeof(TMEMTYPE));
 	t->n = n;
 	t->p = p;
 	
-	MEMTYPE *cube = t->m;
+	TMEMTYPE *cube = t->m;
 	
 	for (int i = 0; i < n*n*n; i++)  *(cube ++) = 0;
 	
@@ -250,8 +296,8 @@ SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	return( binarize(z, T->p));
 	}
 	
-	
-#ifdef TRIADICMEMORY_COMMANDLINE
+// may be set in triadicmemory.h
+#ifndef TRIADICMEMORY_LIBRARY
 	
 #define SEPARATOR ','
 #define QUERY '_'
@@ -291,15 +337,6 @@ static char* parse (char *buf, SDR *s)
 	return buf;
 	}
 
-static void sdr_print(SDR *s)
-	{
-	for (int r = 0; r < s->p; r++)
-		{
-		printf("%d", s->a[r] + 1);
-		if (r < s->p -1) printf(" ");
-		}
-	printf("\n"); fflush(stdout);
-	}
 
 int main(int argc, char *argv[])
 	{
@@ -376,4 +413,4 @@ int main(int argc, char *argv[])
 	return 0;
 	}
 	
-#endif // TRIADICMEMORY_COMMANDLINE
+#endif // TRIADICMEMORY_LIBRARY
