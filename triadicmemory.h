@@ -1,5 +1,5 @@
 /*
-triadicmemory.c
+triadicmemory.h
 
 Copyright (c) 2022 Peter Overmann
 
