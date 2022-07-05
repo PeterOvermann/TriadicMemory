@@ -46,19 +46,17 @@ TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] :=
 		(* bundle previous input with previous context *)
 		x = BitOr[y, c] ;   
      
-		y = inp;
-     
-		(* store prediction if new *)
- 		If[ HammingDistance[M2[u, v, _], y] > p/2 , M2[u, v, y]]; 
-     
-		(* recall context code and test if it's already known *)
-		c = M1[x, y, _]; 
-     
-		If[ overlap[M1[_, y, c], x] < p,  M1[x, y, c = M1[]] ]; (* create new random context *)
+		(* store new prediction if necessary *)
+		If[ HammingDistance[ M2[u, v, _], y = inp] > 0, M2[u, v, y]]; 
+		
+				(* possible less aggressive test:  If[ overlap[ M2[u, v, _], y = inp] < p, M2[u, v, y]];  *)		     
+
+		(* create new random context if necessary *)
+		If[ overlap[M1[_, y, c = M1[x, y, _]], x] < p, M1[x, y, c = M1[]] ]; 
      
 		M2[ u = x, v = y, _] (* prediction *)
 	 	]
    
    ];
 		
-		
+
