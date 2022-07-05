@@ -39,7 +39,7 @@ TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] :=
 	overlap[ a_SparseArray, b_SparseArray ] := Total[BitAnd[a, b]];
    
 	(* initialize state variables with null vectors *)
-	y = c  = u = v  =  M1[0]; 
+	y = c = u = v = M1[0]; 
    
 	t[inp_] := Module[ {x},	
      
@@ -49,13 +49,12 @@ TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] :=
 		y = inp;
      
 		(* store prediction if new *)
- 		If[ HammingDistance[M2[u, v, _], y] > 0 , M2[u, v, y]]; 
+ 		If[ HammingDistance[M2[u, v, _], y] > p/2 , M2[u, v, y]]; 
      
 		(* recall context code and test if it's already known *)
 		c = M1[x, y, _]; 
      
-		If[ overlap[M1[_, y, c], x] < p ||  overlap[M1[x, _, c], y] < p, 
-       		M1[x, y, c = M1[]] ]; (* create new random context *)
+		If[ overlap[M1[_, y, c], x] < p,  M1[x, y, c = M1[]] ]; (* create new random context *)
      
 		M2[ u = x, v = y, _] (* prediction *)
 	 	]
