@@ -95,14 +95,14 @@ SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp, SDR *out)
 	// use c as a temporary variable
 	triadicmemory_read_z (T->M2, T->u, T->v, T->c); // result in c
 	
-	if ( ! sdr_equal (T->y, T->c))
+	if ( ! sdr_equal (T->y, T->c) )
+	// less aggressive version: if ( sdr_overlap (T->y, T->c) < T->M2->p)
 		triadicmemory_write( T->M2, T->u, T->v, T->y );
 		
 	triadicmemory_read_z (T->M1, T->x, T->y, T->c); // recall c
 	triadicmemory_read_x (T->M1, T->u, T->y, T->c); // recall u
-	triadicmemory_read_y (T->M1, T->x, T->v, T->c); // recall v
 	
-	if (sdr_overlap(T->x, T->u) < T->M1->p || sdr_overlap(T->y, T->v) < T->M1->p)
+	if (sdr_overlap(T->x, T->u) < T->M1->p)
 		{
 		sdr_random( T->c, T->M1->p);
 		triadicmemory_write( T->M1, T->x, T->y, T->c);
@@ -114,7 +114,7 @@ SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp, SDR *out)
 #ifndef TEMPORALMEMORY_LIBRARY
 		
 #define VERSIONMAJOR 1
-#define VERSIONMINOR 0
+#define VERSIONMINOR 1
 
 static char* parse (char *buf, SDR *s)
 	{
