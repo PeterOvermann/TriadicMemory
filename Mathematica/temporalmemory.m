@@ -3,11 +3,9 @@
 
 temporalmemory.m
 
-Mathematica implementation of a basic temporal memory
 
-Dependency: triadicmemory.m
-
-
+Mathematica reference implementation of the temporal memory algorithm published in
+https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
 
 
 Copyright (c) 2022 Peter Overmann
@@ -30,30 +28,35 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 *)
 
+(* Requires TriadicMemory, defined in triadicmemory.m *)
 
 TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] := 
-	
-	Module[ {M1, M2, x, y, c, u, v},
+	Module[ {M1, M2, overlap, y, c, u, v },
    
-		TriadicMemory[M1, {n, p}]; (* first stage: autoencoder *)
+	TriadicMemory[M1, {n, p}]; (* encodes context *)
+	TriadicMemory[M2, {n, p}]; (* stores predictions *)
    
-		TriadicMemory[M2, {n, p}]; (* second stage: prediction *)
+	overlap[ a_SparseArray, b_SparseArray ] := Total[BitAnd[a, b]];
    
-		(* initialization with zero vectors *)
-		x = y = c  = u = v  =  M1[0];
+	(* initialize state variables with null vectors *)
+	y = c = u = v = M1[0]; 
    
-		t[inp_] := Module[ {},
+	t[inp_] := Module[ {x},	
      
-			x = BitOr[y, c] ;   y = inp;
+		(* bundle previous input with previous context *)
+		x = BitOr[y, c] ;   
      
-			M2[ {u, v} -> y];
-     
- 			{u, v, c} = M1[ x, y, Automatic]; (* v == y *)
-     
- 			M2[ u, v, _] (* prediction *)
-     
-			]
-   
-		];
+		(* store new prediction if necessary *)
+		If[ HammingDistance[ M2[u, v, _], y = inp] > 0, M2[u, v, y]]; 
 		
+				(* possible less aggressive test:  If[ overlap[ M2[u, v, _], y = inp] < p, M2[u, v, y]];  *)		     
+
+		(* create new random context if necessary *)
+		If[ overlap[M1[_, y, c = M1[x, y, _]], x] < p, M1[x, y, c = M1[]] ]; 
+     
+		M2[ u = x, v = y, _] (* prediction *)
+	 	]
+   
+   ];
 		
+

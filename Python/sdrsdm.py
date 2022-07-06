@@ -23,27 +23,27 @@ import numpy as np
 import numba
 
 @numba.jit
-def xaddr(x):
+def xaddr(x, N):
     addr = []
     for i in range(1,len(x)):
         for j in range(i):
-            addr.append(x[i]*(x[i]-1)//2 + x[j])
+            addr.append(x[i]*(x[i]-1)//2 + x[j]) 
     return addr
 
 
 @numba.jit
-def store_xy(mem, x, y):
+def store_xy(mem, N, x, y):
     """
     Stores Y under key X
     Y and X have to be sorted sparsely encoded SDRs
     """ 
-    for addr in xaddr(x):
+    for addr in xaddr(x, N):
         for j in y:
             mem[addr,j] += 1
 
 @numba.jit 
-def remove_xy(mem, x, y): 
-    for addr in xaddr(x):
+def remove_xy(mem, N, x, y): 
+    for addr in xaddr(x, N):
         for j in y:
             if mem[addr,j]:
                 mem[addr,j] -= 1
@@ -68,9 +68,12 @@ def remove_xyz(mem, x, y, z):
                     mem[ax, ay, az] -= 1
     
 @numba.jit
-def query(mem, P, x):
+def query(mem, N, P, x):
+    """
+    Query in DiadicMemory
+    """
     sums = np.zeros(mem.shape[1],dtype=np.uint32)
-    for addr in xaddr(x):
+    for addr in xaddr(x, N):
         sums += mem[addr]
     return sums2sdr(sums, P)
 
@@ -90,7 +93,7 @@ def queryX(mem, P, y, z):
     for ay in y:
         for az in z:
             sums += mem[:, ay, az]
-    return sums2addr(sums, P)
+    return sums2sdr(sums, P)
 
 @numba.jit
 def queryY(mem, P, x, z):
@@ -99,7 +102,7 @@ def queryY(mem, P, x, z):
     for ax in x:
         for az in z:
             sums += mem[ax,:,az]
-    return sums2addr(sums,P)
+    return sums2sdr(sums,P)
 
 @numba.jit
 def sums2sdr(sums, P):
@@ -113,7 +116,7 @@ def sums2sdr(sums, P):
         return np.where(sums >= threshval)[0]
 
 class TriadicMemory:
-    def __init__(self, N, P):
+    def __init__(self, mem_size, N, P):
         self.mem = np.zeros((N,N,N), dtype=np.uint8)
         self.P = P
 
@@ -134,36 +137,33 @@ class TriadicMemory:
         elif y is None:
             return queryY(self.mem, self.P, x, z)
 
+    def query_x_with_P(self, y, z, P): 
+        return queryX(self.mem, P, y, z)
+
+    @property
+    def N(self):
+        return self.mem.shape[0]
 
 class DiadicMemory:
     """
     this is a convenient object front end for SDM functions
     """
-    def __init__(self,N,P):
+    def __init__(self,mem_size, N,P):
         """
         N is SDR vector size, e.g. 1000
         P is the count of solid bits e.g. 10
         """
         self.mem = np.zeros((N*(N-1)//2, N), dtype = np.uint8)
+        print(f"DiadicMemory size {self.mem.size/1000000} M bytes")
+        self.N = N
         self.P = P
 
     def store(self, x, y):
-        store_xy(self.mem, x, y)
+        store_xy(self.mem, self.N, x, y)
 
     def remove(self, x, y):
         remove_xy(self.mem, x, y)
 
     def query(self, x):
-        return query(self.mem, self.P, x)
+        return query(self.mem, self.N, self.P, x)
 
-@numba.jit
-def randomSDR(count, N=1000,P=10): 
-    res = np.zeros((count, P), dtype = np.uint16)
-    x = np.arange(N) 
-    for cnt in range(count): 
-        np.random.shuffle(x)
-        res[cnt] = x[:P].copy()
-        res[cnt].sort()
-        
-    return res
-    
