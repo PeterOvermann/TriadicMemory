@@ -66,7 +66,7 @@ main)
     (immutable cube tm-cube))
   (sealed #t) (opaque #t) (nongenerative triadic-memory)
 (protocol #;(make-triadic-memory N P) ;; Nat Nat -> TM
-  ;; produce a triadic-memory record with given N, P
+  ;; produce a triadic-memory record with given N, P (N is multiple of 10)
   (lambda (new)
     (lambda (N P)
       (new N P (make-bytevector (fx* N N N) 0))))))
@@ -242,7 +242,7 @@ main)
               (let ([*xy (fx* N (fx+ *x (car y)))])
                 (do ([k 0 (fx1+ k)] [*xyz *xy (fx1+ *xyz)]) ((fx=? k N))
                   (fxvector-set! q k (fx+ (fxvector-ref q k)
-                      (fxand mask (bytevector-u8-ref cube *xyz))))))))) ]
+                                          (fxand mask (bytevector-u8-ref cube *xyz))))))))) ]
       [(and (pair? x) (null? y) (pair? z))  ;; recall y
         (let ([z (list->fxvector z)]
               [P (tm-P tm)])
