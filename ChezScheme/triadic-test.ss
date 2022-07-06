@@ -1,6 +1,6 @@
 #! /usr/local/bin/scheme --program  # triadic-test.ss Copyright (c) 2022 Roger Turner
 
-#| Based on TriadicMemory/triadic_test.py, sdrsdm.py#randomSDR
+#| Based on TriadicMemory/Python/triadic_test.py, sdrsdm.py#randomSDR
   
 Executable Chez Scheme program, eg:
 

@@ -1,6 +1,6 @@
 #! /usr/local/bin/scheme --script  # triadicmemory.ss Copyright (c) 2022 Roger Turner
 
-#| Based on TriadicMemory/triadicmemory.c by Peter Overmann
+#| Based on TriadicMemory/C/triadicmemory.c by Peter Overmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
