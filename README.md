@@ -27,9 +27,9 @@ For typical values `n = 1000` and `p = 10`, about 500,000 associations can be st
 
 The Dyadic Memory algorithm was initially developed in [Mathematica](Mathematica/dyadicmemory.m) language and consists of just 10 lines of code. 
 
-The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/dyadicmemory.c) implementation best illustrates the algorithm in procedural language. This version works with vector dimensions up to 1,200.
+The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/dyadicmemory.c) implementation best illustrates the algorithm in procedural code. This version works with vector dimensions up to 1,200.
 
-This [memory-optimized implementation](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/sparseassociativememory.c) supports hypervector dimensions up to 20,000. It can be used as a command line tool or C library. No other SDM currently works with dimensions of this size. 
+A [memory-optimized implementation](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/sparseassociativememory.c) supports hypervector dimensions up to 20,000. It can be used as a command line tool or as C library. No other SDM currently works with dimensions that large. 
 
 A Numba-accelerated Python version is available [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py).
 
@@ -39,7 +39,7 @@ Triadic Memory, an algorithm developed in 2021, is an associative memory that st
 
 After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts: `{_,y,z}` recalls `x`, `{x,_,z}` recalls `y`, and `{x,y,_}` recalls `z`. Given three items `{x,y,z}`, one can test if their association is stored in memory by calculating, for instance, the Hamming distance or overlap between `{x,y,_}` and `z`. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised applications in machine learning.
 
-The original Mathematica code can be found [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Mathematica/triadicmemory.m). The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/triadicmemory.c) implementation can be used as a command line program or deployed as a library. Performance optimized implementations are available for [Python](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py), the [Julia](https://github.com/PeterOvermann/TriadicMemory/blob/main/Julia/triadicmemory.jl) language and [Chez Scheme](https://github.com/PeterOvermann/TriadicMemory/blob/main/ChezScheme/triadicmemory.ss). 
+The original Mathematica code can be found [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Mathematica/triadicmemory.m). The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/triadicmemory.c) implementation can be used as a command line program or deployed as a library. Performance-optimized implementations are available for [Python](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py), the [Julia](https://github.com/PeterOvermann/TriadicMemory/blob/main/Julia/triadicmemory.jl) language and [Chez Scheme](https://github.com/PeterOvermann/TriadicMemory/blob/main/ChezScheme/triadicmemory.ss). 
 
 
 
