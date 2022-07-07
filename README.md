@@ -1,4 +1,4 @@
-# Triadic Memory
+# Triadic Memory and related algorithms
 
 Implementations of [Triadic Memory](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf) and related algorithms in various programming languages:
 
@@ -25,7 +25,7 @@ While in typical SDM usage scenarios `n1` and `n2` are equal, the present algori
 The capacity of a symmetric memory with dimension `n` and sparse population `p` is approximately `(p/n)^3 / 2`.
 For typical values `n = 1000` and `p = 10`, about 500,000 associations can be stored and perfectly recalled.
 
-The Dyadic Memory algorithm was initially developed in [Mathematica](Mathematica/dyadicmemory.m) and consists of only 10 lines of code. 
+The Dyadic Memory algorithm was initially developed in [Mathematica](Mathematica/dyadicmemory.m) language and consists of just 10 lines of code. 
 
 The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/dyadicmemory.c) implementation best illustrates the algorithm in procedural language. This version works with vector dimensions up to 1,200.
 
