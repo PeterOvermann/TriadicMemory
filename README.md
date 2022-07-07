@@ -1,6 +1,6 @@
 # Triadic Memory and related algorithms
 
-Implementations of [Triadic Memory](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf) and related algorithms in various programming languages:
+Implementations of [Triadic Memory](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf) and related algorithms in the following programming languages:
 
 - [C](C)
 - [Chez Scheme](ChezScheme)
