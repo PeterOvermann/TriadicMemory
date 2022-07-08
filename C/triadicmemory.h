@@ -30,7 +30,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 // uncomment this if building as a library
-//#define TRIADICMEMORY_LIBRARY
+#define TRIADICMEMORY_LIBRARY
 
 
 
@@ -48,9 +48,11 @@ typedef struct
 	int *a, n, p;
 	} SDR;
 	
-SDR *sdr_random (SDR*, int n);				// random generator
+SDR *sdr_random (SDR*, int p);				// random generator
 SDR *sdr_new (int n);						// SDR constructor
 SDR *sdr_set( SDR *x, SDR *y); 				// copy y to x
+SDR *sdr_rotateright( SDR *x ); 			// shift x right by one bit
+SDR *sdr_rotateleft( SDR *x ); 				// shift x left by one bit
 SDR *sdr_or (SDR*res, SDR *x, SDR *y);		// store bit-wise OR of x and y and res
 
 int  sdr_equal( SDR*x, SDR*y); 				// whether x and y are identical
