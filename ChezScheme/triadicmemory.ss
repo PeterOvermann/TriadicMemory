@@ -28,7 +28,9 @@ Typical values are n = 1000 and p = 10
 For each triple, counts of all p*p*p combinations are added to a n*n*n cube of bytes.
 In the default nybble mode both x*y*z counts and z*y*x counts are stored in each byte.
 
-For convenience of comparison, code layout and many identifiers echo triadicmemory.c
+Based on the following version of triadicmemory.c:
+https://github.com/PeterOvermann/TriadicMemory/blob/676233aaeeff9579da243de4b6164de2872bfbdc/triadicmemory.c
+For convenience of comparison, code layout and many identifiers echo that C code.
 
 See triadic-test.ss for example of API usage.
 
