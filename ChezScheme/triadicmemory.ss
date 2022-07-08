@@ -2,22 +2,21 @@
 
 #| Based on TriadicMemory/C/triadicmemory.c by Peter Overmann
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the “Software”), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+  and associated documentation files (the “Software”), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+  and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial
-portions of the Software.
+  The above copyright notice and this permission notice shall be included in all copies or substantial
+  portions of the Software.
 
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
-OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+  LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-  
 This Chez Scheme library can be used to create and query triadic-memory records
 to store triples {x,y,z} of sparse distributed representations (SDRs), and to
 recall one part of a triple by specifying the other two parts.
@@ -65,13 +64,14 @@ main)
     (immutable P    tm-P)
     (immutable cube tm-cube))
   (sealed #t) (opaque #t) (nongenerative triadic-memory)
-(protocol #;(make-triadic-memory N P) ;; Nat Nat -> TM
-  ;; produce a triadic-memory record with given N, P (N is multiple of 10)
+(protocol #;(make-triadic-memory N P)    ;; Nat Nat -> TM
+  ;; produce a triadic-memory record with given N, P (N forced to multiple of 4)
   (lambda (new)
     (lambda (N P)
-      (new N P (make-bytevector (fx* N N N) 0))))))
-
-(define (parse tm cs) ;; TM ListOfChar -> (ListOf 0..N-1) ListOfChar
+      (let ([N (fx* 4 (fxdiv (fx+ 3 N) 4))])
+        (new N P (make-bytevector (fx* N N N) 0)))))))
+                                                                                            ;
+(define (parse tm cs)                    ;; TM ListOfChar -> (ListOf 0..N-1) ListOfChar
   ;; produce list (length P or null), rest of cs after "," or "}"
   ;; example: "37 195 ...}" => (37 195 ...) ""
   ;;          "_ , 73 ...}" => ()           " 73 ..."
@@ -99,8 +99,8 @@ main)
               (error 'parse "SDR wrong length or not sorted")) ]
           [else (error 'parse "invalid character") ]))
       (error 'parse "missing terminator"))))
-
-(define (binarize v n p) ;; (FXVector N->Fixnum) N P -> ListOfFixnum
+                                                                                            ;
+(define (binarize v n p)                 ;; (FXVector N->Fixnum) N P -> ListOfFixnum
   ;; produce indices of p-highest elements of v
   (let* (
       [maxp (list-sort fx<?              ;; first p elements sorted
@@ -137,8 +137,8 @@ main)
                       (cons i b)
                       b)])
         ((fxnegative? i) b))))
-
-(define (main args) ;; (String String) ->
+                                                                                            ;
+(define (main args)                      ;; (String String) ->
   ;; $triadicmemory N P
   ;; store/delete/query triads
   (let* ( [N  (string->number (car args))]
@@ -167,8 +167,8 @@ main)
                         (map fx1+ (query tm x y z)))
                       (newline) ])
               (loop))) ])))))
-              
-(define (store tm x y z) ;; TM SDR SDR SDR ->
+                                                                                            ;
+(define (store tm x y z)                 ;; TM SDR SDR SDR ->
   ;; update cube with triad x y z
   (let* ( [N      (tm-N tm)]
           [nybble (fxpositive? N)]
@@ -197,8 +197,8 @@ main)
                 (let ([*zyx (fx+ *zy (car x))])
                   (bytevector-u8-set! cube *zyx
                     (fx+ #x10 (bytevector-u8-ref cube *zyx))))))))))))
-
-(define (delete tm x y z) ;; TM SDR SDR SDR ->
+                                                                                            ;
+(define (delete tm x y z)                ;; TM SDR SDR SDR ->
   ;; update cube, deleting triad x y z (won't switch back byte->nybble mode)
   (let* ( [N      (tm-N tm)]
           [nybble (fxpositive? N)]
@@ -226,8 +226,8 @@ main)
                     (let ([cube-zyx (bytevector-u8-ref cube *zyx)])
                       (fx+ (fxmax 0 (fx- #x10 (fxand #xF0 cube-zyx)))
                            (fxand #xF cube-zyx)))))))))))))
-
-(define (query tm x y z) ;; TM SDR SDR SDR -> SDR
+                                                                                            ;
+(define (query tm x y z)                 ;; TM SDR SDR SDR -> SDR
   ;; produce sdr for null x y z, given other two 
   (let* ( [N    (tm-N tm)]
           [mask (if (fxpositive? N)  #xF  #xFF)]
@@ -240,9 +240,20 @@ main)
           (let ([*x (fx* N (car x))])
             (do ([y y (cdr y)]) ((null? y))
               (let ([*xy (fx* N (fx+ *x (car y)))])
-                (do ([k 0 (fx1+ k)] [*xyz *xy (fx1+ *xyz)]) ((fx=? k N))
-                  (fxvector-set! q k (fx+ (fxvector-ref q k)
-                                          (fxand mask (bytevector-u8-ref cube *xyz))))))))) ]
+                (do ([*xyz *xy (fx+ 4 *xyz)] [k 0 (fx+ 4 k)]) ((fx=? k N))
+                  ;; unroll incrementing 4 elements of q from 4 cube bytes
+                  (let ([nn   (bytevector-u32-native-ref cube *xyz)]
+                        [k1   (fx1+ k)]
+                        [k2   (fx+ 2 k)]
+                        [k3   (fx+ 3 k)])
+                    (fxvector-set! q k  (fx+ (fxvector-ref q k)
+                        (fxand mask nn)))
+                    (fxvector-set! q k1 (fx+ (fxvector-ref q k1)
+                        (fxand mask (fxarithmetic-shift-right nn 8))))
+                    (fxvector-set! q k2 (fx+ (fxvector-ref q k2)
+                        (fxand mask (fxarithmetic-shift-right nn 16))))
+                    (fxvector-set! q k3 (fx+ (fxvector-ref q k3)
+                        (fxand mask (fxarithmetic-shift-right nn 24)))))))))) ]
       [(and (pair? x) (null? y) (pair? z))  ;; recall y
         (let ([z (list->fxvector z)]
               [P (tm-P tm)])
@@ -276,6 +287,28 @@ main)
                       ((fx=? k P) qi))))))) ]
       [else (error 'query "one of triad should be null") ])
     (binarize q N (tm-P tm))))
+
+(define-syntax expect                    ;; ((X ... -> Y) X ...) Y -> Error |
+  ;; check that function application(s) to arguments match expected values
+  (lambda (x)                            
+    (syntax-case x (=>)                  ;; (expect [(fn args) => expected ] ... )
+      [ (_ (expr => expected) ...)       ;; expr matches (fn args)
+        #'(begin 
+            (let ([result expr])         ;; eval expr once, no output if check passes
+              #;(when (equal? result expected) (display "."))
+              (unless (equal? result expected)
+                (for-each display 
+                  `("**" expr #\newline 
+                    "  expected: " ,expected #\newline 
+                    "  returned: " ,result  #\newline))
+                (exit))) ...)])))
+
+;; smoke test
+(let ([tm (make-triadic-memory 9 3)])
+  (store tm '(0 1 2) '(3 4 5) '(6 7 8))
+  (expect [(query tm '()      '(3 4 5) '(6 7 8)) => '(0 1 2)]
+          [(query tm '(0 1 2) '()      '(6 7 8)) => '(3 4 5)]
+          [(query tm '(0 1 2) '(3 4 5) '()     ) => '(6 7 8)]) )
 
 )
 
