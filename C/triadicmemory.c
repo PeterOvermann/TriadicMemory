@@ -143,6 +143,47 @@ SDR *sdr_set( SDR *x, SDR *y) // copy y to x
 	return x;
 	}
 	
+	
+SDR *sdr_rotateright( SDR *x ) // shift x right by one bit, operating in place
+	{
+	if (!x->p) return x;
+	
+	if (x->a[x->p - 1] < x->n - 1)
+		for (int i = 0; i < x->p; i++)
+			x->a[i] ++;
+			
+	else // x->a[x->p -1] == x->n - 1, need to shift indices
+		{
+		for (int i = x->p - 1; i > 0; i--)
+			x->a[i] = x->a[i-1] + 1;
+		x->a[0] = 0;
+		}
+	
+	return x;
+	}
+
+	
+SDR *sdr_rotateleft( SDR *x ) // shift x left by one bit, operating in place
+	{
+	if (!x->p) return x;
+	
+	if (x->a[0] > 0)
+		for (int i = 0; i < x->p; i++)
+			x->a[i] --;
+			
+	else // x->a[0] == 0, need to shift indices
+		{
+		for (int i = 0; i < x->p - 1; i++)
+			x->a[i] = x->a[i+1] - 1;
+		x->a[x->p - 1] = x->n - 1  ;
+		}
+	
+	return x;
+	}
+
+	
+	
+	
 SDR *sdr_or (SDR*res, SDR *x, SDR *y)
 	{
 	// calculates the logical OR of x and y, stores the result in res
