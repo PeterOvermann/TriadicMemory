@@ -111,12 +111,12 @@ def sums2sdr(sums, P):
     ssums.sort()
     threshval = ssums[-P]
     if threshval == 0:
-        return np.where(sums)[0]
+        return np.where(sums)[0]  # All non zero values
     else:
-        return np.where(sums >= threshval)[0]
+        return np.where(sums >= threshval)[0] # 
 
 class TriadicMemory:
-    def __init__(self, mem_size, N, P):
+    def __init__(self, N, P):
         self.mem = np.zeros((N,N,N), dtype=np.uint8)
         self.P = P
 
@@ -136,6 +136,15 @@ class TriadicMemory:
             return queryX(self.mem, self.P, y, z)
         elif y is None:
             return queryY(self.mem, self.P, x, z)
+
+    def query_X(self, y, z):
+        return queryX(self.mem,self.P,y,z)
+
+    def query_Y(self, x, z):
+        return queryY(self.mem, self.P, x, z)
+
+    def query_Z(self, x, y):
+        return queryZ(self.mem, self.P, x,y)
 
     def query_x_with_P(self, y, z, P): 
         return queryX(self.mem, P, y, z)
