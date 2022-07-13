@@ -22,7 +22,7 @@ Sparse binary hypervectors are also known as Sparse Distributed Representations 
 Here `x` and `y` are binary vectors of dimensions `n1` and `n2` and sparse populations `p1` and `p2`, respectively. 
 While in typical SDM usage scenarios `n1` and `n2` are equal, the present algorithm also allows asymmetric configurations.
 
-The capacity of a symmetric memory with dimension `n` and sparse population `p` is approximately `(p/n)^3 / 2`.
+The capacity of a symmetric memory with dimension `n` and sparse population `p` is approximately `(n/p)^3 / 2`.
 For typical values `n = 1000` and `p = 10`, about 500,000 associations can be stored and perfectly recalled.
 
 The Dyadic Memory algorithm was initially developed in [Mathematica](Mathematica/dyadicmemory.m) language and consists of just 10 lines of code. 
@@ -39,7 +39,7 @@ Triadic Memory, an algorithm developed in 2021, is an associative memory that st
 
 After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts: `{_,y,z}` recalls `x`, `{x,_,z}` recalls `y`, and `{x,y,_}` recalls `z`. Given three items `{x,y,z}`, one can test if their association is stored in memory by calculating, for instance, the Hamming distance or overlap between `{x,y,_}` and `z`. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
 
-The capacity of a Triadic Memory storing hypervectors of dimension `n` and sparse population `p` is `(p/n)^3`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million random triplets.
+The capacity of a Triadic Memory storing hypervectors of dimension `n` and sparse population `p` is `(n/p)^3`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million random triplets.
 
 The original Mathematica code can be found [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Mathematica/triadicmemory.m). The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/triadicmemory.c) implementation works as a command line program or library. It's also a good starting point for people wanting to port the algorithm to another programming language.
 
