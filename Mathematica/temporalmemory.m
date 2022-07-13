@@ -31,7 +31,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 (* Requires TriadicMemory, defined in triadicmemory.m *)
 
 TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] := 
-	Module[ {M1, M2, overlap, y, c, u, v },
+	Module[ {M1, M2, overlap, y, c, u, v, prediction },
    
 	TriadicMemory[M1, {n, p}]; (* encodes context *)
 	TriadicMemory[M2, {n, p}]; (* stores predictions *)
@@ -39,7 +39,7 @@ TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] :=
 	overlap[ a_SparseArray, b_SparseArray ] := Total[BitAnd[a, b]];
    
 	(* initialize state variables with null vectors *)
-	y = c = u = v = M1[0]; 
+	y = c = u = v = prediction = M1[0]; 
    
 	t[inp_] := Module[ {x},	
      
@@ -47,14 +47,14 @@ TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] :=
 		x = BitOr[y, c] ;   
      
 		(* store new prediction if necessary *)
-		If[ HammingDistance[ M2[u, v, _], y = inp] > 0, M2[u, v, y]]; 
+		If[ HammingDistance[ prediction, y = inp] > 0, M2[u, v, y]]; 
 		
-				(* possible less aggressive test:  If[ overlap[ M2[u, v, _], y = inp] < p, M2[u, v, y]];  *)		     
+				(* possible less aggressive test:  If[ overlap[ prediction, y = inp] < p, M2[u, v, y]];  *)		     
 
 		(* create new random context if necessary *)
 		If[ overlap[M1[_, y, c = M1[x, y, _]], x] < p, M1[x, y, c = M1[]] ]; 
      
-		M2[ u = x, v = y, _] (* prediction *)
+		prediction = M2[ u = x, v = y, _] 
 	 	]
    
    ];
