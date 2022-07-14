@@ -23,7 +23,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-Requires and installation of /usr/local/bin/triadicmemory. Add to enviroment path using:
+Requires an installation of /usr/local/bin/triadicmemory. Add to environment path using:
 SetEnvironment[ "PATH" -> Environment["PATH"] <> ":/usr/local/bin"];
 
 *)
@@ -40,7 +40,7 @@ TriadicMemory[f_Symbol, {n_Integer, p_Integer} ] :=
 
 		process = StartProcess[ {"triadicmemory", ToString[n], ToString[p]}];  Pause[2];
 
-		tostr[x_SparseArray] := StringJoin[ ToString[#] <> " " & /@ Flatten[x["NonzeroPositions"]]] ;
+		tostr[x_SparseArray] := StringJoin[ ToString[#] <> " " & /@ Sort[Flatten[x["NonzeroPositions"]]]] ;
 		tostr[_] = "_";
 
 		(* zero vector *)
