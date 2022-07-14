@@ -60,10 +60,11 @@ class SequencePredictor:
         ukey = sdr_union(prev_inp, prev_rkey)      # quite redundant if you ask?
         # print(f"Distance ukey - prev_ukey is {sdr_distance(ukey,prev_ukey)}")
         rkey = Mkeys.query_Z(ukey, inp)            # look for memorized random key
-        found_ukey = Mkeys.query_X(rkey, inp)  # Memorised ukey retrieved from Mkeys
+        found_ukey = Mkeys.query_X(inp, rkey)  # Memorised ukey retrieved from Mkeys
         if sdr_overlap(ukey, found_ukey) < Mkeys.P:
             rkey = random_sdr(Mkeys.N, Mkeys.P)
             Mkeys.store(ukey, inp, rkey)
+        else: ukey = found_ukey # This is out of my ass, just for tests...
 
         self.context = (rkey, ukey, inp) 
         return Mpred.query_Z(ukey, inp)
