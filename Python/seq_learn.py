@@ -42,55 +42,33 @@ from sdrsdm  import TriadicMemory
 
 class SequencePredictor:
     def __init__(self, N, P, min_distance = 0.0): 
-        self.M1 = TriadicMemory(N,P)
-        self.M2 = TriadicMemory(N,P)
+        self.Mkeys = TriadicMemory(N,P)
+        self.Mpred = TriadicMemory(N,P)
         self.min_distance = min_distance
         self.context = self.new_context()
 
     def new_context(self): 
         # return [empty_sdr(), empty_sdr(), empty_sdr()]
-        return [random_sdr(self.M1.N,self.M1.P) for _ in range(3)]
+        return [random_sdr(self.Mkeys.N,self.Mkeys.P) for _ in range(3)]
 
-    def predict(self, y):
-        # y is simply new value no need for both "inp" and  "y" variables 
-        # rk is a random key queried in M1 and created anew if not found
-        # prev_y is previous y 
-        # x - is an union/OR of prev_rk and prev_y -
-        #     it is used together with prev_y to make predictions from M2 
-        #
-        # M1 is used to track contexts
-        # M2 is used to predict new values
+    def predict(self, inp):
+        Mkeys, Mpred = self.Mkeys, self.Mpred 
+        prev_rkey, prev_ukey, prev_inp = self.context
+        pred_inp = Mpred.query_Z(prev_ukey, prev_inp) # predicted input from context
+        if sdr_distance(inp, pred_inp) > self.min_distance: 
+            Mpred.store(prev_ukey, prev_inp, inp)  # input different from predicted 
+        ukey = sdr_union(prev_inp, prev_rkey)      # quite redundant if you ask?
+        # print(f"Distance ukey - prev_ukey is {sdr_distance(ukey,prev_ukey)}")
+        rkey = Mkeys.query_Z(ukey, inp)            # look for memorized random key
+        found_ukey = Mkeys.query_X(rkey, inp)  # Memorised ukey retrieved from Mkeys
+        if sdr_overlap(ukey, found_ukey) < Mkeys.P:
+            rkey = random_sdr(Mkeys.N, Mkeys.P)
+            Mkeys.store(ukey, inp, rkey)
 
+        self.context = (rkey, ukey, inp) 
+        return Mpred.query_Z(ukey, inp)
+            
 
-        M1, M2 = self.M1, self.M2 #  I hate self
-        prev_rk, prev_x, prev_y = self.context
-
-
-        # x = sdr_union(rk,y) 
-        pred_y = M2.query_Z(prev_x,prev_y) # Predicted y ?
-
-        if sdr_distance(y, pred_y) > self.min_distance:
-            # We consider y starts a new, unknown sequence 
-            M2.store(prev_x, prev_y, y)
-      
-        # The following three lines are a "sdr laundromat" - their meaning escape me
-        # allegedly we have dirty versions of prev_rk, prev_x
-        # I'm not sure it is the case if pred_y was exactly y
-        x = sdr_union(prev_rk, prev_y)   # union contains all bits from both c and y
-        # x = sdr_union(prev_rk, y)   # union contains all bits from both c and y
-        rk = M1.query_Z(x,y)
-        x = M1.query_X(y,rk)
-        
-        if sdr_overlap(x,prev_x) < M1.P: # this ? 
-            rk = random_sdr(M1.N, M1.P)
-            M1.store(x,y,rk)
-        # u = x
-        # p_y = y
-        self.context = (rk,x,y)  
-
-        return M2.query_Z(x,y)
-
-        
 class SeqPred:
     def __init__(self, N, P, distance = 0.0):
         self.M1 = TriadicMemory(N,P)
@@ -157,7 +135,8 @@ if __name__ == "__main__":
         
 
     pairs = []
-    predictor = SeqPred(N,P)
+    predictor = SequencePredictor(N,P)
+    # predictor = SeqPred(N,P)
 
     """
     example use: 

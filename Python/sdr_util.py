@@ -26,6 +26,15 @@ import numba
 def empty_sdr(): 
     return np.array([], dtype = np.uint32)
 
+def linear_encoder(min_val, max_val,sdr_size, sdr_len):
+    bitrange = sdr_size - sdr_len
+    vrange = max_val - min_val
+    def encode(value):
+        firstbit = int(bitrange * (value - min_val) / vrange + 0.4999)
+        sdr = [bit for bit in range(firstbit, firstbit + sdr_len)]
+        return np.array(sdr, dtype = np.uint32)
+    return encode
+
 # This is a "naive" python implementation which "compiles" well in numba
 @numba.njit(fastmath = True)
 def sdr_overlap(n1,n2):
@@ -157,7 +166,7 @@ def random_sdrs(num_sdrs, sdr_size, on_bits):
 if __name__ == "__main__":
 
     from time import time
-    NUM_SDRS = 1000000
+    NUM_SDRS = 100000
     SDR_SIZE =   20000
     SDR_BITS =      40
 
@@ -174,3 +183,16 @@ if __name__ == "__main__":
     rsdrs = random_sdrs(NUM_SDRS, SDR_SIZE, SDR_BITS)
     t = time() - t
     print(f"{NUM_SDRS} sdrs generated in {int(t*1000)} ms")
+
+    ######## example for linear_encoder() ################
+
+    encode = linear_encoder(-1,1, 100, 10)
+
+    zero = encode(0) 
+    minus_one = encode(-1)
+    plus_one = encode(1) 
+
+    print(f"zero:      {zero}")
+    print(f"minus one: {minus_one}")
+    print(f"plus one:  {plus_one}")
+
