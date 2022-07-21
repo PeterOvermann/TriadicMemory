@@ -47,9 +47,7 @@ TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] :=
 		x = BitOr[y, c] ;   
      
 		(* store new prediction if necessary *)
-		If[ HammingDistance[ prediction, y = inp] > 0, M2[u, v, y]]; 
-		
-				(* possible less aggressive test:  If[ overlap[ prediction, y = inp] < p, M2[u, v, y]];  *)		     
+		If[ prediction != (y = inp), M2[u, v, y]];    
 
 		(* create new random context if necessary *)
 		If[ overlap[M1[_, y, c = M1[x, y, _]], x] < p, M1[x, y, c = M1[]] ]; 
