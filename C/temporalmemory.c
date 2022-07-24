@@ -58,11 +58,11 @@ version
 typedef struct
 	{
 	TriadicMemory *M1, *M2;
-	SDR *x, *y, *c, *u, *v;
+	SDR *x, *y, *c, *u, *v, *prediction;
 	} TemporalMemory;
 	
 TemporalMemory* temporalmemory_new (int n, int p);						// constructor
-SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp, SDR *out);	// predictor
+SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp);				// predictor
 
 // end of declarations
 
@@ -82,21 +82,19 @@ TemporalMemory* temporalmemory_new (int n, int p)
 	T->c = sdr_new(n);
 	T->u = sdr_new(n);
 	T->v = sdr_new(n);
+	T->prediction = sdr_new(n);
 	
 	return T;
 	}
 	
 	
-SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp, SDR *out)
+SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp)
 	{
 	sdr_or (T->x, T->y, T->c);
 	sdr_set(T->y, inp);
 	
-	// use c as a temporary variable
-	triadicmemory_read_z (T->M2, T->u, T->v, T->c); // result in c
-	
-	if ( ! sdr_equal (T->y, T->c) )
-	// less aggressive version: if ( sdr_overlap (T->y, T->c) < T->M2->p)
+	if ( ! sdr_equal (T->prediction, T->y) )
+	// less aggressive test: if ( sdr_overlap (T->prediction, T->y) < T->M2->p)
 		triadicmemory_write( T->M2, T->u, T->v, T->y );
 		
 	triadicmemory_read_z (T->M1, T->x, T->y, T->c); // recall c
@@ -108,7 +106,9 @@ SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp, SDR *out)
 		triadicmemory_write( T->M1, T->x, T->y, T->c);
 		}
 		
-	return (triadicmemory_read_z (T->M2, sdr_set(T->u, T->x), sdr_set(T->v, T->y), out) );
+	return (triadicmemory_read_z (T->M2, sdr_set(T->u, T->x), sdr_set(T->v, T->y), T->prediction) );
+	// important: the return value is used in the next iteration and should not be changed by
+	// the embedding function
 	}
 	
 #ifndef TEMPORALMEMORY_LIBRARY
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 				printf("unexpected input: %s", inputline);
 				exit(5);
 				}
-			sdr_print( temporalmemory_predict(T, inp, out));
+			sdr_print( temporalmemory_predict(T, inp));
 			}
 		}
 			

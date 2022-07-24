@@ -1,0 +1,343 @@
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[         0,          0]
+NotebookDataLength[     11484,        342]
+NotebookOptionsPosition[      7934,        264]
+NotebookOutlinePosition[      8457,        284]
+CellTagsIndexPosition[      8414,        281]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Triadic Memory Capacity", "Subsection",
+ CellGroupingRules->{
+  "GroupTogetherGrouping", 
+   10000.},ExpressionUUID->"f85a3d7f-356b-4c04-8a07-4f926ca5375c"],
+
+Cell["\<\
+Store 1 million random triples in a triadic memory and test retrieval accuracy.
+
+The configuration used in this test is n=1000 and p=10.
+\
+\>", "CodeText",ExpressionUUID->"8e8d38f4-526f-414c-a16f-2ccf6f3d3c73"],
+
+Cell[CellGroupData[{
+
+Cell["Initialization", "Subsubsection",ExpressionUUID->"e1b72c8d-e4de-4146-a485-218c9ffef3ce"],
+
+Cell[BoxData[
+ RowBox[{"Get", "[", "  ", 
+  RowBox[{
+  "$UserBaseDirectory", " ", "<>", " ", 
+   "\"\</TriadicMemory/triadicmemoryC.m\>\""}], "]"}]], "Input",
+ CellLabel->"In[1]:=",ExpressionUUID->"fb15d5f5-eed3-4124-94d3-231d7af8e604"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"TriadicMemory", "[", 
+   RowBox[{"M", ",", 
+    RowBox[{"{", 
+     RowBox[{"1000", ",", "10"}], "}"}]}], "]"}], ";"}]], "Input",
+ CellGroupingRules->{"GroupTogetherGrouping", 10001.},
+ CellLabel->"In[2]:=",ExpressionUUID->"87f24557-45f3-412f-9d2a-aea44c063666"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Generate test data: k random triples {x,y,z}", "Subsubsection",ExpressionUUID->"0f0d62e0-af44-461f-b78b-0da6de1ab37c"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"k", " ", "=", " ", "1000000"}], ";"}]], "Input",
+ CellLabel->"In[3]:=",ExpressionUUID->"dc4998bd-74ba-4c7d-9e2b-f94e647b33bf"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"data", " ", "=", "  ", 
+   RowBox[{"Table", "[", " ", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"M", "[", "]"}], ",", 
+       RowBox[{"M", "[", "]"}], ",", 
+       RowBox[{"M", "[", "]"}]}], "}"}], ",", " ", "k"}], "]"}]}], 
+  ";"}]], "Input",
+ CellLabel->"In[4]:=",ExpressionUUID->"db0eb835-d34e-4765-87cb-c2a7281ce297"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Store test data in memory", "Subsubsection",ExpressionUUID->"dbc5b0e8-d45c-42e2-8e7b-aae8f401625d"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"M", " ", "@@@", " ", "data"}], ";"}], " ", "//", " ", 
+  "AbsoluteTiming"}]], "Input",
+ CellLabel->"In[5]:=",ExpressionUUID->"1114b537-1526-4baf-8245-4790dd01cd3a"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"127.854022`", ",", "Null"}], "}"}]], "Output",
+ CellLabel->"Out[5]=",ExpressionUUID->"fac31edd-6aa5-4abf-8adc-39e4430356fe"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Recall all z and calculate the retrieval accuracy", "Subsubsection",ExpressionUUID->"5b4dc598-d4b4-4283-ac61-e1f6d6c1d388"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"out", " ", "=", "  ", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"M", "[", 
+       RowBox[{
+        RowBox[{"#", "[", 
+         RowBox[{"[", "1", "]"}], "]"}], ",", " ", 
+        RowBox[{"#", "[", 
+         RowBox[{"[", "2", "]"}], "]"}], ",", " ", 
+        StyleBox["_",
+         FontColor->GrayLevel[0]]}], "]"}], "&"}], "  ", "/@", " ", 
+     "data"}]}], ";"}], " ", "//", " ", "AbsoluteTiming"}]], "Input",
+ CellLabel->"In[6]:=",ExpressionUUID->"e87bba5b-1e1d-4e09-add8-fd8fdf23e902"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"408.573932`", ",", "Null"}], "}"}]], "Output",
+ CellLabel->"Out[6]=",ExpressionUUID->"149a1b60-9c53-4a44-a945-f2f5dfbfc603"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"Table", "[", " ", 
+    RowBox[{
+     RowBox[{"HammingDistance", "[", 
+      RowBox[{
+       RowBox[{"out", "[", 
+        RowBox[{"[", "i", "]"}], "]"}], ",", " ", 
+       RowBox[{"data", "[", 
+        RowBox[{"[", 
+         RowBox[{"i", ",", "3"}], "]"}], "]"}]}], "]"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", " ", "1", ",", " ", 
+       RowBox[{"Length", "[", "data", "]"}]}], "}"}]}], "]"}], " ", "//", " ",
+    "Tally"}], " ", "//", " ", "Sort"}]], "Input",
+ CellLabel->"In[7]:=",ExpressionUUID->"89204da9-2e6d-4f80-bdd3-29f771c5b5fa"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"{", 
+   RowBox[{"0", ",", "1000000"}], "}"}], "}"}]], "Output",
+ CellLabel->"Out[7]=",ExpressionUUID->"991bafb7-d02c-4068-92a4-6351b0906bde"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Recall all y and calculate the retrieval accuracy", "Subsubsection",ExpressionUUID->"16f79d81-0a75-40a5-92a6-f1ae81c617c5"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"out", " ", "=", "  ", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"M", "[", 
+       RowBox[{
+        RowBox[{"#", "[", 
+         RowBox[{"[", "1", "]"}], "]"}], ",", 
+        StyleBox["_",
+         FontColor->GrayLevel[0]], ",", " ", 
+        RowBox[{"#", "[", 
+         RowBox[{"[", "3", "]"}], "]"}]}], "]"}], "&"}], "  ", "/@", " ", 
+     "data"}]}], ";"}], " ", "//", " ", "AbsoluteTiming"}]], "Input",
+ CellLabel->"In[8]:=",ExpressionUUID->"aa9787a5-a9e8-4c91-a0ce-4b41515f8ae5"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"1024.14402`", ",", "Null"}], "}"}]], "Output",
+ CellLabel->"Out[8]=",ExpressionUUID->"303ce45e-606b-4890-ba26-399cd5ac40eb"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Table", "[", " ", 
+   RowBox[{
+    RowBox[{"HammingDistance", "[", 
+     RowBox[{
+      RowBox[{"out", "[", 
+       RowBox[{"[", "i", "]"}], "]"}], ",", " ", 
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"i", ",", "2"}], "]"}], "]"}]}], "]"}], ",", " ", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", " ", "1", ",", " ", 
+      RowBox[{"Length", "[", "data", "]"}]}], "}"}]}], "]"}], " ", "//", " ", 
+  "Tally"}]], "Input",
+ CellLabel->"In[9]:=",ExpressionUUID->"31477670-68ba-454d-9a10-4a4e3aeb9039"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0", ",", "999997"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "3"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[9]=",ExpressionUUID->"3c5466cf-df1a-4061-9402-a1236477d8a7"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Recall all x and calculate the retrieval accuracy", "Subsubsection",ExpressionUUID->"f501fbf3-dd43-45f5-91da-f4625d4977db"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"out", " ", "=", "  ", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"M", "[", 
+       RowBox[{
+        StyleBox["_",
+         FontColor->GrayLevel[0]], ",", 
+        RowBox[{"#", "[", 
+         RowBox[{"[", "2", "]"}], "]"}], ",", 
+        RowBox[{"#", "[", 
+         RowBox[{"[", "3", "]"}], "]"}]}], "]"}], "&"}], "  ", "/@", " ", 
+     "data"}]}], ";"}], " ", "//", " ", "AbsoluteTiming"}]], "Input",
+ CellLabel->"In[10]:=",ExpressionUUID->"1b33b278-c8a2-4f16-804e-8b749cfa1adb"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"1234.812001`", ",", "Null"}], "}"}]], "Output",
+ CellLabel->"Out[10]=",ExpressionUUID->"1a697d21-afc4-4fdc-84dd-755797fc03e8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Table", "[", " ", 
+   RowBox[{
+    RowBox[{"HammingDistance", "[", 
+     RowBox[{
+      RowBox[{"out", "[", 
+       RowBox[{"[", "i", "]"}], "]"}], ",", " ", 
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"i", ",", "1"}], "]"}], "]"}]}], "]"}], ",", " ", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", " ", "1", ",", " ", 
+      RowBox[{"Length", "[", "data", "]"}]}], "}"}]}], "]"}], " ", "//", " ", 
+  "Tally"}]], "Input",
+ CellLabel->"In[11]:=",ExpressionUUID->"f702b32f-fca8-42f2-bbc9-515beea2b3df"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0", ",", "999999"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"2", ",", "1"}], "}"}]}], "}"}]], "Output",
+ CellLabel->"Out[11]=",ExpressionUUID->"6173f5fb-9a3a-463b-934d-e78ba3b4e5e0"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1087, 1030},
+WindowMargins->{{211, Automatic}, {-126, Automatic}},
+PrintingCopies->1,
+PrintingPageRange->{1, Automatic},
+TaggingRules->{"TryRealOnly" -> False},
+Magnification:>1.25 Inherited,
+FrontEndVersion->"12.1 for Mac OS X x86 (64-bit) (June 19, 2020)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"4df8e693-47dc-4049-9c05-c2f0330fe39a"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[400, 13, 162, 3, 67, "Subsection",ExpressionUUID->"f85a3d7f-356b-4c04-8a07-4f926ca5375c",
+ CellGroupingRules->{"GroupTogetherGrouping", 10000.}],
+Cell[565, 18, 220, 5, 127, "CodeText",ExpressionUUID->"8e8d38f4-526f-414c-a16f-2ccf6f3d3c73"],
+Cell[CellGroupData[{
+Cell[810, 27, 94, 0, 56, "Subsubsection",ExpressionUUID->"e1b72c8d-e4de-4146-a485-218c9ffef3ce"],
+Cell[907, 29, 236, 5, 37, "Input",ExpressionUUID->"fb15d5f5-eed3-4124-94d3-231d7af8e604"],
+Cell[1146, 36, 296, 7, 37, "Input",ExpressionUUID->"87f24557-45f3-412f-9d2a-aea44c063666",
+ CellGroupingRules->{"GroupTogetherGrouping", 10001.}]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1479, 48, 124, 0, 56, "Subsubsection",ExpressionUUID->"0f0d62e0-af44-461f-b78b-0da6de1ab37c"],
+Cell[1606, 50, 161, 3, 37, "Input",ExpressionUUID->"dc4998bd-74ba-4c7d-9e2b-f94e647b33bf"],
+Cell[1770, 55, 377, 11, 37, "Input",ExpressionUUID->"db0eb835-d34e-4765-87cb-c2a7281ce297"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2184, 71, 105, 0, 56, "Subsubsection",ExpressionUUID->"dbc5b0e8-d45c-42e2-8e7b-aae8f401625d"],
+Cell[CellGroupData[{
+Cell[2314, 75, 211, 5, 37, "Input",ExpressionUUID->"1114b537-1526-4baf-8245-4790dd01cd3a"],
+Cell[2528, 82, 164, 3, 42, "Output",ExpressionUUID->"fac31edd-6aa5-4abf-8adc-39e4430356fe"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2741, 91, 129, 0, 56, "Subsubsection",ExpressionUUID->"5b4dc598-d4b4-4283-ac61-e1f6d6c1d388"],
+Cell[CellGroupData[{
+Cell[2895, 95, 534, 15, 37, "Input",ExpressionUUID->"e87bba5b-1e1d-4e09-add8-fd8fdf23e902"],
+Cell[3432, 112, 164, 3, 42, "Output",ExpressionUUID->"149a1b60-9c53-4a44-a945-f2f5dfbfc603"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3633, 120, 601, 16, 64, "Input",ExpressionUUID->"89204da9-2e6d-4f80-bdd3-29f771c5b5fa"],
+Cell[4237, 138, 181, 4, 42, "Output",ExpressionUUID->"991bafb7-d02c-4068-92a4-6351b0906bde"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4467, 148, 129, 0, 56, "Subsubsection",ExpressionUUID->"16f79d81-0a75-40a5-92a6-f1ae81c617c5"],
+Cell[CellGroupData[{
+Cell[4621, 152, 529, 15, 37, "Input",ExpressionUUID->"aa9787a5-a9e8-4c91-a0ce-4b41515f8ae5"],
+Cell[5153, 169, 164, 3, 42, "Output",ExpressionUUID->"303ce45e-606b-4890-ba26-399cd5ac40eb"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5354, 177, 551, 15, 37, "Input",ExpressionUUID->"31477670-68ba-454d-9a10-4a4e3aeb9039"],
+Cell[5908, 194, 254, 7, 42, "Output",ExpressionUUID->"3c5466cf-df1a-4061-9402-a1236477d8a7"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6211, 207, 129, 0, 56, "Subsubsection",ExpressionUUID->"f501fbf3-dd43-45f5-91da-f4625d4977db"],
+Cell[CellGroupData[{
+Cell[6365, 211, 525, 15, 37, "Input",ExpressionUUID->"1b33b278-c8a2-4f16-804e-8b749cfa1adb"],
+Cell[6893, 228, 166, 3, 42, "Output",ExpressionUUID->"1a697d21-afc4-4fdc-84dd-755797fc03e8"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7096, 236, 552, 15, 37, "Input",ExpressionUUID->"f702b32f-fca8-42f2-bbc9-515beea2b3df"],
+Cell[7651, 253, 255, 7, 42, "Output",ExpressionUUID->"6173f5fb-9a3a-463b-934d-e78ba3b4e5e0"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+

@@ -12,7 +12,7 @@ SDR_SIZE = 1000           ################################# The size of the test
 SDR_BITS =   10           ################################# How many ON bits
 
 
-mem = TriadicMemory(100_000_000, SDR_SIZE, SDR_BITS)  ############################### Initialise the TriadicMemory
+mem = TriadicMemory(SDR_SIZE, SDR_BITS)  ############################### Initialise the TriadicMemory
 
 print(f"\n\nTesting TriadicMemory with {test_len} SDRs of size {SDR_SIZE} and solidity of {SDR_BITS} ON bits\n")
 

@@ -1,12 +1,9 @@
 
 (*
 
-temporalmemory.m
+encoders.m
 
-
-Mathematica reference implementation of the temporal memory algorithm published in
-https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
-
+Mathematica implementations of SDR encoders and decoders.
 
 Copyright (c) 2022 Peter Overmann
 
@@ -25,35 +22,33 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMA
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 *)
 
-(* Requires TriadicMemory, defined in triadicmemory.m *)
 
-TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] := 
-	Module[ {M1, M2, overlap, y, c, u, v, prediction },
-   
-	TriadicMemory[M1, {n, p}]; (* encodes context *)
-	TriadicMemory[M2, {n, p}]; (* stores predictions *)
-   
-	overlap[ a_SparseArray, b_SparseArray ] := Total[BitAnd[a, b]];
-   
-	(* initialize state variables with null vectors *)
-	y = c = u = v = prediction = M1[0]; 
-   
-	t[inp_] := Module[ {x},	
-     
-		(* bundle previous input with previous context *)
-		x = BitOr[y, c] ;   
-     
-		(* store new prediction if necessary *)
-		If[ prediction != (y = inp), M2[u, v, y]];    
 
-		(* create new random context if necessary *)
-		If[ overlap[M1[_, y, c = M1[x, y, _]], x] < p, M1[x, y, c = M1[]] ]; 
-     
-		prediction = M2[ u = x, v = y, _] 
-	 	]
-   
-   ];
-		
+(* encode a number in the range from xmin to xmax as an SDR with dimension n and sparse population p *)
+
+Real2SDR[ x_, {xmin_, xmax_}, {n_Integer, p_Integer}] := 
+	
+	Module[ {m},
+
+	m = Floor[(x - xmin) / (xmax - xmin) * (n - p ) ];
+	
+	SparseArray[ RotateRight[ PadRight[ Table[ 1, p], n], m], {n}]
+	
+	];
+	
+	
+	
+(* reverse of the above encoder *)
+
+SDR2Real[ x_SparseArray, {xmin_, xmax_}, {n_Integer, p_Integer}] := 
+
+	Module[ {a},
+	
+	a = Flatten[x["NonzeroPositions"]]; 
+
+	If[ Length[a] == 0, 0,
+		N[ Round[ (Mean[a] - (p + 1)/2)/(n - p ), 1/(n - p - Boole[OddQ[n - p]]) ]* (xmax - xmin) + xmin]]
+
+	];
