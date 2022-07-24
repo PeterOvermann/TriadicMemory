@@ -28,11 +28,12 @@ Typical values are n = 1000 and p = 10
 For each triple, counts of all p*p*p combinations are added to a n*n*n cube of bytes.
 In the default nybble mode both x*y*z counts and z*y*x counts are stored in each byte.
 
-Based on the following version of triadicmemory.c:
+Originally translated from this version of triadicmemory.c:
 https://github.com/PeterOvermann/TriadicMemory/blob/676233aaeeff9579da243de4b6164de2872bfbdc/triadicmemory.c
+which is included in this folder as "original triadicmemory.c"
 For convenience of comparison, code layout and many identifiers echo that C code.
 
-See triadic-test.ss for example of API usage.
+See triadic-test.ss for example of API usage and optimizing compilation parameters.
 
 If the import/main calls at the end are uncommented this file is executable*
 (with Chez Scheme installed) eg:
@@ -47,9 +48,13 @@ If the import/main calls at the end are uncommented this file is executable*
   
 (* Note that this is incompatible with use as a library, eg by triadic-test.ss *)
 
+Indentation facilitates using a "Fold All" view (eg. Atom) for a file overview (the lines
+with right margin ";" provide foldable vertical spacing).
+The "smoke test" at the end runs when the library is loaded to check basic functionality.
+
 |#
   
-#!chezscheme
+#!r6rs
 
 (library (triadicmemory) (export
 make-triadic-memory
@@ -58,7 +63,7 @@ delete
 query
 main)
 
-(import (chezscheme))
+(import (scheme))
 
 (define-record-type triadic-memory
   (fields
@@ -143,6 +148,9 @@ main)
 (define (main args)                      ;; (String String) ->
   ;; $triadicmemory N P
   ;; store/delete/query triads
+  (unless (= 2 (length args))
+    (display "usage: triadicmemory n p\n")
+    (exit 1))
   (let* ( [N  (string->number (car args))]
           [P  (string->number (cadr args))]
           [tm (make-triadic-memory N P)])
@@ -308,9 +316,11 @@ main)
 ;; smoke test
 (let ([tm (make-triadic-memory 9 3)])
   (store tm '(0 1 2) '(3 4 5) '(6 7 8))
-  (expect [(query tm '()      '(3 4 5) '(6 7 8)) => '(0 1 2)]
-          [(query tm '(0 1 2) '()      '(6 7 8)) => '(3 4 5)]
-          [(query tm '(0 1 2) '(3 4 5) '()     ) => '(6 7 8)]) )
+  (expect [ (query tm '()      '(3 4 5) '(6 7 8)) => '(0 1 2) ]
+          [ (query tm '(0 1 2) '()      '(6 7 8)) => '(3 4 5) ]
+          [ (query tm '(0 1 2) '(3 4 5) '()     ) => '(6 7 8) ])
+  (delete tm '(0 1 2) '(3 4 5) '(6 7 8))
+  (expect [ (query tm '(0 1 2) '(3 4 5) '()     ) => '() ]) )
 
 )
 
