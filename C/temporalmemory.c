@@ -90,6 +90,13 @@ TemporalMemory* temporalmemory_new (int n, int p)
 	
 SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp)
 	{
+	// flush state variables if input is zero -- needed for usage as sequence memory
+	if (inp->p == 0)
+		{
+		T->y->p = T->c->p = T->u->p = T->v->p = T->prediction->p = 0;
+		return inp;
+		}
+	
 	sdr_or (T->x, T->y, T->c);
 	sdr_set(T->y, inp);
 	
@@ -106,7 +113,7 @@ SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp)
 		triadicmemory_write( T->M1, T->x, T->y, T->c);
 		}
 		
-	return (triadicmemory_read_z (T->M2, sdr_set(T->u, T->x), sdr_set(T->v, T->y), T->prediction) );
+	return triadicmemory_read_z (T->M2, sdr_set(T->u, T->x), sdr_set(T->v, T->y), T->prediction);
 	// important: the return value is used in the next iteration and should not be changed by
 	// the embedding function
 	}
