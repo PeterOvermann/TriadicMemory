@@ -42,6 +42,9 @@ TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] :=
 	y = c = u = v = prediction = M1[0]; 
    
 	t[inp_] := Module[ {x},	
+	
+		(* flush state if input is zero -- needed when used as a sequence memory *)
+		If[ Total[inp] == 0, Return[y = c = u = v = prediction = M1[0]]];
      
 		(* bundle previous input with previous context *)
 		x = BitOr[y, c] ;   
