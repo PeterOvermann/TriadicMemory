@@ -94,7 +94,7 @@ SDR* temporalmemory_predict (TemporalMemory *T, SDR *inp)
 	if (inp->p == 0)
 		{
 		T->y->p = T->c->p = T->u->p = T->v->p = T->prediction->p = 0;
-		return inp;
+		return T->prediction;
 		}
 	
 	sdr_or (T->x, T->y, T->c);
