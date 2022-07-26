@@ -30,7 +30,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 // uncomment this if building as a library
-#define TRIADICMEMORY_LIBRARY
+// #define TRIADICMEMORY_LIBRARY
 
 
 
