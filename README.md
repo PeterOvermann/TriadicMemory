@@ -7,7 +7,7 @@ Implementations of [Triadic Memory](https://github.com/PeterOvermann/Writings/bl
 - [Julia](Julia)
 - [Mathematica](Mathematica)
 - [Python](Python)
-
+- [Odin](Odin)
 
 ## Dyadic Memory
 
@@ -33,6 +33,8 @@ A [memory-optimized implementation](https://github.com/PeterOvermann/TriadicMemo
 
 A Numba-accelerated Python version is available [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py).
 
+A Odin implementation is available [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Odin/triadic/triadic_memory.odin).
+
 ## Triadic Memory
 
 Triadic Memory, an algorithm developed in 2021, is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called SDRs).
@@ -43,7 +45,7 @@ The capacity of a Triadic Memory storing hypervectors of dimension `n` and spars
 
 The original Mathematica code can be found [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Mathematica/triadicmemory.m). The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/triadicmemory.c) implementation works as a command line program or library. It's also a good starting point for people wanting to port the algorithm to another programming language.
 
-Performance-optimized implementations are available for [Python](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py), the [Julia](https://github.com/PeterOvermann/TriadicMemory/blob/main/Julia/triadicmemory.jl) language and [Chez Scheme](https://github.com/PeterOvermann/TriadicMemory/blob/main/ChezScheme/triadicmemory.ss). 
+Performance-optimized implementations are available for [Python](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py), the [Julia](https://github.com/PeterOvermann/TriadicMemory/blob/main/Julia/triadicmemory.jl) language, [Chez Scheme](https://github.com/PeterOvermann/TriadicMemory/blob/main/ChezScheme/triadicmemory.ss), and the [Odin](https://github.com/PeterOvermann/TriadicMemory/blob/main/Odin/triadic/triadic_memory.odin). 
 
 
 
