@@ -261,7 +261,7 @@ void sdr_print(SDR *s)
 	{
 	for (int r = 0; r < s->p; r++)
 		{
-		printf("%d", s->a[r] + 1);
+		printf("%d", s->a[r] + 1);  // adding 1 because input/output values range from 1 to N
 		if (r < s->p -1) printf(" ");
 		}
 	printf("\n"); fflush(stdout);
@@ -360,7 +360,7 @@ static char* parse (char *buf, SDR *s)
 		i = s->a + s->p;
 		sscanf( buf, "%d", i);
 		
-		if ( (*i)-- > s->n || *i < 0 )
+		if ( (*i)-- > s->n || *i < 0 ) // subtracting 1 because internal representation range is 0 to N-1
 			{
 			printf("position out of range: %s\n", buf);
 			exit(2);
