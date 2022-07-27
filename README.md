@@ -44,9 +44,9 @@ Triadic Memory, an algorithm developed in 2021, is an associative memory that st
 
 After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts: `{_,y,z}` recalls `x`, `{x,_,z}` recalls `y`, and `{x,y,_}` recalls `z`. Given three items `{x,y,z}`, one can test if their association is stored in memory by calculating, for instance, the Hamming distance or overlap between `{x,y,_}` and `z`. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
 
-The capacity of a Triadic Memory storing hypervectors of dimension `n` and sparse population `p` is `(n/p)^3`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million random triples.
+A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervectors with dimension `n` and sparse population `p`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million triples.
 
-The original Mathematica code can be found [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Mathematica/triadicmemory.m). The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/triadicmemory.c) implementation works as a command line program or library. It's also a good starting point for people wanting to port the algorithm to another programming language.
+The original Mathematica code can be found [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Mathematica/triadicmemory.m). The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
 
 Performance-optimized implementations are available for [Python](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py), the [Julia](https://github.com/PeterOvermann/TriadicMemory/blob/main/Julia/triadicmemory.jl) language, [Chez Scheme](https://github.com/PeterOvermann/TriadicMemory/blob/main/ChezScheme/triadicmemory.ss), and the [Odin](https://github.com/PeterOvermann/TriadicMemory/blob/main/Odin/triadic/triadic_memory.odin). 
 
