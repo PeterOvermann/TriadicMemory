@@ -4,6 +4,7 @@ Implementations of [Triadic Memory](https://github.com/PeterOvermann/Writings/bl
 
 - [C](C)
 - [Chez Scheme](ChezScheme)
+- [Javascript](Javascript)
 - [Julia](Julia)
 - [Mathematica](Mathematica)
 - [Odin](Odin)
@@ -48,7 +49,8 @@ A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervect
 
 The original Mathematica code can be found [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Mathematica/triadicmemory.m). The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
 
-Performance-optimized implementations are available for [Python](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py), the [Julia](https://github.com/PeterOvermann/TriadicMemory/blob/main/Julia/triadicmemory.jl) language, [Chez Scheme](https://github.com/PeterOvermann/TriadicMemory/blob/main/ChezScheme/triadicmemory.ss), and the [Odin](https://github.com/PeterOvermann/TriadicMemory/blob/main/Odin/triadic/triadic_memory.odin). 
+Performance-optimized implementations are available for [Python](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py), the [Julia](https://github.com/PeterOvermann/TriadicMemory/blob/main/Julia/triadicmemory.jl) language, [Chez Scheme](https://github.com/PeterOvermann/TriadicMemory/blob/main/ChezScheme/triadicmemory.ss), 
+[Javascript](https://github.com/PeterOvermann/TriadicMemory/blob/main/Javascript/TriadicMemory.js) and [Odin](https://github.com/PeterOvermann/TriadicMemory/blob/main/Odin/triadic/triadic_memory.odin). 
 
 
 
