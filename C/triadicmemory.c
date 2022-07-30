@@ -303,8 +303,8 @@ void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 		for( int j = i+1; j < x->p; j++)
 			{
 			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
-				for( int k = 0; k < y->p; k++)
-					++ *( D->m + u + y->a[k] );
+			for( int k = 0; k < y->p; k++)
+				++ *( D->m + u + y->a[k] );
 			}
 	}
 	
@@ -317,9 +317,9 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 		for( int j = i+1; j < x->p; j++)
 			{
 			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
-				for( int k = 0; k < y->p; k++)
-					if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
-						-- *( D->m + u + y->a[k] );
+			for( int k = 0; k < y->p; k++)
+				if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
+					-- *( D->m + u + y->a[k] );
 			}
 	}
 	
@@ -417,7 +417,10 @@ SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	return( binarize(z, T->p));
 	}
 	
-// set in triadicmemory.h
+// ---------- Triadic Memory Command Line Tool ----------
+	
+	
+// set in triadicmemory.h by default
 #ifdef TRIADICMEMORY_COMMANDLINE
 	
 #define SEPARATOR ','
