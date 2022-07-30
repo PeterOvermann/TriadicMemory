@@ -104,7 +104,7 @@ static SDR* binarize (SDR *v, int targetsparsity)
 		if (v->a[i] >= rankedmax)
 			v->a[v->p++] = i;
 	
-	return (v);
+	return v;
 	}
 
 // ---------- SDR data type and utility functions ----------
@@ -131,7 +131,7 @@ SDR* sdr_random( SDR*s, int p)
 		}
 		
 	qsort( s->a, p, sizeof(int), cmpfunc);
-	return (s);
+	return s;
 	}
 	
 SDR *sdr_new(int n)
@@ -220,7 +220,7 @@ SDR *sdr_or (SDR*res, SDR *x, SDR *y)
 			
 		}
 	
-	return (res);
+	return res;
 	}
 	
 int sdr_equal( SDR*x, SDR*y) // test if x and y are identical
@@ -338,7 +338,7 @@ SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 				y->a[k] += *( D->m + u + k);
 			}
 						
-	return( binarize(y, D->p));
+	return binarize(y, D->p);
 	}
 
 
@@ -355,9 +355,7 @@ TriadicMemory *triadicmemory_new(int n, int p)
 	t->n = n;
 	t->p = p;
 	
-	TMEMTYPE *cube = t->m;
-	
-	for (int i = 0; i < n*n*n; i++)  *(cube ++) = 0;
+	for (int i = 0; i < n*n*n; i++)  *(t->m + i) = 0;
 	
 	return t;
 	}
@@ -390,7 +388,7 @@ SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	for( int j = 0; j < y->p; j++)  for( int k = 0; k < z->p; k++) for( int i = 0; i < N; i++)
 		x->a[i] += *( T->m + N*N*i + N*y->a[j] + z->a[k]);
 						
-	return( binarize(x, T->p) );
+	return binarize(x, T->p);
 	}
 
 SDR* triadicmemory_read_y (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
@@ -402,7 +400,7 @@ SDR* triadicmemory_read_y (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	for( int i = 0; i < x->p; i++) for( int j = 0; j < N; j++) for( int k = 0; k < z->p; k++)
 		y->a[j] += *( T->m + N*N*x->a[i] + N*j + z->a[k]);
 						
-	return( binarize(y, T->p) );
+	return binarize(y, T->p);
 	}
 
 SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
@@ -414,7 +412,7 @@ SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < N; k++)
 		z->a[k] += *( T->m + N*N*x->a[i] + N*y->a[j] + k);
 						
-	return( binarize(z, T->p));
+	return binarize(z, T->p);
 	}
 	
 // ---------- Triadic Memory Command Line Tool ----------
