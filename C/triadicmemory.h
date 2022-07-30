@@ -3,7 +3,7 @@ triadicmemory.h
 
 Copyright (c) 2022 Peter Overmann
 
-C-language reference implementation of the Triadic Memory algorithm published in
+C-language reference implementation of the Triadic Memory and related algorithms published in
    https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
 This source file can be compiled as a stand-alone command line program or as a library.
 
@@ -29,19 +29,12 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-// uncomment this if building as a library
-// #define TRIADICMEMORY_LIBRARY
+// Remove this if building as a library
+#define TRIADICMEMORY_COMMANDLINE
 
 
+// ---------- SDR data type and utility functions ----------
 
-
-#define TMEMTYPE unsigned char
-
-typedef struct
-	{
-	TMEMTYPE* m;
-	int n, p;
-	} TriadicMemory;
 	
 typedef struct
 	{
@@ -60,6 +53,35 @@ int  sdr_distance( SDR*x, SDR*y); 			// Hamming distance
 int  sdr_overlap( SDR*x, SDR*y); 			// number of common bits
 
 void sdr_print(SDR *s);						// print SDR followed by newline
+
+
+// ---------- Dyadic Memory (stores hetero-associations x-> y) ----------
+
+#define TMEMTYPE unsigned char
+
+typedef struct
+	{
+	TMEMTYPE* m;
+	int n, p;
+	} DyadicMemory;
+
+
+DyadicMemory *dyadicmemory_new(int n, int p);
+
+void dyadicmemory_write 	(DyadicMemory *, SDR *, SDR *);
+void dyadicmemory_delete 	(DyadicMemory *, SDR *, SDR *);
+SDR* dyadicmemory_read 		(DyadicMemory *, SDR *, SDR *);
+
+
+
+// ---------- Triadic Memory (stores triple associations (x,y,z} ) ----------
+
+
+typedef struct
+	{
+	TMEMTYPE* m;
+	int n, p;
+	} TriadicMemory;
 
 TriadicMemory *triadicmemory_new(int n, int p);
 

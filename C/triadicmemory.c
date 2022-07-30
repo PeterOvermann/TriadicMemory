@@ -3,9 +3,11 @@ triadicmemory.c
 
 Copyright (c) 2022 Peter Overmann
 
-C-language reference implementation of the Triadic Memory algorithm published in
+C-language reference implementation of the Triadic Memory and related algorithms published in
    https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
 This source file can be compiled as a stand-alone command line program or as a library.
+The library version also provides SDR utilities and the Dyadic Memory algorithm.
+
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
@@ -21,6 +23,10 @@ LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE A
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+
 
 Building the command line version: cc -Ofast triadicmemory.c -o /usr/local/bin/triadicmemory
 
@@ -73,6 +79,9 @@ quit
 
 #include "triadicmemory.h"
 
+
+
+
 static int cmpfunc (const void * a, const void * b)
 	{ return  *(int*)a - *(int*)b; }
 		
@@ -98,7 +107,7 @@ static SDR* binarize (SDR *v, int targetsparsity)
 	return (v);
 	}
 
-// various SDR utilities:
+// ---------- SDR data type and utility functions ----------
 
 SDR* sdr_random( SDR*s, int p)
 	{
@@ -267,6 +276,74 @@ void sdr_print(SDR *s)
 	printf("\n"); fflush(stdout);
 	}
 	
+// ---------- Dyadic Memory (stores hetero-associations x-> y) ----------
+
+
+
+DyadicMemory *dyadicmemory_new(int n, int p)
+	{
+	DyadicMemory *a = malloc(sizeof(DyadicMemory));
+	
+	// limitation: malloc may fail for large n, use virtual memory instead in this case
+	a->m = (TMEMTYPE*) malloc( n*n*(n-1)/2 * sizeof(TMEMTYPE));
+	
+	a->n = n;
+	a->p = p;
+
+	for(int i = 0; i < n*n*(n-1)/2 ; i++)  *(a->m + i) = 0; // memory initialization
+	
+	return a;
+	}
+	
+void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
+	{
+	int N = D->n;
+	
+	for( int i = 0; i < x->p - 1; i++)
+		for( int j = i+1; j < x->p; j++)
+			{
+			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
+				for( int k = 0; k < y->p; k++)
+					++ *( D->m + u + y->a[k] );
+			}
+	}
+	
+	
+void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
+	{
+	int N = D->n;
+	
+	for( int i = 0; i < x->p - 1; i++)
+		for( int j = i+1; j < x->p; j++)
+			{
+			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
+				for( int k = 0; k < y->p; k++)
+					if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
+						-- *( D->m + u + y->a[k] );
+			}
+	}
+	
+
+SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
+	{
+	int N = D->n;
+	
+	for( int k = 0; k < N; k++ ) y->a[k] = 0;
+			
+	for( int i = 0; i < x->p-1; i++)
+		for( int j = i + 1; j < x->p; j++)
+			{
+			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
+			for( int k = 0; k < N; k++)
+				y->a[k] += *( D->m + u + k);
+			}
+						
+	return( binarize(y, D->p));
+	}
+
+
+
+// ---------- Triadic Memory (stores triple associations (x,y,z} ) ----------
 
 	
 TriadicMemory *triadicmemory_new(int n, int p)
@@ -309,8 +386,9 @@ SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	int N = T->n;
 	
 	for( int i = 0; i < N; i++ ) x->a[i] = 0;
-		for( int j = 0; j < y->p; j++)  for( int k = 0; k < z->p; k++) for( int i = 0; i < N; i++)
-			x->a[i] += *( T->m + N*N*i + N*y->a[j] + z->a[k]);
+	
+	for( int j = 0; j < y->p; j++)  for( int k = 0; k < z->p; k++) for( int i = 0; i < N; i++)
+		x->a[i] += *( T->m + N*N*i + N*y->a[j] + z->a[k]);
 						
 	return( binarize(x, T->p) );
 	}
@@ -320,8 +398,9 @@ SDR* triadicmemory_read_y (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	int N = T->n;
 	
 	for( int j = 0; j < N; j++ ) y->a[j] = 0;
-		for( int i = 0; i < x->p; i++) for( int j = 0; j < N; j++) for( int k = 0; k < z->p; k++)
-			y->a[j] += *( T->m + N*N*x->a[i] + N*j + z->a[k]);
+		
+	for( int i = 0; i < x->p; i++) for( int j = 0; j < N; j++) for( int k = 0; k < z->p; k++)
+		y->a[j] += *( T->m + N*N*x->a[i] + N*j + z->a[k]);
 						
 	return( binarize(y, T->p) );
 	}
@@ -331,14 +410,15 @@ SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	int N = T->n;
 	
 	for( int k = 0; k < N; k++ ) z->a[k] = 0;
+	
 	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < N; k++)
 		z->a[k] += *( T->m + N*N*x->a[i] + N*y->a[j] + k);
 						
 	return( binarize(z, T->p));
 	}
 	
-// may be set in triadicmemory.h
-#ifndef TRIADICMEMORY_LIBRARY
+// set in triadicmemory.h
+#ifdef TRIADICMEMORY_COMMANDLINE
 	
 #define SEPARATOR ','
 #define QUERY '_'
@@ -454,4 +534,4 @@ int main(int argc, char *argv[])
 	return 0;
 	}
 	
-#endif // TRIADICMEMORY_LIBRARY
+#endif // TRIADICMEMORY_COMMANDLINE
