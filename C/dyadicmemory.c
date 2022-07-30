@@ -24,15 +24,20 @@ This is the reference implementation of the hetero-associative memory published 
 https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
 
 The algorithm realizes a Sparse Distributed Memory (SDM) as envisioned by Pentti Kanerva (1988),
-using an artificial neural network with a combinatorial connectivity.
+using an artificial neural network with combinatorial connectivity.
 
-Build: cc -Ofast dyadicmemory.c -o /usr/local/bin/dyadicmemory
+This stand-alone source file produces a command line tool. A library version of the same code
+is available in triadicmemory.c.
+
+Build the command line tool: cc -Ofast dyadicmemory.c -o /usr/local/bin/dyadicmemory
 
 This command line tool instantiates a new memory instance.
+
 It stores heteroassociations x->y of Sparse Distributed Representations (SDR) x and y,
 and recalls y for a given x.
 
 An SDR is given by a set of p integers in the range from 1 to n, representing the non-zero positions of the SDR.
+(Note that the internal representation uses integers from 0 to n-1.)
 
 Typical values are n = 1000 and p = 10
 
@@ -60,7 +65,7 @@ version
 
 
 #define VERSIONMAJOR 1
-#define VERSIONMINOR 1
+#define VERSIONMINOR 2
 
 #define SEPARATOR ','
 
@@ -75,73 +80,170 @@ version
 #include <math.h>
 
 
-char* parse (char *buf, int *vec, int *len, int n)
+#define TMEMTYPE unsigned char
+
+
+// various SDR utilities:
+
+typedef struct
 	{
-	int *p;
-	*len = 0;
+	int *a, n, p;
+	} SDR;
 	
-	while ( *buf != 0 && *buf != SEPARATOR )
+	
+SDR *sdr_new(int n)
+	{
+	SDR *s = malloc(sizeof(SDR));
+	s->a = malloc(n*sizeof(int));
+	s->n = n;
+	s->p = 0;
+	return s;
+	}
+	
+void sdr_print(SDR *s)
+	{
+	for (int r = 0; r < s->p; r++)
 		{
-		while (isspace(*buf)) buf++;
-		if (! isdigit(*buf)) break;
-		
-		p = vec + *len;
-		sscanf( buf, "%d", p);
-		
-		if ( (*p)-- > n || *p < 0 )
-			{
-			printf("vector position out of range: %s\n", buf);
-			exit(2);
-			}
-		(*len)++;
-		
-		while (isdigit(*buf)) buf++;
-		while (isspace(*buf)) buf++;
+		printf("%d", s->a[r] + 1);  // adding 1 because input/output values range from 1 to N
+		if (r < s->p -1) printf(" ");
 		}
-		
-	
-	return buf;
-	}
-
-
-int cmpfunc (const void * a, const void * b)
-	{
-	return  *(int*)a - *(int*)b;
+	printf("\n"); fflush(stdout);
 	}
 	
-void binarize (int *v, int n, int p)
+
+// dyadic (hetero-associative) memory
+
+typedef struct
 	{
-	int i, sorted[n], rankedmax;
+	TMEMTYPE* m;
+	int n, p;
+	} DyadicMemory;
+
+
+DyadicMemory *dyadicmemory_new(int n, int p)
+	{
+	DyadicMemory *a = malloc(sizeof(DyadicMemory));
 	
-	for ( i=0; i < n; i++ )
-		sorted[i] = v[i];
+	// limitation: malloc may fail for large n, use virtual memory instead in this case
+	a->m = (TMEMTYPE*) malloc( n*n*(n-1)/2 * sizeof(TMEMTYPE));
 	
-	qsort( sorted, n, sizeof(int), cmpfunc);
+	a->n = n;
+	a->p = p;
+
+	for(int i = 0; i < n*n*(n-1)/2 ; i++)  *(a->m + i) = 0; // memory initialization
 	
-	rankedmax = sorted[ n - p ];
+	return a;
+	}
+	
+void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
+	{
+	int N = D->n;
+	
+	for( int i = 0; i < x->p - 1; i++)
+		for( int j = i+1; j < x->p; j++)
+			{
+			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
+				for( int k = 0; k < y->p; k++)
+					++ *( D->m + u + y->a[k] );
+			}
+	}
+	
+	
+void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
+	{
+	int N = D->n;
+	
+	for( int i = 0; i < x->p - 1; i++)
+		for( int j = i+1; j < x->p; j++)
+			{
+			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
+				for( int k = 0; k < y->p; k++)
+					if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
+						-- *( D->m + u + y->a[k] );
+			}
+	}
+	
+	
+static int cmpfunc (const void * a, const void * b)
+	{ return  *(int*)a - *(int*)b; }
+	
+	
+static SDR* binarize (SDR *v, int targetsparsity)
+	{
+	int sorted[v->n], rankedmax;
+	
+	for ( int i=0; i < v->n; i++ )
+		sorted[i] = v->a[i];
+	
+	qsort( sorted, v->n, sizeof(int), cmpfunc);
+	
+	rankedmax = sorted[ v->n - targetsparsity ];
 	
 	if(rankedmax == 0)
 		rankedmax = 1;
 		
-	for ( i=0; i<n; i++) if (v[i] >= rankedmax) printf( "%d ", i+1 );
+	v->p = 0;
+	for ( int i = 0; i < v->n; i++)
+		if (v->a[i] >= rankedmax)
+			v->a[v->p++] = i;
 	
-	printf( "\n");
-	fflush(stdout);
+	return (v);
+	}
+	
+	
+SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
+	{
+	int N = D->n;
+	
+	for( int k = 0; k < N; k++ ) y->a[k] = 0;
+			
+	for( int i = 0; i < x->p-1; i++)
+		for( int j = i + 1; j < x->p; j++)
+			{
+			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
+			for( int k = 0; k < N; k++)
+				y->a[k] += *( D->m + u + k);
+			}
+						
+	return( binarize(y, D->p));
+	}
+	
+	
+
+static char* parse (char *buf, SDR *s)
+	{
+	int *i;
+	s->p = 0;
+	
+	while ( *buf  && *buf != SEPARATOR )
+		{
+		while (isspace(*buf)) buf++;
+		if (! isdigit(*buf)) break;
+		
+		i = s->a + s->p;
+		sscanf( buf, "%d", i);
+		
+		if ( (*i)-- > s->n || *i < 0 ) // subtracting 1 because internal representation range is 0 to N-1
+			{
+			printf("position out of range: %s\n", buf);
+			exit(2);
+			}
+		s->p ++;
+		
+		while (isdigit(*buf)) buf++;
+		while (isspace(*buf)) buf++;
+		}
+	
+	
+	return buf;
 	}
 
 
 int main(int argc, char *argv[])
 	{
 	char *buf, inputline[INPUTBUFFER];
-	int *x, *y;
-	int xmax, ymax;
 	
-	int delete;
-	
-	int i, j, k, u;
 	int N, P;  // vector dimension and target sparse population
-	
-	MEMORYTYPE *T;
 	
 	if (argc != 3)
 		{
@@ -153,18 +255,14 @@ int main(int argc, char *argv[])
         
     sscanf( argv[1], "%d", &N);
     sscanf( argv[2], "%d", &P);
-   
-	x = (int*)malloc(N*sizeof(int));
-	y = (int*)malloc(N*sizeof(int));
+    
+    SDR *x = sdr_new(N);
+	SDR *y = sdr_new(N);
 	
-	// limitation: malloc may fail for large n, use virtual memory in this case
-	T = (MEMORYTYPE*) malloc( N*N*(N-1)/2 * sizeof(MEMORYTYPE));
-
-	for(i = 0; i < N*N*(N-1)/2 ; i++)  *(T + i) = 0; // memory initialization
+	DyadicMemory *D = dyadicmemory_new(N, P);
 
 	while (	fgets(inputline, sizeof(inputline), stdin) != NULL)
 		{
-
 		if ( strcmp(inputline, "quit\n") == 0)
 			return 0;
 			
@@ -173,44 +271,28 @@ int main(int argc, char *argv[])
 			
 		else // parse x
 			{
-			delete = 0;
+			int delete = 0;
+			
 			if (*inputline == '-')
 				delete = 1;
 			
-			buf = parse(inputline + delete, x, &xmax, N);
+			buf = parse(inputline + delete, x);
 			
 			if (*buf == SEPARATOR) // parse y
 				{
-				parse(buf+1, y, &ymax, N);
+				parse(buf+1, y);
 				
 				// store or delete x->y
-				for( i = 0; i < xmax-1; i++)
-					for( j = i+1; j < xmax; j++)
-						{
-						u = N *(-2 - 3*x[i] - x[i]*x[i] + 2*x[j] + 2*x[i]*N) / 2 ;
-						if (delete == 0) // store
-							for( k = 0; k < ymax; k++) ++ *( T + u + y[k] );
-						else // delete
-							for( k = 0; k < ymax; k++)
-								if (*( T + u + y[k] ) > 0 )
-									-- *( T + u + y[k] );
-						}
+				if (delete)
+					dyadicmemory_delete (D, x,y);
+				else
+					dyadicmemory_write (D, x,y);
 				}
 				
 			else if (*buf == 0) // query
 				{
-				
-				for( i = 0; i < N; i++ ) y[i] = 0;
-			
-				for( i = 0; i < xmax-1; i++)
-					for( j = i+1; j < xmax; j++)
-						{
-						u = N *(-2 - 3*x[i] - x[i]*x[i] + 2*x[j] + 2*x[i]*N) / 2 ;
-						for( k = 0; k < N; k++) y[k] += *( T + u + k);
-						}
-						
-				binarize(y, N, P);
-				
+				dyadicmemory_read (D, x, y);
+				sdr_print(y);
 				}
 			else
 				{
