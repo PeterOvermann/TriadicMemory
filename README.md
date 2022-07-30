@@ -10,6 +10,7 @@ Implementations of [Triadic Memory](https://github.com/PeterOvermann/Writings/bl
 - [Odin](Odin)
 - [Python](Python)
 
+Examples and executable Mathematica notebooks are available [here](Mathematica/Notebooks).
 
 ## Dyadic Memory
 
@@ -29,13 +30,13 @@ For typical values `n = 1000` and `p = 10`, about 500,000 associations can be st
 
 The Dyadic Memory algorithm was initially developed in [Mathematica](Mathematica/dyadicmemory.m) language and consists of just 10 lines of code. 
 
-The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/dyadicmemory.c) implementation best illustrates the algorithm in procedural language. This version works with vector dimensions up to `n = 1,200`.
+The [plain C](C/dyadicmemory.c) implementation best illustrates the algorithm in procedural language. This version works with vector dimensions up to `n = 1,200`.
 
-A [memory-optimized implementation](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/sparseassociativememory.c) supports hypervector dimensions up to `n = 20,000`. It can be used as a command line tool or as C library. No other SDM currently works with dimensions that large. 
+A [memory-optimized implementation](C/sparseassociativememory.c) supports hypervector dimensions up to `n = 20,000`. It can be used as a command line tool or as C library. No other SDM currently works with dimensions that large. 
 
-An Odin implementation is available [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Odin/triadic/triadic_memory.odin).
+An Odin implementation is available [here](Odin/triadic/triadic_memory.odin).
 
-A Numba-accelerated Python version is available [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py).
+A Numba-accelerated Python version is available [here](Python/sdrsdm.py).
 
 
 
@@ -47,10 +48,10 @@ After storing a triple {x,y,z} in memory, any of the three items can be recalled
 
 A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervectors with dimension `n` and sparse population `p`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million triples.
 
-The original Mathematica code can be found [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Mathematica/triadicmemory.m). The [plain C](https://github.com/PeterOvermann/TriadicMemory/blob/main/C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
+The original Mathematica code can be found [here](Mathematica/triadicmemory.m). The [plain C](C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
 
-Performance-optimized implementations are available for [Python](https://github.com/PeterOvermann/TriadicMemory/blob/main/Python/sdrsdm.py), the [Julia](https://github.com/PeterOvermann/TriadicMemory/blob/main/Julia/triadicmemory.jl) language, [Chez Scheme](https://github.com/PeterOvermann/TriadicMemory/blob/main/ChezScheme/triadicmemory.ss), 
-[Javascript](https://github.com/PeterOvermann/TriadicMemory/blob/main/Javascript/TriadicMemory.js) and [Odin](https://github.com/PeterOvermann/TriadicMemory/blob/main/Odin/triadic/triadic_memory.odin). 
+Performance-optimized implementations are available for [Python](Python/sdrsdm.py), the [Julia](Julia/triadicmemory.jl) language, [Chez Scheme](ChezScheme/triadicmemory.ss), 
+[Javascript](Javascript/TriadicMemory.js) and [Odin](Odin/triadic/triadic_memory.odin). 
 
 
 
