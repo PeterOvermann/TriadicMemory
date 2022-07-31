@@ -25,7 +25,6 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 /*
-Building the command line tool: cc -Ofast dyadicmemoryCL.c triadicmemory.c -o /usr/local/bin/dyadicmemory
 
 This command line tool instantiates a new memory instance.
 

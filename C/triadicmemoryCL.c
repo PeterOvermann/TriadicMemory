@@ -26,8 +26,6 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /*
 
-Building the command line tool: cc -Ofast triadicmemoryCL.c triadicmemory.c -o /usr/local/bin/triadicmemory
-
 This command line tool instantiates a new memory instance. It can be used
 to store triples {x,y,z} of sparse distributed representations (SDRs), and to
 recall one part of a triple by specifying the other two parts.

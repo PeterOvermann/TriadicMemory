@@ -261,14 +261,20 @@ DyadicMemory *dyadicmemory_new(int n, int p)
 	return a;
 	}
 	
+	
+static int storagelocation(int n, int i, int j)
+	{
+	return n * (-2 - 3*i - i*i + 2*j + 2*i*n) / 2; // cell in base triangle
+	}
+	
+	
 void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 	{
-	int N = D->n;
-	
 	for( int i = 0; i < x->p - 1; i++)
 		for( int j = i+1; j < x->p; j++)
 			{
-			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
+			int u = storagelocation( D->n, x->a[i], x->a[j]);
+			
 			for( int k = 0; k < y->p; k++)
 				++ *( D->m + u + y->a[k] );
 			}
@@ -277,12 +283,10 @@ void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 	
 void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 	{
-	int N = D->n;
-	
 	for( int i = 0; i < x->p - 1; i++)
 		for( int j = i+1; j < x->p; j++)
 			{
-			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
+			int u = storagelocation( D->n, x->a[i], x->a[j]);
 			for( int k = 0; k < y->p; k++)
 				if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
 					-- *( D->m + u + y->a[k] );
@@ -292,15 +296,13 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 
 SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	{
-	int N = D->n;
-	
-	for( int k = 0; k < N; k++ ) y->a[k] = 0;
+	for( int k = 0; k < D->n; k++ ) y->a[k] = 0;
 			
 	for( int i = 0; i < x->p-1; i++)
 		for( int j = i + 1; j < x->p; j++)
 			{
-			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
-			for( int k = 0; k < N; k++)
+			int u = storagelocation( D->n, x->a[i], x->a[j]);
+			for( int k = 0; k < D->n; k++)
 				y->a[k] += *( D->m + u + k);
 			}
 						
