@@ -3,13 +3,12 @@
 This repository is a collection of fundamental algorithms operating on sparse distributed representations, which is our brain's data structure.
 
 The Triadic Memory algorithm was discovered in 2021 and first published [here](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf).
-
-Subsequently, a number of related algorithms have been derived from Triadic Memory.
+Subsequently, a variety of related algorithms have been derived from Triadic Memory.
 
 Models of brain functions can be designed and implemented by creating circuits from the algorithmic components in this repository. An example
 is the elementary Temporal Memory algorithm, a feedback circuit which resembles a simple recurring neural network.
 
-One of the goals of this project is to discover and develop larger circuits able to solve complex machine learning tasks, as a possible alternative to
+One of the goals of this project is to build larger circuits able to solve complex machine learning tasks, as a possible alternative to
 common deep learning techniques which are not rooted in the brain's core cognitive functions.
 
 
@@ -19,6 +18,7 @@ Implementations of Triadic Memory and related algorithms are available in a grow
 
 - [C](C)
 - [Chez Scheme](ChezScheme)
+- Java (lookng for contributors)
 - [Javascript](Javascript)
 - [Julia](Julia)
 - [Mathematica](Mathematica)
