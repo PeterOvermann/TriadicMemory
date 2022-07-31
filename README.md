@@ -18,12 +18,13 @@ Implementations of Triadic Memory and related algorithms are available in a grow
 
 - [C](C)
 - [Chez Scheme](ChezScheme)
-- Java (lookng for contributors)
+- Java (looking for contributors)
 - [Javascript](Javascript)
 - [Julia](Julia)
 - [Mathematica](Mathematica)
 - [Odin](Odin)
 - [Python](Python)
+- Scala (looking for contributors)
 
 Examples and executable Mathematica notebooks can be found [here](Mathematica/Notebooks).
 
