@@ -1,8 +1,10 @@
 /*
+dyadicmemoryCL.c
 
-dyadicmemory.c
+Dyadic Memory Command Line
 
-Copyright (c) 2021-2022 Peter Overmann
+
+Copyright (c) 2022 Peter Overmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
@@ -18,18 +20,12 @@ LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE A
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 
 
-This is the reference implementation of the hetero-associative memory published in the 2022 paper
-https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
 
-The algorithm realizes a Sparse Distributed Memory (SDM) as envisioned by Pentti Kanerva (1988),
-using an artificial neural network with combinatorial connectivity.
-
-This stand-alone source file produces a command line tool. A library version of the same code
-is available in triadicmemory.c.
-
-Build the command line tool: cc -Ofast dyadicmemory.c -o /usr/local/bin/dyadicmemory
+/*
+Building the command line tool: cc -Ofast dyadicmemoryCL.c triadicmemory.c -o /usr/local/bin/dyadicmemory
 
 This command line tool instantiates a new memory instance.
 
@@ -63,152 +59,22 @@ version
 
 */
 
-
-#define VERSIONMAJOR 1
-#define VERSIONMINOR 2
-
-#define SEPARATOR ','
-
-#define MEMORYTYPE unsigned char
-
-#define INPUTBUFFER 10000
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
 
-
-#define TMEMTYPE unsigned char
-
-
-// various SDR utilities:
-
-typedef struct
-	{
-	int *a, n, p;
-	} SDR;
-	
-	
-SDR *sdr_new(int n)
-	{
-	SDR *s = malloc(sizeof(SDR));
-	s->a = malloc(n*sizeof(int));
-	s->n = n;
-	s->p = 0;
-	return s;
-	}
-	
-void sdr_print(SDR *s)
-	{
-	for (int r = 0; r < s->p; r++)
-		{
-		printf("%d", s->a[r] + 1);  // adding 1 because input/output values range from 1 to N
-		if (r < s->p -1) printf(" ");
-		}
-	printf("\n"); fflush(stdout);
-	}
-	
-
-// dyadic (hetero-associative) memory
-
-typedef struct
-	{
-	TMEMTYPE* m;
-	int n, p;
-	} DyadicMemory;
+#include "triadicmemory.h"
 
 
-DyadicMemory *dyadicmemory_new(int n, int p)
-	{
-	DyadicMemory *a = malloc(sizeof(DyadicMemory));
-	
-	// limitation: malloc may fail for large n, use virtual memory instead in this case
-	a->m = (TMEMTYPE*) malloc( n*n*(n-1)/2 * sizeof(TMEMTYPE));
-	
-	a->n = n;
-	a->p = p;
+#define VERSIONMAJOR 1
+#define VERSIONMINOR 2
 
-	for(int i = 0; i < n*n*(n-1)/2 ; i++)  *(a->m + i) = 0; // memory initialization
-	
-	return a;
-	}
-	
-void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
-	{
-	int N = D->n;
-	
-	for( int i = 0; i < x->p - 1; i++)
-		for( int j = i+1; j < x->p; j++)
-			{
-			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
-				for( int k = 0; k < y->p; k++)
-					++ *( D->m + u + y->a[k] );
-			}
-	}
-	
-	
-void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
-	{
-	int N = D->n;
-	
-	for( int i = 0; i < x->p - 1; i++)
-		for( int j = i+1; j < x->p; j++)
-			{
-			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
-				for( int k = 0; k < y->p; k++)
-					if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
-						-- *( D->m + u + y->a[k] );
-			}
-	}
-	
-	
-static int cmpfunc (const void * a, const void * b)
-	{ return  *(int*)a - *(int*)b; }
-	
-	
-static SDR* binarize (SDR *v, int targetsparsity)
-	{
-	int sorted[v->n], rankedmax;
-	
-	for ( int i=0; i < v->n; i++ )
-		sorted[i] = v->a[i];
-	
-	qsort( sorted, v->n, sizeof(int), cmpfunc);
-	
-	rankedmax = sorted[ v->n - targetsparsity ];
-	
-	if(rankedmax == 0)
-		rankedmax = 1;
-		
-	v->p = 0;
-	for ( int i = 0; i < v->n; i++)
-		if (v->a[i] >= rankedmax)
-			v->a[v->p++] = i;
-	
-	return (v);
-	}
-	
-	
-SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
-	{
-	int N = D->n;
-	
-	for( int k = 0; k < N; k++ ) y->a[k] = 0;
-			
-	for( int i = 0; i < x->p-1; i++)
-		for( int j = i + 1; j < x->p; j++)
-			{
-			int u = N *(-2 - 3*x->a[i] - x->a[i]*x->a[i] + 2*x->a[j] + 2*x->a[i]*N) / 2 ;
-			for( int k = 0; k < N; k++)
-				y->a[k] += *( D->m + u + k);
-			}
-						
-	return( binarize(y, D->p));
-	}
-	
-	
+#define SEPARATOR ','
+
+#define INPUTBUFFER 10000
+
 
 static char* parse (char *buf, SDR *s)
 	{
@@ -267,7 +133,7 @@ int main(int argc, char *argv[])
 			return 0;
 			
 		else if ( strcmp(inputline, "version\n") == 0)
-			printf("%d.%d\n", VERSIONMAJOR, VERSIONMINOR);
+			printf("dyadicmemory %d.%d\n", VERSIONMAJOR, VERSIONMINOR);
 			
 		else // parse x
 			{
