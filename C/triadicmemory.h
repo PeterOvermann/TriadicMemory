@@ -1,11 +1,10 @@
 /*
 triadicmemory.h
 
-Copyright (c) 2022 Peter Overmann
-
-C-language reference implementation of the Triadic Memory and related algorithms published in
+C-language reference implementation of Triadic Memory and related algorithms published in
    https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
-This source file can be compiled as a stand-alone command line program or as a library.
+
+Copyright (c) 2022 Peter Overmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
@@ -23,14 +22,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
-#ifndef triadicmemory_h
-#define triadicmemory_h
-
-
-
-// Remove this if building as a library
-#define TRIADICMEMORY_COMMANDLINE
 
 
 // ---------- SDR data type and utility functions ----------
@@ -92,6 +83,3 @@ SDR* triadicmemory_read_x  (TriadicMemory *, SDR *, SDR *, SDR *);
 SDR* triadicmemory_read_y  (TriadicMemory *, SDR *, SDR *, SDR *);
 SDR* triadicmemory_read_z  (TriadicMemory *, SDR *, SDR *, SDR *);
 
-
-
-#endif /* triadicmemory_h */
