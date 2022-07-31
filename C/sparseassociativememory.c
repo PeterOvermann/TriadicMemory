@@ -22,12 +22,16 @@ LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE A
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+
+
+
+/*
 
 This self-contained C implementation is optimized for memory usage, allowing the storage and
 retrieval of vectors with dimensions up to 20,000. In contrast, the original reference implementation
-(dyadicmemory.c) works with dimensions up to 1,000.
-
-Build: cc -Ofast sparseassociativememory.c -o /usr/local/bin/sparseassociativememory
+works with dimensions up to 1,000.
 
 This command line tool instantiates a new memory instance. It stores heteroassociations x->y of
 binary Sparse Distributed Representations (SDR) x and y, and recalls y for a given x.
