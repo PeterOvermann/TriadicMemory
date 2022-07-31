@@ -1,6 +1,21 @@
-# Triadic Memory and related algorithms
+# Triadic Memory
 
-Implementations of [Triadic Memory](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf) and related algorithms in the following programming languages:
+This repository is a collection of fundamental algorithms operating on sparse distributed representations, which is our brain's data structure.
+
+The Triadic Memory algorithm was discovered in 2021 and first published [here](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf).
+
+Subsequently, a number of related algorithms have been derived from Triadic Memory.
+
+Models of brain functions can be designed and implemented by creating circuits from the algorithmic components in this repository. An example
+is the elementary Temporal Memory algorithm, a feedback circuit which resembles a simple recurring neural network.
+
+One of the goals of this project is to discover and develop larger circuits able to solve complex machine learning tasks, as a possible alternative to
+common deep learning techniques which are not rooted in the brain's core cognitive functions.
+
+
+## Implementations 
+
+Implementations of Triadic Memory and related algorithms are available in a growing number of programming languages:
 
 - [C](C)
 - [Chez Scheme](ChezScheme)
@@ -10,7 +25,7 @@ Implementations of [Triadic Memory](https://github.com/PeterOvermann/Writings/bl
 - [Odin](Odin)
 - [Python](Python)
 
-Examples and executable Mathematica notebooks are available [here](Mathematica/Notebooks).
+Examples and executable Mathematica notebooks can be found [here](Mathematica/Notebooks).
 
 ## Dyadic Memory
 
@@ -42,7 +57,7 @@ A Numba-accelerated Python version is available [here](Python/sdrsdm.py).
 
 ## Triadic Memory
 
-Triadic Memory, an algorithm developed in 2021, is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called SDRs).
+Triadic Memory is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called SDRs).
 
 After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts: `{_,y,z}` recalls `x`, `{x,_,z}` recalls `y`, and `{x,y,_}` recalls `z`. Given three items `{x,y,z}`, one can test if their association is stored in memory by calculating, for instance, the Hamming distance or overlap between `{x,y,_}` and `z`. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
 
