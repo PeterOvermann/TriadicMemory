@@ -45,10 +45,10 @@ For typical values n = 1000 and p = 10, about 500,000 associations can be stored
 
 Usage examples:
 
-Create a memory instance: 			DyadicMemory[M, {1000,10}, {1000,10}]
+Create a memory instance: 		DyadicMemory[M, {1000,10}, {1000,10}]
 Generate a random pair x->y:		r = M[]
-Store r:							M[r]
-Recall r:							M[First[r]]
+Store r:				M[r]
+Recall r:				M[First[r]]
 
 Note that the sparsity of input vectors in the function calls for storing or retrieving an association
 can take any value. The parameter p2 is only used to specify the target sparse population of the output
@@ -56,6 +56,42 @@ when recalling an association.
 
 *)
 
+
+DyadicMemory[ f_Symbol, {n_Integer, p_Integer}] := 
+
+	Module[  {W, connections},
+   
+		(* memory initialization (using sparse representation if n >= 2000 *)
+		W[_] =  If[ n < 2000, Table[0, n], SparseArray[ _ -> 0, n]]; 
+   
+		(* generate random association x->y *)
+   
+		f[] := SparseArray[RandomSample[ Range[n], p] -> Table[1, p], {n}] -> 
+	  		SparseArray[  RandomSample[ Range[n], p] -> Table[1, p], {n}];
+   
+		(* connections from input to hidden layer *)
+
+		connections[x_SparseArray] := Module[ {k = Sort[Flatten[x["NonzeroPositions"]]]},
+			Flatten[ Table[ {k[[i]], k[[j]]}, {i, 1, Length[k] - 1}, {j, i + 1, Length[k]}], 1] ];
+   
+		(* store x->y *)
+
+		f[x_SparseArray -> y_SparseArray] := ((W[#] += y) & /@ connections[x];);
+	
+		(* recall y, given an address x *)
+
+		f[ SparseArray[ _ -> 0, n]] = SparseArray[_ -> 0, n]; (* special case: zero input *)
+		
+		f[x_SparseArray] := Module[  {v, t },
+			t = Max[1, RankedMax[v = Plus @@ (W /@ connections[x]), p]]; SparseArray[Boole[# >= t] & /@ v]
+		]
+  
+   ];
+
+
+
+
+(* asymmetric version *)
    
 DyadicMemory[ f_Symbol, {n1_Integer, p1_Integer}, {n2_Integer, p2_Integer}] := 
 
@@ -87,8 +123,3 @@ DyadicMemory[ f_Symbol, {n1_Integer, p1_Integer}, {n2_Integer, p2_Integer}] :=
 		]
   
    ];
-
-
-
-
-
