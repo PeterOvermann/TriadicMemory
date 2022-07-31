@@ -228,17 +228,27 @@ int sdr_overlap( SDR*x, SDR*y) // number of common bits
 	}
 	
 	
-	
+// print SDR with positions from 1 to N (representation used by command line tools)
 void sdr_print(SDR *s)
 	{
 	for (int r = 0; r < s->p; r++)
 		{
-		printf("%d", s->a[r] + 1);  // adding 1 because input/output values range from 1 to N
+		printf("%d", s->a[r] + 1);  // adding 1 to the internal representation
 		if (r < s->p -1) printf(" ");
 		}
 	printf("\n"); fflush(stdout);
 	}
 	
+// print SDR with positions from 0 to N-1 (the internal representation)
+void sdr_print0(SDR *s)
+	{
+	for (int r = 0; r < s->p; r++)
+		{
+		printf("%d", s->a[r] );
+		if (r < s->p -1) printf(" ");
+		}
+	printf("\n"); fflush(stdout);
+	}
 	
 	
 	

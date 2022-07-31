@@ -32,18 +32,19 @@ typedef struct
 	int *a, n, p;
 	} SDR;
 	
-SDR *sdr_random (SDR*, int p);				// random generator
-SDR *sdr_new (int n);						// SDR constructor
-SDR *sdr_set( SDR *x, SDR *y); 				// copy y to x
-SDR *sdr_rotateright( SDR *x ); 			// shift x right by one bit
-SDR *sdr_rotateleft( SDR *x ); 				// shift x left by one bit
+SDR *sdr_random (SDR*, int p);			// random generator
+SDR *sdr_new (int n);				// SDR constructor
+SDR *sdr_set( SDR *x, SDR *y); 			// copy y to x
+SDR *sdr_rotateright( SDR *x ); 		// shift x right by one bit
+SDR *sdr_rotateleft( SDR *x ); 			// shift x left by one bit
 SDR *sdr_or (SDR*res, SDR *x, SDR *y);		// store bit-wise OR of x and y and res
 
-int  sdr_equal( SDR*x, SDR*y); 				// whether x and y are identical
-int  sdr_distance( SDR*x, SDR*y); 			// Hamming distance
-int  sdr_overlap( SDR*x, SDR*y); 			// number of common bits
+int  sdr_equal( SDR*x, SDR*y); 			// whether x and y are identical
+int  sdr_distance( SDR*x, SDR*y); 		// Hamming distance
+int  sdr_overlap( SDR*x, SDR*y); 		// number of common bits
 
-void sdr_print(SDR *s);						// print SDR followed by newline
+void sdr_print(SDR *);				// print SDR followed by newline (values 1 to N)
+void sdr_print0(SDR *);				// print SDR followed by newline (values 0 to N-1)
 
 
 // ---------- Dyadic Memory (stores hetero-associations x-> y) ----------
