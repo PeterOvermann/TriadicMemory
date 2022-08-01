@@ -306,6 +306,8 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 
 SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	{
+	// warning: x and y must point to different SDRs
+	
 	for( int k = 0; k < D->n; k++ ) y->a[k] = 0;
 			
 	for( int i = 0; i < x->p-1; i++)
@@ -318,6 +320,44 @@ SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 						
 	return binarize(y, D->p);
 	}
+
+// ---------- Monadic Memory -- stores autoassociations  ----------
+
+
+MonadicMemory* monadicmemory_new (int n, int p)
+	{
+	MonadicMemory *M = malloc( sizeof(MonadicMemory));
+	
+	M->D1 = dyadicmemory_new(n, p);
+	M->D2 = dyadicmemory_new(n, p);
+	
+	M->h = sdr_new(n);	// hidden value
+	M->r = sdr_new(n);	// return value
+	
+	return M;
+	}
+	
+	
+SDR* monadicmemory (MonadicMemory *M, SDR *inp)
+	{
+	
+	dyadicmemory_read(M->D1, inp,  M->h);
+	dyadicmemory_read(M->D2, M->h, M->r);
+	dyadicmemory_read(M->D1, M->r, M->h);
+	dyadicmemory_read(M->D2, M->h, M->r);
+	
+	if (2*sdr_distance(inp, M->r) < M->D1->p)
+		return M->r;
+		
+	M->items++;
+	sdr_random (M->r, M->D1->p);
+	
+	dyadicmemory_write(M->D1, inp,  M->r);
+	dyadicmemory_write(M->D2, M->r, inp );
+	
+	return sdr_set(M->r, inp);
+	}
+	
 
 
 
@@ -393,3 +433,86 @@ SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	return binarize(z, T->p);
 	}
 	
+
+// ---------- Temporal Memory  ----------
+
+
+TemporalMemory* temporalmemory_new (int n, int p)
+	{
+	TemporalMemory *T = malloc( sizeof(TemporalMemory));
+	
+	T->M1 = triadicmemory_new(n, p);
+	T->M2 = triadicmemory_new(n, p);
+	
+	T->x = sdr_new(n);	// persistent circuit state variables
+	T->y = sdr_new(n);
+	T->c = sdr_new(n);
+	T->u = sdr_new(n);
+	T->v = sdr_new(n);
+	T->prediction = sdr_new(n);
+	
+	return T;
+	}
+	
+	
+SDR* temporalmemory (TemporalMemory *T, SDR *inp)
+	{
+	// flush state variables if input is zero -- needed for usage as sequence memory
+	if (inp->p == 0)
+		{
+		T->y->p = T->c->p = T->u->p = T->v->p = T->prediction->p = 0;
+		return T->prediction;
+		}
+	
+	sdr_or (T->x, T->y, T->c);
+	sdr_set(T->y, inp);
+	
+	if ( ! sdr_equal (T->prediction, T->y) )
+	// less aggressive test: if ( sdr_overlap (T->prediction, T->y) < T->M2->p)
+		triadicmemory_write( T->M2, T->u, T->v, T->y );
+		
+	triadicmemory_read_z (T->M1, T->x, T->y, T->c); // recall c
+	triadicmemory_read_x (T->M1, T->u, T->y, T->c); // recall u
+	
+	if (sdr_overlap(T->x, T->u) < T->M1->p)
+		{
+		sdr_random( T->c, T->M1->p);
+		triadicmemory_write( T->M1, T->x, T->y, T->c);
+		}
+		
+	return triadicmemory_read_z (T->M2, sdr_set(T->u, T->x), sdr_set(T->v, T->y), T->prediction);
+	// important: the return value is used in the next iteration and should not be changed by
+	// the embedding function
+	}
+
+
+// ---------- Command Line Functions ----------
+
+
+
+char* sdr_parse (char *buf, SDR *s)
+	{
+	int *i;
+	s->p = 0;
+	
+	while ( *buf != 0 )
+		{
+		while (isspace(*buf)) buf++;
+		if (! isdigit(*buf)) break;
+		
+		i = s->a + s->p;
+		sscanf( buf, "%d", i);
+		
+		if ( (*i)-- > s->n || *i < 0 )
+			{
+			printf("position out of range: %s\n", buf);
+			exit(2);
+			}
+		s->p ++;
+		
+		while (isdigit(*buf)) buf++;
+		while (isspace(*buf)) buf++;
+		}
+		
+	return buf;
+	}

@@ -66,6 +66,26 @@ SDR* dyadicmemory_read 		(DyadicMemory *, SDR *, SDR *);
 
 
 
+
+
+
+// ---------- Monadic Memory (stores autoassociations) ----------
+
+
+typedef struct
+	{
+	DyadicMemory *D1, *D2;
+	SDR *h, *r;
+	int items;
+	} MonadicMemory;
+
+
+MonadicMemory* monadicmemory_new (int n, int p);	// constructor
+SDR* monadicmemory (MonadicMemory *, SDR *);		// store and recall
+
+
+
+
 // ---------- Triadic Memory (stores triple associations (x,y,z} ) ----------
 
 
@@ -83,4 +103,23 @@ void triadicmemory_delete  (TriadicMemory *, SDR *, SDR *, SDR *);
 SDR* triadicmemory_read_x  (TriadicMemory *, SDR *, SDR *, SDR *);
 SDR* triadicmemory_read_y  (TriadicMemory *, SDR *, SDR *, SDR *);
 SDR* triadicmemory_read_z  (TriadicMemory *, SDR *, SDR *, SDR *);
+
+
+// ---------- Temporal Memory ----------
+
+
+typedef struct
+	{
+	TriadicMemory *M1, *M2;
+	SDR *x, *y, *c, *u, *v, *prediction;
+	} TemporalMemory;
+	
+TemporalMemory* temporalmemory_new (int n, int p);		// constructor
+SDR* temporalmemory (TemporalMemory *, SDR *);			// predictor
+
+
+
+// ---------- Command Line Functions ----------
+
+char* sdr_parse (char *buf, SDR *s);
 
