@@ -54,7 +54,13 @@ An Odin implementation is available [here](Odin/triadic/triadic_memory.odin).
 
 A Numba-accelerated Python version is available [here](Python/sdrsdm.py).
 
+## Monadic Memory
 
+Monadic Memory is an auto-associative memory, useful for clustering/pooling a temporal stream of SDRs.
+
+The algorithm uses a mirrored pair of Dyadic Memory instances, which effectively form a hidden layer.
+
+It's capacity is the same as the capacity of the underlying Dyadic Memory instances, for example 500k items for dimension `n = 1000` and sparse population `p = 10`.
 
 ## Triadic Memory
 
@@ -68,6 +74,18 @@ The original Mathematica code can be found [here](Mathematica/triadicmemory.m). 
 
 Performance-optimized implementations are available for [Python](Python/sdrsdm.py), the [Julia](Julia/triadicmemory.jl) language, [Chez Scheme](ChezScheme/triadicmemory.ss), 
 [Javascript](Javascript/TriadicMemory.js) and [Odin](Odin/triadic/triadic_memory.odin). 
+
+
+## Temporal Memory
+
+A temporal memory processes a stream of SDRs, at each step making a prediction for the following step based on previously seen information.
+It can also be used for learning separate terminated sequences.
+
+Temporal Memory algorithms are based on circuits of two or more Triadic Memory instances with at least one feedback loop, resembling the architecture of recurrent neural networks. 
+
+An [elementary Temporal Memory](Mathematica/Notebooks/Temporal%20Memory%20Elementary%20Algorithm.pdf) uses two Triadic Memory units arranged in the form of an Elman network.
+
+An implementation based on three Triadic Memory units can be found [here](Mathematica/Notebooks/Temporal%20Memory%20-%203%20Stages.pdf).
 
 
 
