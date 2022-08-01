@@ -1,4 +1,4 @@
-# Triadic Memory
+# Triadic Memory and related algorithms
 
 This repository is a collection of fundamental algorithms operating on sparse distributed representations, which is our brain's data structure.
 
