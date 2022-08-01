@@ -28,6 +28,22 @@ Implementations of Triadic Memory and related algorithms are available in a grow
 
 Examples and executable Mathematica notebooks can be found [here](Mathematica/Notebooks).
 
+
+## Triadic Memory
+
+Triadic Memory is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called SDRs).
+
+After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts: `{_,y,z}` recalls `x`, `{x,_,z}` recalls `y`, and `{x,y,_}` recalls `z`. Given three items `{x,y,z}`, one can test if their association is stored in memory by calculating, for instance, the Hamming distance or overlap between `{x,y,_}` and `z`. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
+
+A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervectors with dimension `n` and sparse population `p`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million triples.
+
+The original Mathematica code can be found [here](Mathematica/triadicmemory.m). The [plain C](C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
+
+Performance-optimized implementations are available for [Python](Python/sdrsdm.py), the [Julia](Julia/triadicmemory.jl) language, [Chez Scheme](ChezScheme/triadicmemory.ss), 
+[Javascript](Javascript/TriadicMemory.js) and [Odin](Odin/triadic/triadic_memory.odin). 
+
+
+
 ## Dyadic Memory
 
 Dyadic Memory realizes an associative memory for sparse hypervectors which has the functionality
@@ -61,19 +77,6 @@ Monadic Memory is an auto-associative memory, useful for clustering/pooling a te
 The algorithm uses a mirrored pair of Dyadic Memory instances, which effectively form a hidden layer.
 
 It's capacity is the same as the capacity of the underlying Dyadic Memory instances, for example 500k items for dimension `n = 1000` and sparse population `p = 10`.
-
-## Triadic Memory
-
-Triadic Memory is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called SDRs).
-
-After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts: `{_,y,z}` recalls `x`, `{x,_,z}` recalls `y`, and `{x,y,_}` recalls `z`. Given three items `{x,y,z}`, one can test if their association is stored in memory by calculating, for instance, the Hamming distance or overlap between `{x,y,_}` and `z`. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
-
-A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervectors with dimension `n` and sparse population `p`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million triples.
-
-The original Mathematica code can be found [here](Mathematica/triadicmemory.m). The [plain C](C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
-
-Performance-optimized implementations are available for [Python](Python/sdrsdm.py), the [Julia](Julia/triadicmemory.jl) language, [Chez Scheme](ChezScheme/triadicmemory.ss), 
-[Javascript](Javascript/TriadicMemory.js) and [Odin](Odin/triadic/triadic_memory.odin). 
 
 
 ## Temporal Memory
