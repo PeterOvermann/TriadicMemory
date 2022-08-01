@@ -3,7 +3,7 @@
 
 #### triadicmemory.c and triadicmemory.h
 
-Reference implementations of the Dyadic/Triadic Memory algorithms, and various SDR utilities.
+Reference implementations of the Monadic/Dyadic/Triadic Memory algorithms, the Temporal Memory, and various SDR utilities.
 Can be compiled as a library.
 
 #### triadicmemoryCL.c
