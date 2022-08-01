@@ -10,11 +10,17 @@ Can be compiled as a library.
 
 Triadic Memory command line tool. Depends on triadicmemory.c and triadicmemory.h.
 
-
 #### dyadicmemoryCL.c
 
 Dyadic Memory command line tool. Depends on triadicmemory.c and triadicmemory.h.
 
+#### monadicmemoryCL.c
+
+Monadic Memory command line tool. Depends on triadicmemory.c and triadicmemory.h.
+
+#### temporalmemoryCL.c
+
+Temporal Memory command line tool. Depends on triadicmemory.c and triadicmemory.h.
 
 #### sparseassociativememory.c
 
