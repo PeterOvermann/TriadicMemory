@@ -48,10 +48,39 @@ TriadicMemory[f_Symbol, {n_Integer, p_Integer} ] :=
 		f[x_SparseArray, y_SparseArray, z_SparseArray] := (++W[[##]] &  @@@ tup[x, y, z];);
    
 		(* recall x, y, or z *)
-   		f[_, y_SparseArray, z_SparseArray] := f[ Plus @@ ( W[[All, #1, #2]] & @@@ tup[y, z])];
-		f[x_SparseArray, _, z_SparseArray] := f[ Plus @@ ( W[[#1, All, #2]] & @@@ tup[x, z])];
-		f[x_SparseArray, y_SparseArray, _] := f[ Plus @@ ( W[[#1, #2, All]] & @@@ tup[x, y])];
+   		f[Verbatim[_], y_SparseArray, z_SparseArray] := f[ Plus @@ ( W[[All, #1, #2]] & @@@ tup[y, z])];
+		f[x_SparseArray, Verbatim[_], z_SparseArray] := f[ Plus @@ ( W[[#1, All, #2]] & @@@ tup[x, z])];
+		f[x_SparseArray, y_SparseArray, Verbatim[_]] := f[ Plus @@ ( W[[#1, #2, All]] & @@@ tup[x, y])];
    
    		];
+
+
+
+(* Wrapper for TriadicMemory which automatically encodes any Mathematica expression to random sparse arrays *)
+
+
+TriadicMemoryEncoding[f_Symbol, {n_Integer, p_Integer} ] := 
+
+	Module[  {T, encode, decode, pos},
+   
+		TriadicMemory[ T, {n, p}];
+   
+		pos[x_SparseArray] := Sort[Flatten[x["NonzeroPositions"]]];
+   
+		encode[x_SparseArray] := x;
+		encode[Verbatim[_]] = _;
+		encode[Null] = SparseArray[{0}, {n}];
+		encode[s_] := 
+		encode[s] = Module[ {r = T[]}, decode[pos[r]] = s; r];
+   
+		decode[SparseArray[{0}, {n}]] = Null;
+		decode[x_SparseArray] := Module[ {r}, r = decode[ pos[x]]; If[ Head[r] === decode, x, r]];
+		decode[Null] = Null;
+   
+		f[] = T[]; (* random generator *)
+   
+		f[x_, y_, z_] := decode[ T[ encode[x], encode[y], encode[z]]];
+		
+		];
 
 
