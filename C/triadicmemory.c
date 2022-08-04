@@ -272,9 +272,9 @@ DyadicMemory *dyadicmemory_new(int n, int p)
 	}
 	
 	
-static int storagelocation(int n, int i, int j)
+static int storagelocation(int nx, int ny, int i, int j)
 	{
-	return n * (-2 - 3*i - i*i + 2*j + 2*i*n) / 2; // cell in base triangle
+	return ny * (-2 - 3*i - i*i + 2*j + 2*i*nx) / 2;
 	}
 	
 	
@@ -283,7 +283,7 @@ void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 	for( int i = 0; i < x->p - 1; i++)
 		for( int j = i+1; j < x->p; j++)
 			{
-			int u = storagelocation( D->n, x->a[i], x->a[j]);
+			int u = storagelocation( D->n, D->n, x->a[i], x->a[j]);
 			
 			for( int k = 0; k < y->p; k++)
 				++ *( D->m + u + y->a[k] );
@@ -296,7 +296,7 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 	for( int i = 0; i < x->p - 1; i++)
 		for( int j = i+1; j < x->p; j++)
 			{
-			int u = storagelocation( D->n, x->a[i], x->a[j]);
+			int u = storagelocation( D->n, D->n, x->a[i], x->a[j]);
 			for( int k = 0; k < y->p; k++)
 				if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
 					-- *( D->m + u + y->a[k] );
@@ -313,7 +313,7 @@ SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	for( int i = 0; i < x->p-1; i++)
 		for( int j = i + 1; j < x->p; j++)
 			{
-			int u = storagelocation( D->n, x->a[i], x->a[j]);
+			int u = storagelocation( D->n, D->n, x->a[i], x->a[j]);
 			for( int k = 0; k < D->n; k++)
 				y->a[k] += *( D->m + u + k);
 			}
@@ -349,7 +349,7 @@ void asymmetricdyadicmemory_write (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
 	for( int i = 0; i < x->p - 1; i++)
 		for( int j = i+1; j < x->p; j++)
 			{
-			int u = storagelocation( D->nx, x->a[i], x->a[j]);
+			int u = storagelocation( D->nx, D->ny, x->a[i], x->a[j]);
 			
 			for( int k = 0; k < y->p; k++)
 				++ *( D->m + u + y->a[k] );
@@ -362,7 +362,7 @@ void asymmetricdyadicmemory_delete (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
 	for( int i = 0; i < x->p - 1; i++)
 		for( int j = i+1; j < x->p; j++)
 			{
-			int u = storagelocation( D->nx, x->a[i], x->a[j]);
+			int u = storagelocation( D->nx, D->ny, x->a[i], x->a[j]);
 			for( int k = 0; k < y->p; k++)
 				if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
 					-- *( D->m + u + y->a[k] );
@@ -379,7 +379,7 @@ SDR* asymmetricdyadicmemory_read (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
 	for( int i = 0; i < x->p-1; i++)
 		for( int j = i + 1; j < x->p; j++)
 			{
-			int u = storagelocation( D->nx, x->a[i], x->a[j]);
+			int u = storagelocation( D->nx, D->ny, x->a[i], x->a[j]);
 			for( int k = 0; k < D->ny; k++)
 				y->a[k] += *( D->m + u + k);
 			}
