@@ -34,9 +34,9 @@ and recalls y for a given x.
 An SDR is given by a set of p integers in the range from 1 to n, representing the non-zero positions of the SDR.
 (Note that the internal representation uses integers from 0 to n-1.)
 
-Typical values are n = 1000 and p = 10
-
-Command line usage: dyadicmemory 1000 10
+Usage if x and y have the same dimension n:     dyadicmemory n p
+Usage if x and y have dimensions nx and ny:     dyadicmemory nx ny p
+In both cases, p is the target sparse population of y
 
 
 Usage:
@@ -108,23 +108,35 @@ int main(int argc, char *argv[])
 	{
 	char *buf, inputline[INPUTBUFFER];
 	
-	int N, P;  // vector dimension and target sparse population
+	int Nx, Ny, P;  // vector dimension and target sparse population
 	
-	if (argc != 3)
+	if (argc == 3)
 		{
-		printf("usage: dyadicmemory n p\n");
-		printf("n is the hypervector dimension, typically 1000\n");
-		printf("p is the target sparse population, typically 10\n");
+		sscanf( argv[1], "%d", &Nx); Ny = Nx;
+		sscanf( argv[2], "%d", &P);
+		}
+	
+	else if (argc == 4)
+		{
+		sscanf( argv[1], "%d", &Nx);
+		sscanf( argv[1], "%d", &Ny);
+		sscanf( argv[2], "%d", &P);
+		}
+		
+	else
+		{
+		printf("dyadicmemory is a sparse distributed memory (SDM) for associations x->y\n");
+		printf("usage if x and y have the same dimension n:     dyadicmemory n p\n");
+		printf("usage if x and y have dimensions nx and ny:     dyadicmemory nx ny p\n");
+		printf("in both cases, p is the target sparse population of y\n");
+		
 		exit(1);
 		}
-        
-    sscanf( argv[1], "%d", &N);
-    sscanf( argv[2], "%d", &P);
     
-    SDR *x = sdr_new(N);
-	SDR *y = sdr_new(N);
+	SDR *x = sdr_new(Nx);
+	SDR *y = sdr_new(Ny);
 	
-	DyadicMemory *D = dyadicmemory_new(N, P);
+	AsymmetricDyadicMemory *D = asymmetricdyadicmemory_new(Nx, Ny, P);
 
 	while (	fgets(inputline, sizeof(inputline), stdin) != NULL)
 		{
@@ -149,14 +161,14 @@ int main(int argc, char *argv[])
 				
 				// store or delete x->y
 				if (delete)
-					dyadicmemory_delete (D, x,y);
+					asymmetricdyadicmemory_delete (D, x,y);
 				else
-					dyadicmemory_write (D, x,y);
+					asymmetricdyadicmemory_write (D, x,y);
 				}
 				
 			else if (*buf == 0) // query
 				{
-				dyadicmemory_read (D, x, y);
+				asymmetricdyadicmemory_read (D, x, y);
 				sdr_print(y);
 				}
 			else
