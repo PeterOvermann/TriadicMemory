@@ -62,7 +62,7 @@ For typical values `n = 1000` and `p = 10`, about 500,000 associations can be st
 
 The Dyadic Memory algorithm was initially developed in [Mathematica](Mathematica/dyadicmemory.m) language and consists of just 10 lines of code. 
 
-The [plain C](C/dyadicmemory.c) implementation best illustrates the algorithm in procedural language. This version works with vector dimensions up to `n = 1,200`.
+The [plain C](C/triadicmemory.c) implementation best illustrates the algorithm in procedural language. This version works with vector dimensions up to `n = 1,200` and can be used in an asymmetric configuration where the two sides of an association have different dimension.
 
 A [memory-optimized implementation](C/sparseassociativememory.c) supports hypervector dimensions up to `n = 20,000`. It can be used as a command line tool or as C library. No other SDM currently works with dimensions that large. 
 
