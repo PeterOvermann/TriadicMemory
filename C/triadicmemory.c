@@ -320,6 +320,75 @@ SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 						
 	return binarize(y, D->p);
 	}
+	
+	
+// ---------- Asymmetric Dyadic Memory (x and y with different dimensions) ----------
+
+
+
+AsymmetricDyadicMemory *asymmetricdyadicmemory_new(int nx, int ny, int p)
+	{
+	AsymmetricDyadicMemory *a = malloc(sizeof(AsymmetricDyadicMemory));
+	
+	// limitation: malloc may fail for large n, use virtual memory instead in this case
+	a->m = (TMEMTYPE*) malloc( ny * nx*(nx-1)/2 * sizeof(TMEMTYPE));
+	
+	a->nx = nx;
+	a->ny = ny;
+	a->p = p; // sparsity target for y
+
+	for(int i = 0; i < ny * nx*(nx-1)/2 ; i++)  *(a->m + i) = 0; // memory initialization
+	
+	return a;
+	}
+	
+	
+	
+void asymmetricdyadicmemory_write (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
+	{
+	for( int i = 0; i < x->p - 1; i++)
+		for( int j = i+1; j < x->p; j++)
+			{
+			int u = storagelocation( D->nx, x->a[i], x->a[j]);
+			
+			for( int k = 0; k < y->p; k++)
+				++ *( D->m + u + y->a[k] );
+			}
+	}
+	
+	
+void asymmetricdyadicmemory_delete (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
+	{
+	for( int i = 0; i < x->p - 1; i++)
+		for( int j = i+1; j < x->p; j++)
+			{
+			int u = storagelocation( D->nx, x->a[i], x->a[j]);
+			for( int k = 0; k < y->p; k++)
+				if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
+					-- *( D->m + u + y->a[k] );
+			}
+	}
+	
+
+SDR* asymmetricdyadicmemory_read (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
+	{
+	// warning: x and y must point to different SDRs
+	
+	for( int k = 0; k < D->ny; k++ ) y->a[k] = 0;
+			
+	for( int i = 0; i < x->p-1; i++)
+		for( int j = i + 1; j < x->p; j++)
+			{
+			int u = storagelocation( D->nx, x->a[i], x->a[j]);
+			for( int k = 0; k < D->ny; k++)
+				y->a[k] += *( D->m + u + k);
+			}
+						
+	return binarize(y, D->p);
+	}
+	
+	
+	
 
 // ---------- Monadic Memory -- stores autoassociations  ----------
 
