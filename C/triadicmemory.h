@@ -32,8 +32,14 @@ typedef struct
 	int *a, n, p;
 	} SDR;
 	
-SDR *sdr_random (SDR*, int p);			// random generator
+
 SDR *sdr_new (int n);				// SDR constructor
+void sdr_delete(SDR *);				// destructor
+
+SDR *sdr_random (SDR*, int p);			// random generator
+SDR *sdr_noise (SDR*, int bits);		// add/remove random bits
+
+
 SDR *sdr_set( SDR *x, SDR *y); 			// copy y to x
 SDR *sdr_rotateright( SDR *x ); 		// shift x right by one bit
 SDR *sdr_rotateleft( SDR *x ); 			// shift x left by one bit

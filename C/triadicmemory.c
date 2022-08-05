@@ -66,22 +66,26 @@ static SDR* binarize (SDR *v, int targetsparsity)
 // ---------- SDR utility functions ----------
 
 
-
-
-
-SDR* sdr_random( SDR*s, int p)
+static void srand_init()
 	{
-	static int *range = 0;
+	static int initialized = 0;
+	if (! initialized)
+		{
+		srand((unsigned int)time(NULL)); initialized = 1;
+		}
+	}
+	
+
+SDR* sdr_random( SDR*s, int p) // fill s with p random bits (in place)
+	{
+	srand_init();
+	
 	int n = s->n;
 	s->p = p;
+
+	int *range = malloc(n*sizeof(int));
+	for (int i = 0; i < n; i++) range[i] = i; // initialize with integers 0 to n-1
 	
-	if (! range)
-		{
-		srand((unsigned int)time(NULL));		// make sure this is called only once
-		range = malloc(n*sizeof(int));			// integers 0 to n-1
-		for (int i = 0; i < n; i++) range[i] = i;
-		}
-		
 	for (int k = 0; k < p; k++) // random selection of p integers in the range 0 to n-1
 		{
 		int r = rand() % n;
@@ -90,9 +94,53 @@ SDR* sdr_random( SDR*s, int p)
 		n--; // values swapped to the end won't get picked again
 		}
 		
+	free(range);
+		
 	qsort( s->a, p, sizeof(int), cmpfunc);
 	return s;
 	}
+	
+// add noise to an SDR, operating in place
+// bits > 0 : add bits (salt)
+// bits < 0 : remove bits (pepper)
+
+SDR* sdr_noise( SDR*s, int bits)
+	{
+	SDR* t = sdr_new(s->n); sdr_set(t,s);
+	
+	if (bits >= 0) // add bits (salt noise)
+		{
+		// add random SDR r
+		// less than the desired number of bits will be added if r overlaps with s
+		
+		SDR* r = sdr_new(s->n);
+		sdr_or(s, t, sdr_random(r, bits));
+		sdr_delete(r);
+		}
+		
+	else	{
+		// remove bits
+		srand_init();
+
+		s->p += bits;
+		if (s->p < 0) s->p = 0;
+		
+		for (int k = 0; k < s->p; k++) // random selection of b integers from SDR t
+			{
+			int r = rand() % t->p;
+			s->a[k] = t->a[r];
+			int tmp = t->a[t->p-1]; t->a[t->p-1] = t->a[r]; t->a[r] = tmp; // swap selected value to the end
+			t->p--; // values swapped to the end won't get picked again
+			}
+
+		qsort( s->a, s->p, sizeof(int), cmpfunc);
+		}
+	
+	sdr_delete(t);
+	return s;
+	}
+	
+	
 	
 SDR *sdr_new(int n)
 	{
@@ -102,6 +150,14 @@ SDR *sdr_new(int n)
 	s->p = 0;
 	return s;
 	}
+	
+void sdr_delete(SDR *s)
+	{
+	free(s->a);
+	free(s);
+	}
+	
+	
 	
 SDR *sdr_set( SDR *x, SDR *y) // copy y to x
 	{
@@ -254,9 +310,9 @@ void sdr_print0(SDR *s)
 	
 // ---------- Dyadic Memory -- stores hetero-associations x->y ----------
 
-static int address(int nx, int ny, int i, int j)
+static int address(int n, int i, int j)
 	{
-	return ny * (i + j*(j-1)/2);
+	return i + j*(j-1)/2;
 	}
 
 
@@ -283,7 +339,7 @@ void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
-			int u = address( D->n, D->n, x->a[i], x->a[j]);
+			int u = D->n * address( D->n, x->a[i], x->a[j]);
 			
 			for( int k = 0; k < y->p; k++)
 				++ *( D->m + u + y->a[k] );
@@ -296,7 +352,7 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
-			int u = address( D->n, D->n, x->a[i], x->a[j]);
+			int u = D->n * address( D->n, x->a[i], x->a[j]);
 			for( int k = 0; k < y->p; k++)
 				if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
 					-- *( D->m + u + y->a[k] );
@@ -307,13 +363,12 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	{
 	// warning: x and y must point to different SDRs
-	
 	for( int k = 0; k < D->n; k++ ) y->a[k] = 0;
 			
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
-			int u = address( D->n, D->n, x->a[i], x->a[j]);
+			int u = D->n * address( D->n, x->a[i], x->a[j]);
 			for( int k = 0; k < D->n; k++)
 				y->a[k] += *( D->m + u + k);
 			}
@@ -349,8 +404,7 @@ void asymmetricdyadicmemory_write (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
-			int u = address( D->nx, D->ny, x->a[i], x->a[j]);
-			
+			int u = D->ny * address( D->nx, x->a[i], x->a[j]);
 			for( int k = 0; k < y->p; k++)
 				++ *( D->m + u + y->a[k] );
 			}
@@ -362,7 +416,7 @@ void asymmetricdyadicmemory_delete (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
-			int u = address( D->nx, D->ny, x->a[i], x->a[j]);
+			int u = D->ny * address( D->nx, x->a[i], x->a[j]);
 			for( int k = 0; k < y->p; k++)
 				if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
 					-- *( D->m + u + y->a[k] );
@@ -373,13 +427,12 @@ void asymmetricdyadicmemory_delete (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
 SDR* asymmetricdyadicmemory_read (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
 	{
 	// warning: x and y must point to different SDRs
-	
 	for( int k = 0; k < D->ny; k++ ) y->a[k] = 0;
 			
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
-			int u = address( D->nx, D->ny, x->a[i], x->a[j]);
+			int u = D->ny * address( D->nx, x->a[i], x->a[j]);
 			for( int k = 0; k < D->ny; k++)
 				y->a[k] += *( D->m + u + k);
 			}
