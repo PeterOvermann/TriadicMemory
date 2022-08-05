@@ -6,10 +6,9 @@ The Triadic Memory algorithm was discovered in 2021 and first published [here](h
 Subsequently, a variety of related algorithms have been derived from Triadic Memory.
 
 Models of brain functions can be designed and implemented by creating circuits from the algorithmic components in this repository. An example
-is the elementary Temporal Memory algorithm, a feedback circuit which resembles a simple recurring neural network.
+is the elementary Temporal Memory algorithm, a feedback circuit which implements a simple recurring neural network.
 
-One of the goals of this project is to build larger circuits able to solve complex machine learning tasks, as a possible alternative to
-common deep learning techniques which are not rooted in the brain's core cognitive functions.
+The goal of this project is to build circuits able to solve increasingly complex AI tasks with very simple programs that are rooted in the brain's core cognitive algorithms.
 
 
 ## Implementations 
@@ -31,7 +30,7 @@ Examples and executable Mathematica notebooks can be found [here](Mathematica/No
 
 ## Triadic Memory
 
-Triadic Memory is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called SDRs).
+Triadic Memory is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called sparse distributed representations, or SDRs).
 
 After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts: `{_,y,z}` recalls `x`, `{x,_,z}` recalls `y`, and `{x,y,_}` recalls `z`. Given three items `{x,y,z}`, one can test if their association is stored in memory by calculating, for instance, the Hamming distance or overlap between `{x,y,_}` and `z`. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
 
