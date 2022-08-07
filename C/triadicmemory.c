@@ -125,7 +125,7 @@ SDR* sdr_noise( SDR*s, int bits)
 		s->p += bits;
 		if (s->p < 0) s->p = 0;
 		
-		for (int k = 0; k < s->p; k++) // random selection of b integers from SDR t
+		for (int k = 0; k < s->p; k++) // random selection of s->p integers from SDR t
 			{
 			int r = rand() % t->p;
 			s->a[k] = t->a[r];
@@ -310,27 +310,25 @@ void sdr_print0(SDR *s)
 	
 // ---------- Dyadic Memory -- stores hetero-associations x->y ----------
 
-static int address(int n, int i, int j)
-	{
-	return i + j*(j-1)/2;
-	}
+// nx: dimension of x
+// ny: dimension of y
+// p:  target sparsity of y in query
 
-
-DyadicMemory *dyadicmemory_new(int n, int p)
+DyadicMemory *dyadicmemory_new(int nx, int ny, int p)
 	{
 	DyadicMemory *a = malloc(sizeof(DyadicMemory));
 	
 	// limitation: malloc may fail for large n, use virtual memory instead in this case
-	a->m = (TMEMTYPE*) malloc( n*n*(n-1)/2 * sizeof(TMEMTYPE));
+	a->m = (TMEMTYPE*) malloc( ny * nx*(nx-1)/2 * sizeof(TMEMTYPE));
 	
-	a->n = n;
-	a->p = p;
+	a->nx = nx;	// dimension of nx
+	a->ny = ny;	// dimension of ny
+	a->p = p; 	// sparsity target for y
 
-	for(int i = 0; i < n*n*(n-1)/2 ; i++)  *(a->m + i) = 0; // memory initialization
+	for(int i = 0; i < ny * nx*(nx-1)/2 ; i++)  *(a->m + i) = 0; // memory initialization
 	
 	return a;
 	}
-	
 	
 	
 	
@@ -339,10 +337,9 @@ void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
-			int u = D->n * address( D->n, x->a[i], x->a[j]);
-			
+			int addr = y->n * (x->a[i] + x->a[j]*(x->a[j]-1)/2);
 			for( int k = 0; k < y->p; k++)
-				++ *( D->m + u + y->a[k] );
+				++ *( D->m + addr + y->a[k] );
 			}
 	}
 	
@@ -352,10 +349,10 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
-			int u = D->n * address( D->n, x->a[i], x->a[j]);
+			int addr = y->n * (x->a[i] + x->a[j]*(x->a[j]-1)/2);
 			for( int k = 0; k < y->p; k++)
-				if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
-					-- *( D->m + u + y->a[k] );
+				if (*( D->m + addr + y->a[k] ) > 0) // test for counter underflow
+					-- *( D->m + addr + y->a[k] );
 			}
 	}
 	
@@ -363,78 +360,14 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	{
 	// warning: x and y must point to different SDRs
-	for( int k = 0; k < D->n; k++ ) y->a[k] = 0;
+	for( int k = 0; k < y->n; k++ ) y->a[k] = 0;
 			
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
-			int u = D->n * address( D->n, x->a[i], x->a[j]);
-			for( int k = 0; k < D->n; k++)
-				y->a[k] += *( D->m + u + k);
-			}
-						
-	return binarize(y, D->p);
-	}
-	
-	
-// ---------- Asymmetric Dyadic Memory (x and y with different dimensions) ----------
-
-
-
-AsymmetricDyadicMemory *asymmetricdyadicmemory_new(int nx, int ny, int p)
-	{
-	AsymmetricDyadicMemory *a = malloc(sizeof(AsymmetricDyadicMemory));
-	
-	// limitation: malloc may fail for large n, use virtual memory instead in this case
-	a->m = (TMEMTYPE*) malloc( ny * nx*(nx-1)/2 * sizeof(TMEMTYPE));
-	
-	a->nx = nx;
-	a->ny = ny;
-	a->p = p; // sparsity target for y
-
-	for(int i = 0; i < ny * nx*(nx-1)/2 ; i++)  *(a->m + i) = 0; // memory initialization
-	
-	return a;
-	}
-	
-	
-	
-void asymmetricdyadicmemory_write (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
-	{
-	for( int j = 1; j < x->p; j++ )
-		for ( int i = 0; i < j; i++ )
-			{
-			int u = D->ny * address( D->nx, x->a[i], x->a[j]);
-			for( int k = 0; k < y->p; k++)
-				++ *( D->m + u + y->a[k] );
-			}
-	}
-	
-	
-void asymmetricdyadicmemory_delete (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
-	{
-	for( int j = 1; j < x->p; j++ )
-		for ( int i = 0; i < j; i++ )
-			{
-			int u = D->ny * address( D->nx, x->a[i], x->a[j]);
-			for( int k = 0; k < y->p; k++)
-				if (*( D->m + u + y->a[k] ) > 0) // test for counter underflow
-					-- *( D->m + u + y->a[k] );
-			}
-	}
-	
-
-SDR* asymmetricdyadicmemory_read (AsymmetricDyadicMemory *D, SDR *x, SDR *y)
-	{
-	// warning: x and y must point to different SDRs
-	for( int k = 0; k < D->ny; k++ ) y->a[k] = 0;
-			
-	for( int j = 1; j < x->p; j++ )
-		for ( int i = 0; i < j; i++ )
-			{
-			int u = D->ny * address( D->nx, x->a[i], x->a[j]);
-			for( int k = 0; k < D->ny; k++)
-				y->a[k] += *( D->m + u + k);
+			int addr = y->n * (x->a[i] + x->a[j]*(x->a[j]-1)/2);
+			for( int k = 0; k < y->n; k++)
+				y->a[k] += *( D->m + addr + k);
 			}
 						
 	return binarize(y, D->p);
@@ -450,8 +383,8 @@ MonadicMemory* monadicmemory_new (int n, int p)
 	{
 	MonadicMemory *M = malloc( sizeof(MonadicMemory));
 	
-	M->D1 = dyadicmemory_new(n, p);
-	M->D2 = dyadicmemory_new(n, p);
+	M->D1 = dyadicmemory_new(n, n, p);
+	M->D2 = dyadicmemory_new(n, n, p);
 	
 	M->h = sdr_new(n);	// hidden value
 	M->r = sdr_new(n);	// return value

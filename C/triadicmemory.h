@@ -29,7 +29,9 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	
 typedef struct
 	{
-	int *a, n, p;
+	int 	*a,	// indices of non-zero positions, stored in array of size n
+		n,	// SDR dimension
+		p; 	// number of non-zero positions
 	} SDR;
 	
 
@@ -59,37 +61,27 @@ void sdr_print0(SDR *);				// print SDR followed by newline (values 0 to N-1)
 // ---------- Dyadic Memory (stores hetero-associations x-> y) ----------
 
 
+
 typedef struct
 	{
+		
 	TMEMTYPE* m;
-	int n, p;
+	int 	nx,	// dimension of x
+		ny,	// dimension of y
+		p; 	// target sparsity of y in query
+	
 	} DyadicMemory;
 
 
-DyadicMemory *dyadicmemory_new(int n, int p);
+DyadicMemory *dyadicmemory_new(int nx, int ny, int p);
 
 void dyadicmemory_write 	(DyadicMemory *, SDR *, SDR *);
 void dyadicmemory_delete 	(DyadicMemory *, SDR *, SDR *);
 SDR* dyadicmemory_read 		(DyadicMemory *, SDR *, SDR *);
 
 
-
-// ---------- Asymmetric Dyadic Memory (x and y with different dimensions) ----------
-
-
-typedef struct
-	{
-	TMEMTYPE* m;
-	int nx, ny, p; // p is the target sparsity for y
-	} AsymmetricDyadicMemory;
-
-
-AsymmetricDyadicMemory *asymmetricdyadicmemory_new(int nx, int ny, int p);
-
-void asymmetricdyadicmemory_write 	(AsymmetricDyadicMemory *, SDR *, SDR *);
-void asymmetricdyadicmemory_delete 	(AsymmetricDyadicMemory *, SDR *, SDR *);
-SDR* asymmetricdyadicmemory_read 	(AsymmetricDyadicMemory *, SDR *, SDR *);
-
+// AsymmetricDyadicMemory has been deprecated to avoid code duplication
+// DyadicMemory now includes the asymmetric case
 
 
 

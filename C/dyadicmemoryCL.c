@@ -68,7 +68,7 @@ version
 
 
 #define VERSIONMAJOR 1
-#define VERSIONMINOR 2
+#define VERSIONMINOR 3
 
 #define SEPARATOR ','
 
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 	SDR *x = sdr_new(Nx);
 	SDR *y = sdr_new(Ny);
 	
-	AsymmetricDyadicMemory *D = asymmetricdyadicmemory_new(Nx, Ny, P);
+	DyadicMemory *D = dyadicmemory_new(Nx, Ny, P);
 
 	while (	fgets(inputline, sizeof(inputline), stdin) != NULL)
 		{
@@ -161,14 +161,14 @@ int main(int argc, char *argv[])
 				
 				// store or delete x->y
 				if (delete)
-					asymmetricdyadicmemory_delete (D, x,y);
+					dyadicmemory_delete (D, x,y);
 				else
-					asymmetricdyadicmemory_write (D, x,y);
+					dyadicmemory_write (D, x,y);
 				}
 				
 			else if (*buf == 0) // query
 				{
-				asymmetricdyadicmemory_read (D, x, y);
+				dyadicmemory_read (D, x, y);
 				sdr_print(y);
 				}
 			else
