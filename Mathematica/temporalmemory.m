@@ -30,33 +30,36 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 (* Requires TriadicMemory, defined in triadicmemory.m *)
 
-TemporalMemory[ t_Symbol, {n_Integer, p_Integer} ] := 
-	Module[ {M1, M2, overlap, y, c, u, v, prediction },
-   
-	TriadicMemory[M1, {n, p}]; (* encodes context *)
-	TriadicMemory[M2, {n, p}]; (* stores predictions *)
-   
-	overlap[ a_SparseArray, b_SparseArray ] := Total[BitAnd[a, b]];
-   
-	(* initialize state variables with null vectors *)
-	y = c = u = v = prediction = M1[0]; 
-   
-	t[inp_] := Module[ {x},	
 	
-		(* flush state if input is zero -- needed when used as a sequence memory *)
-		If[ Total[inp] == 0, Return[y = c = u = v = prediction = M1[0]]];
-     
+TemporalMemory[t_Symbol,{n_Integer,p_Integer}]:=
+
+	Module[ { M1, M2, overlap, y1, z1, x2, y2, z2 },
+
+	TriadicMemory[M1, {n,p} ];	(* context *)
+	TriadicMemory[M2, {n,p} ];	(* predictions *)
+
+	overlap[a_SparseArray, b_SparseArray] := Total[BitAnd[a,b]];
+
+	(* initialize circuit state variables with zero vectors *)
+	y1 = z1 = x2 = y2 = z2 = M1[0];
+
+	t[inp_] := Module[ {x1},
+
+		(*flush state if input is zero -needed when used as a sequence memory*)
+		If[Total[inp] == 0, Return[ y1 = z1 = x2 = y2 = z2 = M1[0]]];
+
 		(* bundle previous input with previous context *)
-		x = BitOr[y, c] ;   
-     
+		x1 = BitOr[y1,z1];
+
 		(* store new prediction if necessary *)
-		If[ prediction != (y = inp), M2[u, v, y]];    
+		If[ z2 != (y1=inp), M2[x2, y2, y1]];
 
 		(* create new random context if necessary *)
-		If[ overlap[M1[_, y, c = M1[x, y, _]], x] < p, M1[x, y, c = M1[]] ]; 
-     
-		prediction = M2[ u = x, v = y, _] 
-	 	]
-   
-   ];
+		If[ overlap[ M1[_, y1, z1 = M1[x1, y1, _]], x1 ] < p, M1[x1, y1, z1 = M1[]]];
+
+		z2 = M2[x2 = x1, y2 = y1, _] (* z2 is the prediction *)
+		]
+
+	];
+	
 		
