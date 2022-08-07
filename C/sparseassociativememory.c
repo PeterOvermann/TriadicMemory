@@ -202,26 +202,26 @@ int main(int argc, char *argv[])
 					}
 				
 				// store x->y
-				for( int i = 0; i < xmax-1; i++)
-					for( int j = i+1; j < xmax; j++)
+				for( int j = 1; j < xmax; j++ )
+					for ( int i = 0; i < j; i++ )
 						{
 						int sort = 0;
 						
-						int u = (-x[i] * (1 + x[i]) + 2*(x[j] + N*(x[i] - 1)) ) / 2;
+						int addr = x[i] + x[j]*(x[j]-1) / 2;
 						
-						if (! T[u]) // initial allocation of memory chunk
+						if (! T[addr]) // initial allocation of memory chunk
 							{
 							// allocate twice the average sparse population of y
 							int newchunksize = 2 * (int) round(P);
 							if (newchunksize > chunk) chunk = newchunksize;
 							
-							T[u] = (YTYPE*) malloc(chunk * sizeof(YTYPE));
+							T[addr] = (YTYPE*) malloc(chunk * sizeof(YTYPE));
 							
-							T[u][CHUNKSIZE] = chunk; 	// bookkeeping: allocated size
-							T[u][LENGTH] = 0;			// bookkeeping: used size
+							T[addr][CHUNKSIZE] = chunk; 	// bookkeeping: allocated size
+							T[addr][LENGTH] = 0;			// bookkeeping: used size
 							}
 							
-						YTYPE *Y = T[u];
+						YTYPE *Y = T[addr];
 								
 						int t = OFFSET;
 						int len = OFFSET + Y[LENGTH];
@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
 									for (int i = OFFSET; i < Y[LENGTH] + OFFSET; i++)
 										newchunk[i] = Y[i];
 									free (Y);
-									T[u] = Y = newchunk;
+									T[addr] = Y = newchunk;
 									}
 								
 								Y[OFFSET + Y[LENGTH]++ ] = pos + 1; // little 16 bits store counter value 1
@@ -270,10 +270,12 @@ int main(int argc, char *argv[])
 				{
 				for( int i = 0; i < Ny; i++ ) y[i] = 0; // initialize output vector
 			
-				for( int i = 0; i < xmax-1; i++)		// iterating over all index pairs in x
-					for( int j = i+1; j < xmax; j++)
+				for( int j = 1; j < xmax; j++ )
+					for ( int i = 0; i < j; i++ )
 						{
-						YTYPE *Y = T[(-x[i] * (1 + x[i]) + 2*(x[j] + N*(x[i] - 1)) ) / 2];
+						int addr = x[i] + x[j]*(x[j]-1) / 2;
+						
+						YTYPE *Y = T[addr];
 						
 						if (Y)
 							for (int h = 0; h < Y[LENGTH]; h++)
