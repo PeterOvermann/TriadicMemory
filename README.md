@@ -78,7 +78,7 @@ The algorithm uses a mirrored pair of Dyadic Memory instances, which effectively
 It's capacity is the same as the capacity of the underlying Dyadic Memory instances, for example 500k items for dimension `n = 1000` and sparse population `p = 10`.
 
 
-## Temporal Memory
+## Deep Temporal Memory
 
 A temporal memory processes a stream of SDRs, at each step making a prediction for the following step based on previously seen information.
 It can also be used for learning separate terminated sequences.
@@ -87,7 +87,5 @@ Temporal Memory algorithms are based on circuits of two or more Triadic Memory i
 
 An [elementary Temporal Memory](Mathematica/Notebooks/Temporal%20Memory%20Elementary%20Algorithm.pdf) uses two Triadic Memory units arranged in the form of an Elman network.
 
-An implementation based on three Triadic Memory units can be found [here](Mathematica/Notebooks/Temporal%20Memory%20-%203%20Stages.pdf).
-
-
+An implementation based on 8 Triadic Memory units with multiple feedback loops can be found [here](Mathematica/Notebooks/Deep%20Temporal%20Memory%20-%20Introduction.pdf).
 
