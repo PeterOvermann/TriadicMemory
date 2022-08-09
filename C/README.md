@@ -3,7 +3,7 @@
 
 #### triadicmemory.c and triadicmemory.h
 
-Reference implementations of the Monadic/Dyadic/Triadic Memory algorithms, the Temporal Memory, and various SDR utilities.
+Reference implementations of the Monadic/Dyadic/Triadic Memory algorithms and various SDR utilities.
 Can be compiled as a library.
 
 #### triadicmemoryCL.c
@@ -18,9 +18,14 @@ Dyadic Memory command line tool. Depends on triadicmemory.c and triadicmemory.h.
 
 Monadic Memory command line tool. Depends on triadicmemory.c and triadicmemory.h.
 
-#### temporalmemoryCL.c
+#### temporalmemory.c
 
-Temporal Memory command line tool. Depends on triadicmemory.c and triadicmemory.h.
+Elementary Temporal Memory algorithm and command line tool wrapper. Depends on triadicmemory.c and triadicmemory.h.
+
+#### deeptemporalmemory.c
+
+Deep Temporal Memory algorithm and command line tool wrapper. Depends on triadicmemory.c and triadicmemory.h.
+
 
 #### sparseassociativememory.c
 
