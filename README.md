@@ -85,7 +85,8 @@ It can also be used for learning separate terminated sequences.
 
 Temporal Memory algorithms are based on circuits of two or more Triadic Memory instances with at least one feedback loop, resembling the architecture of recurrent neural networks. 
 
-An [elementary Temporal Memory](Mathematica/Notebooks/Temporal%20Memory%20Elementary%20Algorithm.pdf) uses two Triadic Memory units arranged in the form of an Elman network.
+The [elementary Temporal Memory](Mathematica/Notebooks/Temporal%20Memory%20Elementary%20Algorithm.pdf) uses two Triadic Memory units arranged in the form of an Elman network.
 
-An implementation based on 8 Triadic Memory units with multiple feedback loops can be found [here](Mathematica/Notebooks/Deep%20Temporal%20Memory%20-%20Introduction.pdf).
+A [Deep Temporal Memory](Mathematica/Notebooks/Deep%20Temporal%20Memory%20-%20Introduction.pdf) based on a hierarchy of triadic memory units
+can be found [here](C/deeptemporalmemory.c).
 
