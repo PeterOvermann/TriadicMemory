@@ -122,18 +122,6 @@ SDR* triadicmemory_read_y  (TriadicMemory *, SDR *, SDR *, SDR *);
 SDR* triadicmemory_read_z  (TriadicMemory *, SDR *, SDR *, SDR *);
 
 
-// ---------- Temporal Memory ----------
-
-
-typedef struct
-	{
-	TriadicMemory *M1, *M2;
-	SDR *x, *y, *c, *u, *v, *prediction;
-	} TemporalMemory;
-	
-TemporalMemory* temporalmemory_new (int n, int p);		// constructor
-SDR* temporalmemory (TemporalMemory *, SDR *);			// predictor
-
 
 
 // ---------- Command Line Functions ----------
