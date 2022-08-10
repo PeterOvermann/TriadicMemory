@@ -106,6 +106,9 @@ SDR* temporalbigramencoder (TemporalBigramEncoder *R, SDR *inp)
 	sdr_or (R->x, R->y, R->z);
 	sdr_set(R->y, inp);
 	
+	if (R->x->p == 0)
+		return R->z;
+	
 	triadicmemory_read_z (R->T, R->x, R->y, R->z); // recall z
 	triadicmemory_read_x (R->T, R->u, R->y, R->z); // recall u (temp variable)
 	
