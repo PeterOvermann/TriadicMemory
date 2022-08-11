@@ -89,7 +89,7 @@ The [elementary Temporal Memory](Mathematica/Notebooks/Temporal%20Memory%20Eleme
 
 The [Deep Temporal Memory algorithm](Mathematica/Notebooks/Deep%20Temporal%20Memory%20-%20Introduction.pdf), a circuit of hierarchically arranged triadic memory units with multiple feedback loops, is described in this [notebook](C/deeptemporalmemory.c).
 
-Trained with a dataset from the [SPMF](Mathematica/Notebooks/Deep%20Temporal%20Memory%20-%20SPMF%20Sequence%20Example.pdf) project, Deep Temporal Memory achieved a prediction accuracy of 95.5 percent.
+Trained with a dataset from the [SPMF](Mathematica/Notebooks/Deep%20Temporal%20Memory%20-%20SPMF%20Sequence%20Example.pdf) project, Deep Temporal Memory achieved a prediction accuracy of 99.5 percent.
 
 
 
