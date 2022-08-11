@@ -6,7 +6,7 @@ The Triadic Memory algorithm was discovered in 2021 and first published [here](h
 Subsequently, a variety of related algorithms have been derived from Triadic Memory.
 
 Models of brain functions can be designed and implemented by creating circuits from the algorithmic components in this repository. An example
-is the elementary Temporal Memory algorithm, a feedback circuit which implements a simple recurring neural network.
+is the Deep Temporal Memory algorithm, a recurring neural network based on 5 to 10 triadic memory instances with multiple feedback lines.
 
 The goal of this project is to build circuits able to solve increasingly complex AI tasks with very simple programs that are rooted in the brain's core cognitive algorithms.
 
@@ -87,6 +87,10 @@ Temporal Memory algorithms are based on circuits of two or more Triadic Memory i
 
 The [elementary Temporal Memory](Mathematica/Notebooks/Temporal%20Memory%20Elementary%20Algorithm.pdf) uses two Triadic Memory units arranged in the form of an Elman network.
 
-A [Deep Temporal Memory](Mathematica/Notebooks/Deep%20Temporal%20Memory%20-%20Introduction.pdf) based on a hierarchy of triadic memory units
+A [Deep Temporal Memory algorithm](Mathematica/Notebooks/Deep%20Temporal%20Memory%20-%20Introduction.pdf) based on a hierarchy of triadic memory units
 can be found [here](C/deeptemporalmemory.c).
+
+Trained with a dataset from the [SPMF](Mathematica/Notebooks/Deep%20Temporal%20Memory%20-%20SPMF%20Sequence%20Example.pdf) project, Deep Temporal Memory achieved a prediction accuracy of 95.5 percent.
+
+
 
