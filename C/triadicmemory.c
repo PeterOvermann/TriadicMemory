@@ -1,3 +1,4 @@
+ 
 /*
 triadicmemory.c
 
@@ -37,27 +38,32 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 static int cmpfunc (const void * a, const void * b)
 	{ return  *(int*)a - *(int*)b; }
-		
-static SDR* binarize (SDR *v, int targetsparsity)
+	
+	
+	
+// convert an array of non-negative integers v to an SDR x with target sparse population pop
+// this is used when querying a dyadic/triadic memory
+
+static SDR* binarize (SDR *x, int *v, int pop)
 	{
-	int sorted[v->n], rankedmax;
+	int sorted[x->n], rankedmax;
 	
-	for ( int i=0; i < v->n; i++ )
-		sorted[i] = v->a[i];
+	for ( int i=0; i < x->n; i++ )
+		sorted[i] = v[i];
 	
-	qsort( sorted, v->n, sizeof(int), cmpfunc);
+	qsort( sorted, x->n, sizeof(int), cmpfunc);
 	
-	rankedmax = sorted[ v->n - targetsparsity ];
+	rankedmax = sorted[ x->n - pop ];
 	
 	if(rankedmax == 0)
 		rankedmax = 1;
 		
-	v->p = 0;
-	for ( int i = 0; i < v->n; i++)
-		if (v->a[i] >= rankedmax)
-			v->a[v->p++] = i;
+	x->p = 0;
+	for ( int i = 0; i < x->n; i++)
+		if (v[i] >= rankedmax)
+			x->a[x->p++] = i;
 	
-	return v;
+	return x;
 	}
 
 
@@ -359,18 +365,18 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 
 SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	{
-	// warning: x and y must point to different SDRs
-	for( int k = 0; k < y->n; k++ ) y->a[k] = 0;
-			
+
+	int v[y->n]; for( int t = 0; t < y->n; t++ ) v[t] = 0;
+	
 	for( int j = 1; j < x->p; j++ )
 		for ( int i = 0; i < j; i++ )
 			{
 			int addr = y->n * (x->a[i] + x->a[j]*(x->a[j]-1)/2);
 			for( int k = 0; k < y->n; k++)
-				y->a[k] += *( D->m + addr + k);
+				v[k] += *( D->m + addr + k);
 			}
 						
-	return binarize(y, D->p);
+	return binarize(y, v, D->p);
 	}
 	
 	
@@ -435,57 +441,52 @@ TriadicMemory *triadicmemory_new(int n, int p)
 	
 void triadicmemory_write (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int N = T->n;
-	
 	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
-		++ *( T->m + N*N*x->a[i] + N*y->a[j] + z->a[k] ); // counter overflow is unlikely
+		// not checking for counter overflow (it's unlikely)
+		++ *( T->m + z->n * y->n * x->a[i] + z->n * y->a[j] + z->a[k] );
 	}
 	
 void triadicmemory_delete (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int N = T->n;
-	
 	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
-		if (*( T->m + N*N*x->a[i] + N*y->a[j] + z->a[k] ) > 0) // checking for counter underflow
-			-- *( T->m + N*N*x->a[i] + N*y->a[j] + z->a[k] );
+		// checking for counter underflow
+		if (*( T->m + z->n * y->n * x->a[i] + z->n * y->a[j] + z->a[k] ) > 0)
+		
+			-- *( T->m + z->n * y->n * x->a[i] + z->n * y->a[j] + z->a[k] );
 	}
 	
 
+// in the following three query functions, weights are collected into an integer array v
+// the function binarize converts v to an SDR with the specified target population
 
 SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int N = T->n;
+	int v[x->n]; for( int t = 0; t < x->n; t++ ) v[t] = 0;
 	
-	for( int i = 0; i < N; i++ ) x->a[i] = 0;
-	
-	for( int j = 0; j < y->p; j++)  for( int k = 0; k < z->p; k++) for( int i = 0; i < N; i++)
-		x->a[i] += *( T->m + N*N*i + N*y->a[j] + z->a[k]);
+	for( int j = 0; j < y->p; j++)  for( int k = 0; k < z->p; k++) for( int i = 0; i < x->n; i++)
+		v[i] += *( T->m + z->n * y->n * i + z->n * y->a[j] + z->a[k]);
 						
-	return binarize(x, T->p);
+	return binarize(x, v, T->p);
 	}
 
 SDR* triadicmemory_read_y (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int N = T->n;
-	
-	for( int j = 0; j < N; j++ ) y->a[j] = 0;
+	int v[y->n]; for( int t = 0; t < y->n; t++ ) v[t] = 0;
 		
-	for( int i = 0; i < x->p; i++) for( int j = 0; j < N; j++) for( int k = 0; k < z->p; k++)
-		y->a[j] += *( T->m + N*N*x->a[i] + N*j + z->a[k]);
+	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->n; j++) for( int k = 0; k < z->p; k++)
+		v[j] += *( T->m + z->n * y->n * x->a[i] + z->n * j + z->a[k]);
 						
-	return binarize(y, T->p);
+	return binarize(y, v, T->p);
 	}
 
 SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int N = T->n;
+	int v[z->n]; for( int t = 0; t < z->n; t++ ) v[t] = 0;
 	
-	for( int k = 0; k < N; k++ ) z->a[k] = 0;
-	
-	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < N; k++)
-		z->a[k] += *( T->m + N*N*x->a[i] + N*y->a[j] + k);
+	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->n; k++)
+		v[k] += *( T->m + z->n * y->n * x->a[i] + z->n * y->a[j] + k);
 						
-	return binarize(z, T->p);
+	return binarize(z, v, T->p);
 	}
 	
 
@@ -520,3 +521,4 @@ char* sdr_parse (char *buf, SDR *s)
 		
 	return buf;
 	}
+
