@@ -32,7 +32,12 @@ Examples and executable Mathematica notebooks can be found [here](Mathematica/No
 
 Triadic Memory is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called sparse distributed representations, or SDRs).
 
-After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts: `{_,y,z}` recalls `x`, `{x,_,z}` recalls `y`, and `{x,y,_}` recalls `z`. Given three items `{x,y,z}`, one can test if their association is stored in memory by calculating, for instance, the Hamming distance or overlap between `{x,y,_}` and `z`. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
+As a content-addressable triple store, Triadic Memory is naturally suited for storing (semantic information)[Mathematica/Notebooks/Triadic%20Memory%20-%20Semantic%20Triples%20and%20Analogies.pdf].
+
+
+After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts. One can test if a specific association is already stored in memory. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
+
+Triadic Memory learns new information in one shot. Stored data can be recalled from incomplete or noisy input data.
 
 A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervectors with dimension `n` and sparse population `p`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million triples.
 
