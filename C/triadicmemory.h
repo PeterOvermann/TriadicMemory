@@ -56,6 +56,7 @@ void sdr_print0(SDR *);				// print SDR followed by newline (values 0 to N-1)
 
 
 #define TMEMTYPE unsigned char
+#define TMEMTYPE_MAX 255
 
 
 // ---------- Dyadic Memory (stores hetero-associations x-> y) ----------
@@ -110,6 +111,7 @@ typedef struct
 	{
 	TMEMTYPE* m;
 	int n, p;
+	int forgetting; // whether to erase older information (off by default)
 	} TriadicMemory;
 
 TriadicMemory *triadicmemory_new(int n, int p);

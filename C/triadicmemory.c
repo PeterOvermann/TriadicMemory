@@ -36,9 +36,11 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
+// ---------- SDR utility functions ----------
+
+
 static int cmpfunc (const void * a, const void * b)
 	{ return  *(int*)a - *(int*)b; }
-	
 	
 	
 // convert an array of non-negative integers v to an SDR x with target sparse population pop
@@ -68,10 +70,6 @@ static SDR* binarize (SDR *x, int *v, int pop)
 
 
 
-
-// ---------- SDR utility functions ----------
-
-
 static void srand_init()
 	{
 	static int initialized = 0;
@@ -89,7 +87,8 @@ SDR* sdr_random( SDR*s, int p) // fill s with p random bits (in place)
 	int n = s->n;
 	s->p = p;
 
-	int *range = malloc(n*sizeof(int));
+	int range[n];
+	
 	for (int i = 0; i < n; i++) range[i] = i; // initialize with integers 0 to n-1
 	
 	for (int k = 0; k < p; k++) // random selection of p integers in the range 0 to n-1
@@ -99,9 +98,7 @@ SDR* sdr_random( SDR*s, int p) // fill s with p random bits (in place)
 		int tmp = range[n-1]; range[n-1] = range[r]; range[r] = tmp; // swap selected value to the end
 		n--; // values swapped to the end won't get picked again
 		}
-		
-	free(range);
-		
+	
 	qsort( s->a, p, sizeof(int), cmpfunc);
 	return s;
 	}
@@ -427,12 +424,15 @@ SDR* monadicmemory (MonadicMemory *M, SDR *inp)
 	
 TriadicMemory *triadicmemory_new(int n, int p)
 	{
+	srand_init();
+	
 	TriadicMemory *t = malloc(sizeof(TriadicMemory));
 	// limitation: malloc may fail for large n, use virtual memory instead in this case
 	
 	t->m = (TMEMTYPE*) malloc( n*n*n * sizeof(TMEMTYPE));
 	t->n = n;
 	t->p = p;
+	t->forgetting = 0;
 	
 	for (int i = 0; i < n*n*n; i++)  *(t->m + i) = 0;
 	
@@ -442,17 +442,33 @@ TriadicMemory *triadicmemory_new(int n, int p)
 void triadicmemory_write (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
 	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
-		// not checking for counter overflow (it's unlikely)
-		++ *( T->m + z->n * y->n * x->a[i] + z->n * y->a[j] + z->a[k] );
+		{
+		TMEMTYPE *q = T->m + z->n * y->n * x->a[i] + z->n * y->a[j] + z->a[k];
+		
+		if (*q < TMEMTYPE_MAX) ++ *q;  // check for counter overflow (although it's unlikely)
+		}
+	
+	if (T->forgetting) // disabled by default
+		{
+		// random forgetting: decrement the same number of memory locations (but not below zero)
+		int memsize = x->n * y->n * z->n;
+		for ( int i = 0; i < x->p * y->p * z->p; i++)
+			{
+			TMEMTYPE *q = T->m + rand() % memsize;
+			if (*q > 0) -- *q;
+			}
+		}
+	
 	}
 	
 void triadicmemory_delete (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
 	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
-		// checking for counter underflow
-		if (*( T->m + z->n * y->n * x->a[i] + z->n * y->a[j] + z->a[k] ) > 0)
+		{
+		TMEMTYPE *q = T->m + z->n * y->n * x->a[i] + z->n * y->a[j] + z->a[k];
 		
-			-- *( T->m + z->n * y->n * x->a[i] + z->n * y->a[j] + z->a[k] );
+		if (*q > 0) -- *q;	// check for counter underflow
+		}
 	}
 	
 
