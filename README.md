@@ -10,6 +10,10 @@ is the Deep Temporal Memory algorithm, a recurring neural network based on multi
 
 The goal of this project is to build circuits able to solve increasingly complex AI tasks with very simple programs that are rooted in the brain's core cognitive algorithms.
 
+## Resources 
+
+Examples and executable Mathematica notebooks can be found [here](Mathematica/Notebooks).
+
 
 ## Implementations 
 
@@ -25,14 +29,13 @@ Implementations of Triadic Memory and related algorithms are available in a grow
 - [Python](Python)
 - Scala (looking for contributors)
 
-Examples and executable Mathematica notebooks can be found [here](Mathematica/Notebooks).
 
 
 ## Triadic Memory
 
 Triadic Memory is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called sparse distributed representations, or SDRs).
 
-As a content-addressable triple store, Triadic Memory is naturally suited for storing (semantic information)[Mathematica/Notebooks/Triadic%20Memory%20-%20Semantic%20Triples%20and%20Analogies.pdf].
+As a content-addressable triple store, Triadic Memory is naturally suited for storing [semantic information](Mathematica/Notebooks/Triadic%20Memory%20-%20Semantic%20Triples%20and%20Analogies.pdf).
 
 
 After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts. One can test if a specific association is already stored in memory. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
