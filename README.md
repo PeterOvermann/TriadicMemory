@@ -71,9 +71,7 @@ The [plain C](C/triadicmemory.c) implementation best illustrates the algorithm i
 
 A [memory-optimized implementation](C/sparseassociativememory.c) supports hypervector dimensions up to `n = 20,000`. It can be used as a command line tool or as C library. No other SDM currently works with dimensions that large. 
 
-An Odin implementation is available [here](Odin/triadic/triadic_memory.odin).
-
-A Numba-accelerated Python version is available [here](Python/sdrsdm.py).
+An Odin implementation is available [here](Odin/triadic/triadic_memory.odin) and a Numba-accelerated Python version [here](Python/sdrsdm.py).
 
 ## Monadic Memory
 
@@ -81,8 +79,7 @@ Monadic Memory is an auto-associative memory, useful for [clustering](Examples/C
 
 The algorithm uses a mirrored pair of Dyadic Memory instances, which effectively form a hidden layer.
 
-It's capacity is the same as the capacity of the underlying Dyadic Memory instances, for example 500k items for dimension `n = 1000` and sparse population `p = 10`.
-
+It's capacity is the same as the capacity of the underlying Dyadic Memory instances.
 
 ## Deep Temporal Memory
 
