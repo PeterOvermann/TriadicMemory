@@ -10,9 +10,7 @@ is the Deep Temporal Memory algorithm, a recurring neural network based on multi
 
 The goal of this project is to build circuits able to solve increasingly complex AI tasks with very simple programs that are rooted in the brain's core cognitive algorithms.
 
-## Resources 
-
-Examples and executable Mathematica notebooks can be found [here](Mathematica/Notebooks).
+Various examples can be found [here](Examples).
 
 
 ## Implementations 
@@ -24,7 +22,7 @@ Implementations of Triadic Memory and related algorithms are available in a grow
 - Java (looking for contributors)
 - [Javascript](Javascript)
 - [Julia](Julia)
-- [Mathematica](Mathematica)
+- [Mathematica](Mathematica), with executable [notebooks](Mathematica/Notebooks)
 - [Odin](Odin)
 - [Python](Python)
 - Scala (looking for contributors)
