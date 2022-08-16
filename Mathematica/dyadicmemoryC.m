@@ -29,30 +29,26 @@ SetEnvironment[ "PATH" -> Environment["PATH"] <> ":/usr/local/bin"];
 *)
 
 
-
-
 DyadicMemory[f_Symbol, {n_Integer, p_Integer} ] := 
 
 	Module[ {process, tostr},
 				
 		(* random sparse vector with dimension n and sparse population p *)
 		f[] := SparseArray[RandomSample[ Range[n], p] -> Table[1, p], {n}] -> 
-					SparseArray[RandomSample[ Range[n], p] -> Table[1, p], {n}];
+			SparseArray[RandomSample[ Range[n], p] -> Table[1, p], {n}];
 
 		process = StartProcess[ {"dyadicmemory", ToString[n], ToString[p]}];  Pause[1];
 
 		tostr[x_SparseArray] := StringJoin[ ToString[#] <> " " & /@ Sort[Flatten[x["NonzeroPositions"]]]] ;
 
-		(* zero vector *)
-		f[0] = SparseArray[_ -> 0, {n}];
- 
+
 		(* store x->y *)
 		f[x_SparseArray -> y_SparseArray] := 
 		   (WriteLine[ process, tostr[x] <> ", " <> tostr[y]];);
 		
 		(* recall y, given an address x *)
 
-		f[SparseArray[_ -> 0, n]] = f[0]; (* special case: zero input *)
+		f[SparseArray[_ -> 0, n]] = SparseArray[_ -> 0, n]; (* special case: zero input *)
 		
 		f[x_SparseArray]  := Module[ {a},
 			WriteLine[ process, tostr[x] ]; 
@@ -60,6 +56,34 @@ DyadicMemory[f_Symbol, {n_Integer, p_Integer} ] :=
 		
  		];
 
+
+
+DyadicMemory[f_Symbol, {n1_Integer, p1_Integer}, {n2_Integer, p2_Integer} ] := 
+
+	Module[ {process, tostr},
+				
+		(* random sparse vector with dimension n and sparse population p *)
+		f[] := SparseArray[RandomSample[ Range[n1], p1] -> Table[1, p1], {n1}] -> 
+			SparseArray[RandomSample[ Range[n2], p2] -> Table[1, p2], {n2}];
+
+		process = StartProcess[ {"dyadicmemory", ToString[n1], ToString[n2], ToString[p2]}];  Pause[1];
+
+		tostr[x_SparseArray] := StringJoin[ ToString[#] <> " " & /@ Sort[Flatten[x["NonzeroPositions"]]]] ;
+
+
+		(* store x->y *)
+		f[x_SparseArray -> y_SparseArray] := 
+		   (WriteLine[ process, tostr[x] <> ", " <> tostr[y]];);
+		
+		(* recall y, given an address x *)
+
+		f[SparseArray[{0}, n1]] = SparseArray[{0}, n2]; (* special case: zero input *)
+		
+		f[x_SparseArray]  := Module[ {a},
+			WriteLine[ process, tostr[x] ]; 
+			a = ToExpression /@ StringSplit[ReadLine[process]]; SparseArray[ a -> Table[1, Length[a]], {n2}]];
+		
+ 		];
 
 
 

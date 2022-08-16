@@ -73,21 +73,20 @@ DyadicMemory[ f_Symbol, {n_Integer, p_Integer}] :=
 
 		connections[x_SparseArray] := Module[ {k = Sort[Flatten[x["NonzeroPositions"]]]},
 			Flatten[ Table[ {k[[i]], k[[j]]}, {i, 1, Length[k] - 1}, {j, i + 1, Length[k]}], 1] ];
-   
+      
 		(* store x->y *)
 
 		f[x_SparseArray -> y_SparseArray] := ((W[#] += y) & /@ connections[x];);
 	
 		(* recall y, given an address x *)
 
-		f[ SparseArray[ _ -> 0, n]] = SparseArray[_ -> 0, n]; (* special case: zero input *)
+		f[SparseArray[{0}, n]] = SparseArray[{0}, n]; (* special case: zero input *)
 		
 		f[x_SparseArray] := Module[  {v, t },
 			t = Max[1, RankedMax[v = Plus @@ (W /@ connections[x]), p]]; SparseArray[Boole[# >= t] & /@ v]
 		]
   
    ];
-
 
 
 
@@ -116,10 +115,15 @@ DyadicMemory[ f_Symbol, {n1_Integer, p1_Integer}, {n2_Integer, p2_Integer}] :=
 	
 		(* recall y, given an address x *)
 
-		f[ SparseArray[ _ -> 0, n1]] = SparseArray[_ -> 0, n2]; (* special case: zero input *)
+		f[SparseArray[{0}, n1] ] = SparseArray[{0}, n2]; (* special case: zero input *)
 		
 		f[x_SparseArray] := Module[  {v, t },
 			t = Max[1, RankedMax[v = Plus @@ (W /@ connections[x]), p2]]; SparseArray[Boole[# >= t] & /@ v]
 		]
   
    ];
+
+
+
+
+
