@@ -44,7 +44,11 @@ TriadicMemory[f_Symbol, {n_Integer, p_Integer} ] :=
 		tostr[_] = "_";
 
 		(* zero vector *)
-		f[0] = SparseArray[_ -> 0, {n}];
+		f[0] = SparseArray[{0}, {n}];
+		
+		(* binarize x *)
+  	  	f[x_] := Module[ {t = Max[1, RankedMax[x, p]]}, SparseArray[Boole[# >= t] & /@ x]]; 
+		
  
 		(* store {x,y,z} *)
 		f[x_SparseArray, y_SparseArray, z_SparseArray] := 
@@ -54,6 +58,8 @@ TriadicMemory[f_Symbol, {n_Integer, p_Integer} ] :=
 		f[x_, y_, z_]  := Module[ {a},
 			WriteLine[ process, "{" <> tostr[x] <> "," <> tostr[y] <> "," <> tostr[z] <> "}" ]; 
 			a = ToExpression /@ StringSplit[ReadLine[process]]; SparseArray[ a -> Table[1, Length[a]], {n}]];
+			
+		f["Quit"] := KillProcess[process]	
 		
  		];
 

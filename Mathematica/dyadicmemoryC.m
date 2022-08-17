@@ -53,6 +53,8 @@ DyadicMemory[f_Symbol, {n_Integer, p_Integer} ] :=
 		f[x_SparseArray]  := Module[ {a},
 			WriteLine[ process, tostr[x] ]; 
 			a = ToExpression /@ StringSplit[ReadLine[process]]; SparseArray[ a -> Table[1, Length[a]], {n}]];
+			
+		f["Quit"] := KillProcess[process]	
 		
  		];
 
@@ -82,7 +84,9 @@ DyadicMemory[f_Symbol, {n1_Integer, p1_Integer}, {n2_Integer, p2_Integer} ] :=
 		f[x_SparseArray]  := Module[ {a},
 			WriteLine[ process, tostr[x] ]; 
 			a = ToExpression /@ StringSplit[ReadLine[process]]; SparseArray[ a -> Table[1, Length[a]], {n2}]];
-		
+			
+			
+		f["Quit"] := KillProcess[process]	
  		];
 
 
