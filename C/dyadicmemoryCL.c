@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
 	else if (argc == 4)
 		{
 		sscanf( argv[1], "%d", &Nx);
-		sscanf( argv[1], "%d", &Ny);
-		sscanf( argv[2], "%d", &P);
+		sscanf( argv[2], "%d", &Ny);
+		sscanf( argv[3], "%d", &P);
 		}
 		
 	else
