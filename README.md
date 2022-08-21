@@ -1,6 +1,6 @@
 # Triadic Memory and related algorithms
 
-This repository is a collection of fundamental algorithms operating on sparse distributed representations, which is our brain's data structure.
+This repository is a collection of associative memory algorithms for sparse distributed representations, which is our brain's data structure.
 
 The Triadic Memory algorithm was discovered in 2021 and first published [here](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf).
 Subsequently, a variety of related algorithms have been derived from Triadic Memory.
