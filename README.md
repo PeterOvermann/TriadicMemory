@@ -35,8 +35,7 @@ Triadic Memory is an associative memory that stores ordered **triples** of spars
 
 As a content-addressable triple store, Triadic Memory is naturally suited for storing [semantic information](Examples/Triadic%20Memory%20-%20Semantic%20Triples%20and%20Analogies.pdf).
 
-
-After storing a triple {x,y,z} in memory, any of the three items can be recalled by specifying the other two parts. One can test if a specific association is already stored in memory. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
+Triadic memory allows tri-directional queries: Any part of an SDR triple can be recalled from the other two parts.One can test if a specific association is already stored in memory. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
 
 Triadic Memory learns new information in one shot. Stored data can be recalled from incomplete or noisy input data.
 
