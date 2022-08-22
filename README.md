@@ -72,13 +72,7 @@ A [memory-optimized implementation](C/sparseassociativememory.c) supports hyperv
 
 An Odin implementation is available [here](Odin/triadic/triadic_memory.odin) and a Numba-accelerated Python version [here](Python/sdrsdm.py).
 
-## Monadic Memory
 
-Monadic Memory is an auto-associative memory, useful for [clustering](Examples/Clustering%20with%20Monadic%20Memory.pdf) (spatial pooling) SDRs on the fly. 
-
-The algorithm uses a mirrored pair of Dyadic Memory instances, which effectively form a hidden layer.
-
-It's capacity is the same as the capacity of the underlying Dyadic Memory instances.
 
 ## Deep Temporal Memory
 
