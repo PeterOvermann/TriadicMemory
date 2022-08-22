@@ -324,6 +324,12 @@ DyadicMemory *dyadicmemory_new(int nx, int ny, int p)
 	// limitation: malloc may fail for large n, use virtual memory instead in this case
 	a->m = (TMEMTYPE*) malloc( ny * nx*(nx-1)/2 * sizeof(TMEMTYPE));
 	
+	if (! a->m )
+		{
+		printf("memory allocation failed\n");
+		exit(20);
+		}
+	
 	a->nx = nx;	// dimension of nx
 	a->ny = ny;	// dimension of ny
 	a->p = p; 	// sparsity target for y
@@ -377,46 +383,6 @@ SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	}
 	
 	
-	
-
-// ---------- Monadic Memory -- stores autoassociations  ----------
-
-
-MonadicMemory* monadicmemory_new (int n, int p)
-	{
-	MonadicMemory *M = malloc( sizeof(MonadicMemory));
-	
-	M->D1 = dyadicmemory_new(n, n, p);
-	M->D2 = dyadicmemory_new(n, n, p);
-	
-	M->h = sdr_new(n);	// hidden value
-	M->r = sdr_new(n);	// return value
-	
-	return M;
-	}
-	
-	
-SDR* monadicmemory (MonadicMemory *M, SDR *inp)
-	{
-	
-	dyadicmemory_read(M->D1, inp,  M->h);
-	dyadicmemory_read(M->D2, M->h, M->r);
-	dyadicmemory_read(M->D1, M->r, M->h);
-	dyadicmemory_read(M->D2, M->h, M->r);
-	
-	if (2*sdr_distance(inp, M->r) < M->D1->p)
-		return M->r;
-		
-	M->items++;
-	sdr_random (M->r, M->D1->p);
-	
-	dyadicmemory_write(M->D1, inp,  M->r);
-	dyadicmemory_write(M->D2, M->r, inp );
-	
-	return sdr_set(M->r, inp);
-	}
-	
-
 
 
 // ---------- Triadic Memory -- stores triple associations (x,y,z}  ----------
@@ -516,7 +482,7 @@ char* sdr_parse (char *buf, SDR *s)
 	int *i;
 	s->p = 0;
 	
-	while ( *buf != 0 )
+	while ( *buf  && *buf != SEPARATOR )
 		{
 		while (isspace(*buf)) buf++;
 		if (! isdigit(*buf)) break;
@@ -524,7 +490,7 @@ char* sdr_parse (char *buf, SDR *s)
 		i = s->a + s->p;
 		sscanf( buf, "%d", i);
 		
-		if ( (*i)-- > s->n || *i < 0 )
+		if ( (*i)-- > s->n || *i < 0 ) // subtracting 1 to convert to C convention
 			{
 			printf("position out of range: %s\n", buf);
 			exit(2);

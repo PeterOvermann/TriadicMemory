@@ -86,24 +86,6 @@ SDR* dyadicmemory_read 		(DyadicMemory *, SDR *, SDR *);
 
 
 
-
-// ---------- Monadic Memory (stores autoassociations) ----------
-
-
-typedef struct
-	{
-	DyadicMemory *D1, *D2;
-	SDR *h, *r;
-	int items;
-	} MonadicMemory;
-
-
-MonadicMemory* monadicmemory_new (int n, int p);	// constructor
-SDR* monadicmemory (MonadicMemory *, SDR *);		// store and recall
-
-
-
-
 // ---------- Triadic Memory (stores triple associations (x,y,z} ) ----------
 
 
@@ -127,6 +109,9 @@ SDR* triadicmemory_read_z  (TriadicMemory *, SDR *, SDR *, SDR *);
 
 
 // ---------- Command Line Functions ----------
+
+#define SEPARATOR ','
+#define QUERY '_'
 
 char* sdr_parse (char *buf, SDR *s);
 
