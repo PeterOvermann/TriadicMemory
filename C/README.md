@@ -14,10 +14,6 @@ Triadic Memory command line tool. Depends on triadicmemory.c and triadicmemory.h
 
 Dyadic Memory command line tool. Depends on triadicmemory.c and triadicmemory.h.
 
-#### monadicmemoryCL.c
-
-Monadic Memory command line tool. Depends on triadicmemory.c and triadicmemory.h.
-
 #### temporalmemory.c
 
 Elementary Temporal Memory algorithm and command line tool wrapper. Depends on triadicmemory.c and triadicmemory.h.
