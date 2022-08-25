@@ -1,4 +1,4 @@
-# Triadic Memory and related algorithms
+# Triadic Memory: Cognitive Computing with Associative Memory Algorithms
 
 This repository is a collection of associative memory algorithms for sparse distributed representations, which is our brain's data structure.
 
