@@ -23,41 +23,6 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 
-
-/*
-
-This command line tool instantiates a new memory instance.
-
-It stores heteroassociations x->y of Sparse Distributed Representations (SDR) x and y,
-and recalls y for a given x.
-
-An SDR is given by a set of p integers in the range from 1 to n, representing the non-zero positions of the SDR.
-(Note that the internal representation uses integers from 0 to n-1.)
-
-Usage if x and y have the same dimension n:     dyadicmemory n p
-Usage if x and y have dimensions nx and ny:     dyadicmemory nx ny p
-In both cases, p is the target sparse population of y
-
-
-Usage:
-
-Store x->y:
-1 20 195 355 371 471 603  814 911 999, 13 29 41 182 590 711 714 773 925 967
-
-Recall y:
-1 20 195 355 371 471 603  814 911 999
-
-Delete x->y:
-- 1 20 195 355 371 471 603  814 911 999, 13 29 41 182 590 711 714 773 925 967
-
-Terminate process:
-quit
-
-Print version number:
-version
-
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,39 +35,42 @@ version
 #define VERSIONMAJOR 1
 #define VERSIONMINOR 3
 
-#define SEPARATOR ','
-
 #define INPUTBUFFER 10000
 
 
-static char* parse (char *buf, SDR *s)
+static void print_help()
 	{
-	int *i;
-	s->p = 0;
-	
-	while ( *buf  && *buf != SEPARATOR )
-		{
-		while (isspace(*buf)) buf++;
-		if (! isdigit(*buf)) break;
+	printf("dyadicmemory %d.%d\n\n", VERSIONMAJOR, VERSIONMINOR);
+	printf("Sparse distributed memory (SDM) for storing associations x->y of sparse binary hypervectors x and y.\n");
+	printf("A hypervector is given by an ordered set of p integers from 1 to n which represent its \"1\" bits.\n");
 		
-		i = s->a + s->p;
-		sscanf( buf, "%d", i);
+	printf("\n");
+	printf("Command line arguments:\n\n");
+	printf("dyadicmemory n p             (n is the dimension of x and y, p is the target sparse population of y)\n");
+	printf("dyadicmemory nx ny p         (nx and ny are the dimensions of x and y, p is the target sparse population of y)\n\n");
 		
-		if ( (*i)-- > s->n || *i < 0 ) // subtracting 1 because internal representation range is 0 to N-1
-			{
-			printf("position out of range: %s\n", buf);
-			exit(2);
-			}
-		s->p ++;
 		
-		while (isdigit(*buf)) buf++;
-		while (isspace(*buf)) buf++;
-		}
+	printf("Usage examples:\n\n");
+	printf("Store x->y:\n");
+	printf("1 20 195 355 371 471 603  814 911 999, 13 29 41 182 590 711 714 773 925 967\n\n");
+		
+	printf("Recall y for a given x:\n");
+	printf("1 20 195 355 371 471 603  814 911 999\n\n");
+		
+	printf("Delete x->y from memory:\n");
+	printf("- 1 20 195 355 371 471 603  814 911 999, 13 29 41 182 590 711 714 773 925 967\n\n");
+		
+	printf("Print this help text:\n");
+	printf("help\n\n");
 	
-	
-	return buf;
-	}
+	printf("Show version number:\n");
+	printf("version\n\n");
 
+	printf("Terminate process:\n");
+	printf("quit\n\n");
+	}
+	
+	
 
 int main(int argc, char *argv[])
 	{
@@ -125,11 +93,7 @@ int main(int argc, char *argv[])
 		
 	else
 		{
-		printf("dyadicmemory is a sparse distributed memory (SDM) for associations x->y\n");
-		printf("usage if x and y have the same dimension n:     dyadicmemory n p\n");
-		printf("usage if x and y have dimensions nx and ny:     dyadicmemory nx ny p\n");
-		printf("in both cases, p is the target sparse population of y\n");
-		
+		print_help();
 		exit(1);
 		}
     
@@ -142,10 +106,13 @@ int main(int argc, char *argv[])
 		{
 		if ( strcmp(inputline, "quit\n") == 0)
 			return 0;
-			
-		else if ( strcmp(inputline, "version\n") == 0)
-			printf("dyadicmemory %d.%d\n", VERSIONMAJOR, VERSIONMINOR);
-			
+
+		if ( strcmp(inputline, "version\n") == 0)
+			printf("%d.%d\n", VERSIONMAJOR, VERSIONMINOR);
+
+		else if ( strcmp(inputline, "help\n") == 0)
+			print_help();
+
 		else // parse x
 			{
 			int delete = 0;
@@ -153,11 +120,11 @@ int main(int argc, char *argv[])
 			if (*inputline == '-')
 				delete = 1;
 			
-			buf = parse(inputline + delete, x);
+			buf = sdr_parse(inputline + delete, x);
 			
 			if (*buf == SEPARATOR) // parse y
 				{
-				parse(buf+1, y);
+				sdr_parse(buf+1, y);
 				
 				// store or delete x->y
 				if (delete)

@@ -27,52 +27,16 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-/*
-
-This self-contained C implementation is optimized for memory usage, allowing the storage and
-retrieval of vectors with dimensions up to 20,000. In contrast, the original reference implementation
-works with dimensions up to 1,000.
-
-This command line tool instantiates a new memory instance. It stores heteroassociations x->y of
-binary Sparse Distributed Representations (SDR) x and y, and recalls y for a given x.
-
-A binary SDR is given by an ordered set of positive (non-zero) integers which represent
-the non-zero positions ("1" bits) of the SDR.
-
-The size (dimension) of an SDR is determined dynamically from user input. The maximum
-possible value is N = 20,000. A smaller value of N can be optionally specified as command line argument
-in order to lower the default memory footprint.
-
-When recalling an association, the target sparse population P of the output is taken to be the average
-population of the y that have been stored in memory.
-
-The algorithm allows for an asymmetric use of the associative memory, where the dimension N and the
-sparse population P of x and y have different values.
-
-Usage examples:
-
-Store x->y:
-1 20 195 355 371 471 603  814 911 999, 13 29 41 182 590 711 714 773 925 967
-
-Recall y:
-1 20 195 355 371 471 603  814
-
-Print version number:
-version
-
-*/
-
-#define PRODUCTNAME "sparseassociativememory"
 #define VERSIONMAJOR 1
-#define VERSIONMINOR 0
+#define VERSIONMINOR 1
 
 #define NMAX 20000
 
 #define SEPARATOR ','
 
-#define YTYPE uint32_t 	// combines 16 bits for the index and 16 bits for the counter
+#define YTYPE uint32_t 		// combines 16 bits for the index and 16 bits for the counter
 #define YSHIFT 16
-#define CHUNKSIZE 0		// first to elements of the allocated array are reserved for bookkeeping
+#define CHUNKSIZE 0
 #define LENGTH 1
 #define OFFSET 2
 
@@ -145,31 +109,70 @@ void binarize (int *v, int n, int p)
 	}
 
 
+static void print_help()
+	{
+	printf("sparseassociativememory %d.%d\n\n", VERSIONMAJOR, VERSIONMINOR);
+	printf("Sparse distributed memory (SDM) for storing associations x->y of sparse binary hypervectors x and y.\n");
+	printf("A hypervector is given by an ordered set of p integers from 1 to n which represent its \"1\" bits.\n");
+
+	printf("The dimension of hypervector x should not exceed n=%d in this implementation. The dimension of y is unlimited.\n", NMAX);
+
+
+	printf("\n");
+	printf("Command line arguments:\n\n");
+
+	printf("sparseassociativememory  	      	(assumes default value n=%d for dimension of x)\n", NMAX);
+	printf("sparseassociativememory n        	(uses n as the dimension of x)\n\n");
+		
+		
+	printf("Usage examples:\n\n");
+	printf("Store x->y:\n");
+	printf("1 20 195 355 371 471 603  814 911 999, 13 29 41 182 590 711 714 773 925 967\n\n");
+		
+	printf("Recall y for a given x:\n");
+	printf("1 20 195 355 371 471 603  814 911 999\n\n");
+		
+	printf("Print this help text:\n");
+	printf("help\n\n");
+	
+	printf("Show version number:\n");
+	printf("version\n\n");
+
+	printf("Terminate process:\n");
+	printf("quit\n\n");
+	}
+
+
+
 int main(int argc, char *argv[])
 	{
-	int Ny = 1;				// the largest index encoutered so far in y
+	int Ny = 1;			// the largest index encoutered so far in y
 	double P = 0; 			// average sparse population of inputs y
-	int writecount = 0;		// how many associations have been stored
+	int items = 0;			// how many associations have been stored
 	
 	int chunk = 32;
 	
 	int N = NMAX;  // max SDR dimension
 	
-	if (argc == 2) // SDR dimension given as command line argument
-		sscanf( argv[1], "%d", &N);
-		
-	if (argc > 2 || N > NMAX)
+	if (argc < 2)
 		{
-		printf("usage: \n");
-		printf("sparseassociativememory               dynamic SDR dimension   (n <= %d)\n", NMAX);
-		printf("sparseassociativememory <n>           fixed SDR dimension n   (n <= %d)\n", NMAX);
+		print_help();
+		exit(1);
+		}
+		
+	sscanf( argv[1], "%d", &N); // x dimension
+	
+	// ignoring additional command line arguments, so this program is plug-compatible with dyadicmemory
+	
+	if (N > NMAX)
+		{
+		printf("vector dimension %d exceeds maximum value of %d\n", N, NMAX);
 		exit(1);
 		}
 	
 	int *x = (int*)malloc(N*sizeof(int));
 	int *y = (int*)malloc(N*sizeof(int));
 	
-	// limitation: malloc may fail for large n, use virtual memory in this case
 	YTYPE **T = (YTYPE**) malloc( (1 + N*(N-1)/2) * sizeof(YTYPE*));
 
 	for(int i = 1; i <=  N*(N-1)/2 ; i++)  *(T + i) = 0; // memory initialization 1 .. N(N-1)/2
@@ -177,9 +180,15 @@ int main(int argc, char *argv[])
 	char inputline[INPUTBUFFER];
 	while (	fgets(inputline, sizeof(inputline), stdin) != NULL)
 		{
+		if ( strcmp(inputline, "quit\n") == 0)
+			return 0;
+
 		if ( strcmp(inputline, "version\n") == 0)
-			printf("%s %d.%d\n", PRODUCTNAME, VERSIONMAJOR, VERSIONMINOR);
-			
+			printf("%d.%d\n", VERSIONMAJOR, VERSIONMINOR);
+		
+		else if ( strcmp(inputline, "help\n") == 0)
+			print_help();
+
 		else // parse x
 			{
 			int xmax;
@@ -193,8 +202,8 @@ int main(int argc, char *argv[])
 				if (ymax > 0)
 					{
 					// update average sparsity
-					writecount++;
-					P = ((writecount-1)*P + ymax) / writecount;
+					items++;
+					P = ((items-1)*P + ymax) / items;
 				
 					// update largest index encountered so far
 					if( y[ymax-1] > Ny)
@@ -217,7 +226,7 @@ int main(int argc, char *argv[])
 							
 							T[addr] = (YTYPE*) malloc(chunk * sizeof(YTYPE));
 							
-							T[addr][CHUNKSIZE] = chunk; 	// bookkeeping: allocated size
+							T[addr][CHUNKSIZE] = chunk; 		// bookkeeping: allocated size
 							T[addr][LENGTH] = 0;			// bookkeeping: used size
 							}
 							
