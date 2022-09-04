@@ -49,6 +49,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <math.h>
 
 
+
 char* parse (char *buf, int *vec, int *len, int n)
 	{
 	*len = 0; // number of indices parsed
@@ -115,16 +116,12 @@ static void print_help()
 	printf("Sparse distributed memory (SDM) for storing associations x->y of sparse binary hypervectors x and y.\n");
 	printf("A hypervector is given by an ordered set of p integers from 1 to n which represent its \"1\" bits.\n");
 
-	printf("The dimension of hypervector x should not exceed n=%d in this implementation. The dimension of y is unlimited.\n", NMAX);
+	printf("The dimension of hypervector x should not exceed n=%d in this implementation. The dimension of y is unlimited.\n\n", NMAX);
 
-
-	printf("\n");
 	printf("Command line arguments:\n\n");
 
-	printf("sparseassociativememory  	      	(assumes default value n=%d for dimension of x)\n", NMAX);
-	printf("sparseassociativememory n        	(uses n as the dimension of x)\n\n");
-		
-		
+	printf("sparseassociativememory n        	(uses n as the dimension of hypervector x)\n\n");
+				
 	printf("Usage examples:\n\n");
 	printf("Store x->y:\n");
 	printf("1 20 195 355 371 471 603  814 911 999, 13 29 41 182 590 711 714 773 925 967\n\n");
@@ -146,7 +143,7 @@ static void print_help()
 
 int main(int argc, char *argv[])
 	{
-	int Ny = 1;			// the largest index encoutered so far in y
+	int Ny = 1;			// the largest index encoutered in y
 	double P = 0; 			// average sparse population of inputs y
 	int items = 0;			// how many associations have been stored
 	
