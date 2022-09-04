@@ -3,7 +3,7 @@
 
 #### triadicmemory.c and triadicmemory.h
 
-Reference implementations of the Monadic/Dyadic/Triadic Memory algorithms and various SDR utilities.
+Reference implementations of the Dyadic/Triadic Memory algorithms and various SDR utilities.
 Can be compiled as a library.
 
 #### triadicmemoryCL.c
@@ -21,10 +21,3 @@ Elementary Temporal Memory algorithm and command line tool wrapper. Depends on t
 #### deeptemporalmemory.c
 
 Deep Temporal Memory algorithm and command line tool wrapper. Depends on triadicmemory.c and triadicmemory.h.
-
-
-#### sparseassociativememory.c
-
-Memory-optimized hetero-associative memory which can handle vector dimensions up to 20,000.
-Functionally equivalent to a Sparse Distributed Memory (SDM).
-Standalone source file.
