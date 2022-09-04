@@ -313,75 +313,83 @@ void sdr_print0(SDR *s)
 	
 // ---------- Dyadic Memory -- stores hetero-associations x->y ----------
 
-// nx: dimension of x
-// ny: dimension of y
-// p:  target sparsity of y in query
 
 DyadicMemory *dyadicmemory_new(int nx, int ny, int p)
 	{
-	DyadicMemory *a = malloc(sizeof(DyadicMemory));
+	DyadicMemory *D = malloc(sizeof(DyadicMemory));
 	
-	// limitation: malloc may fail for large n, use virtual memory instead in this case
-	a->m = (TMEMTYPE*) malloc( ny * nx*(nx-1)/2 * sizeof(TMEMTYPE));
-	
-	if (! a->m )
-		{
-		printf("memory allocation failed\n");
-		exit(20);
-		}
-	
-	a->nx = nx;	// dimension of nx
-	a->ny = ny;	// dimension of ny
-	a->p = p; 	// sparsity target for y
+	D->nx 		= nx;	// dimension of nx
+	D->ny 		= ny;	// dimension of ny
+	D->p  		= p; 	// sparsity target for y
 
-	for(int i = 0; i < ny * nx*(nx-1)/2 ; i++)  *(a->m + i) = 0; // memory initialization
-	
-	return a;
+	D->T = (TMEMTYPE**) malloc( (1 + D->nx*(D->nx-1)/2) * sizeof(TMEMTYPE*));
+
+	for (int i = 1; i <=  D->nx*(D->nx-1)/2 ; i++)  *(D->T + i) = 0; // memory initialization 1 .. N(N-1)/2
+		
+	return D;
 	}
 	
 	
 	
 void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 	{
-	for( int j = 1; j < x->p; j++ )
-		for ( int i = 0; i < j; i++ )
+	if (y->p == 0) return;
+					
+	for( int j = 1; j < x->p; j++ ) for ( int i = 0; i < j; i++ )
+		{
+		int addr = x->a[i] + x->a[j]*(x->a[j]-1) / 2;
+						
+		if (! D->T[addr])
 			{
-			int addr = y->n * (x->a[i] + x->a[j]*(x->a[j]-1)/2);
-			for( int k = 0; k < y->p; k++)
-				++ *( D->m + addr + y->a[k] );
+			// allocate array for y and initialize
+			D->T[addr] = (TMEMTYPE*) malloc(D->ny * sizeof(TMEMTYPE));
+			for (int i = 0; i < D->ny; i++) D->T[addr][i] = 0;
 			}
+							
+		TMEMTYPE *Y = D->T[addr];
+
+		for( int k = 0; k < y->p; k++)
+			++ *( Y + y->a[k] );
+							
+		}
 	}
 	
 	
 void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 	{
-	for( int j = 1; j < x->p; j++ )
-		for ( int i = 0; i < j; i++ )
-			{
-			int addr = y->n * (x->a[i] + x->a[j]*(x->a[j]-1)/2);
-			for( int k = 0; k < y->p; k++)
-				if (*( D->m + addr + y->a[k] ) > 0) // test for counter underflow
-					-- *( D->m + addr + y->a[k] );
-			}
+	if (y->p == 0) return;
+					
+	for( int j = 1; j < x->p; j++ ) for ( int i = 0; i < j; i++ )
+		{
+		TMEMTYPE *Y = D->T[x->a[i] + x->a[j]*(x->a[j]-1) / 2];
+
+		if (! Y) return;
+
+		for( int k = 0; k < y->p; k++ )
+			if (*( Y + y->a[k]))
+				-- *( Y + y->a[k] );
+
+		}
 	}
 	
 
 SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	{
-
 	int v[y->n]; for( int t = 0; t < y->n; t++ ) v[t] = 0;
-	
-	for( int j = 1; j < x->p; j++ )
-		for ( int i = 0; i < j; i++ )
-			{
-			int addr = y->n * (x->a[i] + x->a[j]*(x->a[j]-1)/2);
-			for( int k = 0; k < y->n; k++)
-				v[k] += *( D->m + addr + k);
-			}
+
+	for( int j = 1; j < x->p; j++ ) for ( int i = 0; i < j; i++ )
+		{
+		int addr = x->a[i] + x->a[j]*(x->a[j]-1) / 2;
+						
+		TMEMTYPE *Y = D->T[addr];
+
+		for( int k = 0; k < y->n; k++)
+			v[k] += *( Y + k);
+
+		}
 						
 	return binarize(y, v, D->p);
 	}
-	
 	
 
 
@@ -392,17 +400,17 @@ TriadicMemory *triadicmemory_new(int n, int p)
 	{
 	srand_init();
 	
-	TriadicMemory *t = malloc(sizeof(TriadicMemory));
+	TriadicMemory *T = malloc(sizeof(TriadicMemory));
 	// limitation: malloc may fail for large n, use virtual memory instead in this case
 	
-	t->m = (TMEMTYPE*) malloc( n*n*n * sizeof(TMEMTYPE));
-	t->n = n;
-	t->p = p;
-	t->forgetting = 0;
+	T->m = (TMEMTYPE*) malloc( n*n*n * sizeof(TMEMTYPE));
+	T->n = n;
+	T->p = p;
+	T->forgetting = 0;
 	
-	for (int i = 0; i < n*n*n; i++)  *(t->m + i) = 0;
+	for (int i = 0; i < n*n*n; i++)  *(T->m + i) = 0;
 	
-	return t;
+	return T;
 	}
 	
 void triadicmemory_write (TriadicMemory *T, SDR *x, SDR *y, SDR *z)

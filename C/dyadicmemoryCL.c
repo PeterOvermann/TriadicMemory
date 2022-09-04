@@ -1,7 +1,7 @@
 /*
 dyadicmemoryCL.c
 
-Dyadic Memory Command Line
+Dyadic Memory Command Line wrapper
 
 
 Copyright (c) 2022 Peter Overmann
@@ -33,7 +33,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 #define VERSIONMAJOR 1
-#define VERSIONMINOR 3
+#define VERSIONMINOR 4
 
 #define INPUTBUFFER 10000
 
@@ -91,10 +91,15 @@ int main(int argc, char *argv[])
 		sscanf( argv[3], "%d", &P);
 		}
 		
-	else
-		{
+	else	{
 		print_help();
 		exit(1);
+		}
+		
+	if (Nx > NMAX)
+		{
+		printf("vector dimension %d exceeds maximum value %d\n", Nx, NMAX);
+		exit(20);
 		}
     
 	SDR *x = sdr_new(Nx);

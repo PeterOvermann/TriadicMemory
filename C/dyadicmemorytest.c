@@ -1,7 +1,7 @@
 /*
-triadicmemorytest.c
+dyadicmemorytest.c
 
-Triadic Memory setup for capacity and performance tests
+Dyadic Memory setup for capacity and performance tests
 
 
 Copyright (c) 2022 Peter Overmann
@@ -39,44 +39,40 @@ int main(int argc, char *argv[])
 	
 	clock_t start;
         
-	int N = 1000;		// SDR dimension
-	int P = 10;  		// SDR target sparse population
+	int Nx = 1000;		// SDR x dimension
+	int Ny = 1000;		// SDR y dimension
+	int P = 10;  		// SDR y target sparse population
 
-	sscanf( argv[1], "%d", &N);
-	sscanf( argv[2], "%d", &P);
-   
-   	TriadicMemory *T = triadicmemory_new(N, P);
+	
+   	DyadicMemory *T = dyadicmemory_new(Nx, Ny, P);
   	
-	printf("Triadic Memory capacity and performance tests\n");
-	printf("N = %d, P = %d\n\n", N, P);
+	printf("DyadicMemory capacity and performance tests\n");
+	printf("Nx = %d, Ny = %d, P = %d\n\n", Nx, Ny, P);
 
   	
-    	int size = 100000;
+    	int size = 100000; // test data number of associations
 	
 	SDR **t1 	= malloc(size * sizeof(SDR*));
 	SDR **t2 	= malloc(size * sizeof(SDR*));
-	SDR **t3 	= malloc(size * sizeof(SDR*));
 	SDR **out 	= malloc(size * sizeof(SDR*));
 
 	for (int i = 0; i < size; i++)
 		{
-		t1[i] = sdr_new(N);
-		t2[i] = sdr_new(N);
-		t3[i] = sdr_new(N);
-		out[i]= sdr_new(N);
+		t1[i] = sdr_new(Nx);
+		t2[i] = sdr_new(Ny);
+		out[i]= sdr_new(Ny);
 		}
 		
-	for ( int iter = 1; iter <= 10; iter ++)
+	for ( int iter = 1; iter <= 6; iter ++)
 		{
 		printf("iteration %d  |  ", iter);
 
 		// create random test data
-		printf("%d random triples  |  ", size);
+		printf("%d random items  |  ", size);
 		for (int i = 0; i < size; i++)
 			{
 			t1[i] = sdr_random(t1[i],P);
 			t2[i] = sdr_random(t2[i],P);
-			t3[i] = sdr_random(t3[i],P);
 			}
 
 	
@@ -86,7 +82,7 @@ int main(int argc, char *argv[])
 		start = clock();
 		for (int i = 0; i < size; i++)
 			
-			triadicmemory_write( T, t1[i],t2[i],t3[i]);
+			dyadicmemory_write( T, t1[i], t2[i]);
 
 	
 		printf("%.4f sec  |  ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
@@ -99,16 +95,16 @@ int main(int argc, char *argv[])
 		start = clock();
 		int h[size];
 		for (int i = 0; i < size; i++)
-			triadicmemory_read_z ( T, t1[i], t2[i], out[i] );
+			dyadicmemory_read ( T, t1[i], out[i] );
 		
 		printf("%.4f sec  |  ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
 
 		// calculate hamming distances
 		for (int i = 0; i < size; i++)
-			h[i] = sdr_distance(t3[i], out[i]);
+			h[i] = sdr_distance(t2[i], out[i]);
 		double mh = 0;
 		for (int i = 0; i < size; i++) mh += h[i];
-		printf("%f average H distance\n", mh/size);
+		printf("%f average H distance\n",   mh/size);
 
 		}
 
@@ -116,3 +112,4 @@ int main(int argc, char *argv[])
 	return 0;
 	}
 	
+

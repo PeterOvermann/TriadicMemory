@@ -59,17 +59,17 @@ void sdr_print0(SDR *);				// print SDR followed by newline (values 0 to N-1)
 #define TMEMTYPE_MAX 255
 
 
-// ---------- Dyadic Memory (stores hetero-associations x-> y) ----------
+// ---------- DyadicMemory (stores hetero-associations x-> y) ----------
 
-
+#define NMAX 20000
 
 typedef struct
 	{
-		
-	TMEMTYPE* m;
+	TMEMTYPE** T;
+	
 	int 	nx,	// dimension of x
 		ny,	// dimension of y
-		p; 	// target sparsity of y in query
+		p; 	// target sparsity of y (used only in dyadicmemory_read)
 	
 	} DyadicMemory;
 
@@ -81,12 +81,8 @@ void dyadicmemory_delete 	(DyadicMemory *, SDR *, SDR *);
 SDR* dyadicmemory_read 		(DyadicMemory *, SDR *, SDR *);
 
 
-// AsymmetricDyadicMemory has been deprecated to avoid code duplication
-// DyadicMemory now includes the asymmetric case
 
-
-
-// ---------- Triadic Memory (stores triple associations (x,y,z} ) ----------
+// ---------- TriadicMemory (stores triple associations (x,y,z} ) ----------
 
 
 typedef struct
