@@ -54,21 +54,12 @@ Dyadic Memory realizes an associative memory for sparse hypervectors which has t
 of a [Sparse Distributed Memory](https://en.wikipedia.org/wiki/Sparse_distributed_memory) (SDM) as proposed by [Pentti Kanerva](https://en.wikipedia.org/wiki/Pentti_Kanerva) in 1988.
 
 The present, highly efficient algorithm was discovered in 2021 and is based on a neural network with combinatorial connectivity.
+The original implementation was written in [Mathematica](Mathematica/dyadicmemory.m) language and consists of just 10 lines of code. 
 
 The memory stores and retrieves heteroassociations `x -> y` of sparse binary hypervectors `x` and `y`.
 Sparse binary hypervectors are also known as Sparse Distributed Representations (SDR).
 
-Here `x` and `y` are binary vectors of dimensions `n1` and `n2` and sparse populations `p1` and `p2`, respectively. 
-While in typical SDM usage scenarios `n1` and `n2` are equal, the present algorithm also allows asymmetric configurations.
-
-The capacity of a symmetric memory with dimension `n` and sparse population `p` is approximately `(n/p)^3 / 2`.
-For typical values `n = 1000` and `p = 10`, about 500,000 associations can be stored and perfectly recalled.
-
-The Dyadic Memory algorithm was initially developed in [Mathematica](Mathematica/dyadicmemory.m) language and consists of just 10 lines of code. 
-
-The [plain C](C/triadicmemory.c) implementation best illustrates the algorithm in procedural language. This version works with vector dimensions up to `n = 1,200` and can be used in an asymmetric configuration where the two sides of an association have different dimension.
-
-A [memory-optimized implementation](C/sparseassociativememory.c) supports hypervector dimensions up to `n = 20,000`. It can be used as a command line tool or as C library. No other SDM currently works with dimensions that large. 
+The [plain C](C/triadicmemory.c) implementation best illustrates the algorithm in procedural language. This version works with vector dimensions up to `n = 20,000` and can be used in an asymmetric configuration where `x` and `y` have different dimensions.
 
 An Odin implementation is available [here](Odin/triadic/triadic_memory.odin) and a Numba-accelerated Python version [here](Python/sdrsdm.py).
 
