@@ -36,12 +36,11 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 int main(int argc, char *argv[])
 	{
-	
 	clock_t start;
         
-	int Nx = 1000;		// SDR x dimension
-	int Ny = 1000;		// SDR y dimension
-	int P = 10;  		// SDR y target sparse population
+	int Nx = 1000;		// x dimension
+	int Ny = 1000;		// y dimension
+	int P  = 10;  		// y sparse population
 
 	
    	DyadicMemory *T = dyadicmemory_new(Nx, Ny, P);
@@ -63,12 +62,12 @@ int main(int argc, char *argv[])
 		out[i]= sdr_new(Ny);
 		}
 		
-	for ( int iter = 1; iter <= 6; iter ++)
+	for ( int iter = 1; iter <= 10; iter ++)
 		{
-		printf("iteration %d  |  ", iter);
+		printf("iter %.3d | ", iter);
 
 		// create random test data
-		printf("%d random items  |  ", size);
+		printf("%d items | ", size);
 		for (int i = 0; i < size; i++)
 			{
 			t1[i] = sdr_random(t1[i],P);
@@ -85,7 +84,7 @@ int main(int argc, char *argv[])
 			dyadicmemory_write( T, t1[i], t2[i]);
 
 	
-		printf("%.4f sec  |  ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
+		printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
 
 
 		// recall test data
@@ -97,14 +96,14 @@ int main(int argc, char *argv[])
 		for (int i = 0; i < size; i++)
 			dyadicmemory_read ( T, t1[i], out[i] );
 		
-		printf("%.4f sec  |  ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
+		printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
 
 		// calculate hamming distances
 		for (int i = 0; i < size; i++)
 			h[i] = sdr_distance(t2[i], out[i]);
 		double mh = 0;
 		for (int i = 0; i < size; i++) mh += h[i];
-		printf("%f average H distance\n",   mh/size);
+		printf("%f average H dist\n",   mh/size);
 
 		}
 

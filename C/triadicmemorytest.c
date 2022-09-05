@@ -46,8 +46,13 @@ int main(int argc, char *argv[])
 	sscanf( argv[2], "%d", &P);
    
    	TriadicMemory *T = triadicmemory_new(N, P);
+   	
+   	T->forgetting = 1;
   	
 	printf("Triadic Memory capacity and performance tests\n");
+	printf("The recall error is given as the average Hamming distance\n");
+	printf("Forgetting = %d\n", T->forgetting);
+	
 	printf("N = %d, P = %d\n\n", N, P);
 
   	
@@ -66,12 +71,12 @@ int main(int argc, char *argv[])
 		out[i]= sdr_new(N);
 		}
 		
-	for ( int iter = 1; iter <= 10; iter ++)
+	for ( int iter = 1; iter <= 30; iter ++)
 		{
-		printf("iteration %d  |  ", iter);
+		printf("iter %.3d | ", iter);
 
 		// create random test data
-		printf("%d random triples  |  ", size);
+		printf("%d triples | ", size);
 		for (int i = 0; i < size; i++)
 			{
 			t1[i] = sdr_random(t1[i],P);
@@ -89,27 +94,68 @@ int main(int argc, char *argv[])
 			triadicmemory_write( T, t1[i],t2[i],t3[i]);
 
 	
-		printf("%.4f sec  |  ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
+		printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
 
 
-		// recall test data
 
-		printf("read ");
+		int h[size];
+		double mh;
+
+		// recall z
+
+		printf("read z ");
 	
 		start = clock();
-		int h[size];
+		
 		for (int i = 0; i < size; i++)
 			triadicmemory_read_z ( T, t1[i], t2[i], out[i] );
 		
-		printf("%.4f sec  |  ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
+		printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
 
 		// calculate hamming distances
-		for (int i = 0; i < size; i++)
-			h[i] = sdr_distance(t3[i], out[i]);
-		double mh = 0;
-		for (int i = 0; i < size; i++) mh += h[i];
-		printf("%f average H distance\n", mh/size);
+		for (int i = 0; i < size; i++) h[i] = sdr_distance(t3[i], out[i]);
+		mh = 0; for (int i = 0; i < size; i++) mh += h[i];
+		printf("%.3f err | ", mh/size);
 
+
+		if (0) // also recall y and x
+			{
+
+
+			// recall y
+
+			printf("read y ");
+	
+			start = clock();
+		
+			for (int i = 0; i < size; i++)
+				triadicmemory_read_y ( T, t1[i], out[i], t3[i] );
+		
+			printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
+
+			// calculate hamming distances
+			for (int i = 0; i < size; i++) h[i] = sdr_distance(t2[i], out[i]);
+			mh = 0; for (int i = 0; i < size; i++) mh += h[i];
+			printf("%.3f err | ", mh/size);
+	
+			// recall x
+
+			printf("read x ");
+	
+			start = clock();
+		
+			for (int i = 0; i < size; i++)
+				triadicmemory_read_x ( T, out[i], t2[i], t3[i] );
+		
+			printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
+
+			// calculate hamming distances
+			for (int i = 0; i < size; i++) h[i] = sdr_distance(t1[i], out[i]);
+			mh = 0; for (int i = 0; i < size; i++) mh += h[i];
+			printf("%.3f err", mh/size);
+			}
+		
+		printf("\n");
 		}
 
 	printf("finished\n");
