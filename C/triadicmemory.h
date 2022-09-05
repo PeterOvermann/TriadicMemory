@@ -61,12 +61,12 @@ void sdr_print0(SDR *);				// print SDR followed by newline (values 0 to N-1)
 
 // ---------- DyadicMemory (stores hetero-associations x-> y) ----------
 
-#define NMAX 20000
+#define NMAX 20000 // largest possible value for nx
 
 typedef struct
 	{
 	TMEMTYPE** T;
-	
+
 	int 	nx,	// dimension of x
 		ny,	// dimension of y
 		p; 	// target sparsity of y (used only in dyadicmemory_read)
