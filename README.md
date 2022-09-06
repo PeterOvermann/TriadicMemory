@@ -1,16 +1,16 @@
 # Triadic Memory: Cognitive Computing with Associative Memory Algorithms
 
-This repository is a collection of associative memory algorithms for sparse distributed representations, which is our brain's data structure.
+This repository is a collection of associative memory algorithms operating on sparse distributed representations, which is our brain's data structure.
+Our goal is to provide a library of highly efficient software components, enabling practical applications of associative content-addressable memories.
 
 The Triadic Memory algorithm was discovered in 2021 and first published [here](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf).
 Subsequently, a variety of related algorithms have been derived from Triadic Memory.
 
-Models of brain functions can be designed and implemented by creating circuits from the algorithmic components in this repository. An example
+Machine learning applications can be realized by creating circuits from the algorithmic components in this repository. An example
 is the Deep Temporal Memory algorithm, a recurring neural network based on multiple triadic memory instances and feedback lines.
 
-The goal of this project is to build circuits able to solve increasingly complex AI tasks with very simple programs that are rooted in the brain's core cognitive algorithms.
 
-Various examples can be found [here](Examples).
+Various application examples can be found [here](Examples).
 
 
 ## Implementations 
