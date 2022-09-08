@@ -48,7 +48,7 @@ static int cmpfunc (const void * a, const void * b)
 
 static SDR* binarize (SDR *x, int *v, int pop)
 	{
-	int sorted[x->n], rankedmax;
+	int *sorted = (int *)malloc(x->n * sizeof(int)), rankedmax;
 	
 	for ( int i=0; i < x->n; i++ )
 		sorted[i] = v[i];
@@ -64,7 +64,9 @@ static SDR* binarize (SDR *x, int *v, int pop)
 	for ( int i = 0; i < x->n; i++)
 		if (v[i] >= rankedmax)
 			x->a[x->p++] = i;
-	
+
+	free(sorted);
+
 	return x;
 	}
 
@@ -87,8 +89,8 @@ SDR* sdr_random( SDR*s, int p) // fill s with p random bits (in place)
 	int n = s->n;
 	s->p = p;
 
-	int range[n];
-	
+	int* range = (int*)malloc(n * sizeof(int));
+
 	for (int i = 0; i < n; i++) range[i] = i; // initialize with integers 0 to n-1
 	
 	for (int k = 0; k < p; k++) // random selection of p integers in the range 0 to n-1
@@ -100,6 +102,9 @@ SDR* sdr_random( SDR*s, int p) // fill s with p random bits (in place)
 		}
 	
 	qsort( s->a, p, sizeof(int), cmpfunc);
+
+	free(range);
+
 	return s;
 	}
 	
@@ -377,7 +382,7 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 
 SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	{
-	int v[y->n]; for( int t = 0; t < y->n; t++ ) v[t] = 0;
+	int* v = (int*)calloc(y->n, sizeof(int));
 
 	for( int j = 1; j < x->p; j++ ) for ( int i = 0; i < j; i++ )
 		{
@@ -388,8 +393,12 @@ SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 
 		}
 						
-	return binarize(y, v, D->p);
-	}
+	binarize(y, v, D->p);
+
+	free(v);
+
+	return y;
+}
 	
 
 
@@ -477,7 +486,7 @@ SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 
 SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int v[x->n]; for( int t = 0; t < x->n; t++ ) v[t] = 0;
+	int* v = (int*)calloc(x->n, sizeof(int));
 	int n = z->n, nn = y->n * z->n;
 	
 	for( int j = 0; j < y->p; j++)  for( int k = 0; k < z->p; k++)
@@ -488,13 +497,17 @@ SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 			v[i] += *(addr + nn * i);
 		}
 
-	return binarize(x, v, T->p);
-	}
+	binarize(x, v, T->p);
+
+	free(v);
+
+	return x;
+}
 
 
 SDR* triadicmemory_read_y (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int v[y->n]; for( int t = 0; t < y->n; t++ ) v[t] = 0;
+	int* v = (int*)calloc(y->n, sizeof(int));
 	int n = z->n, nn = y->n * z->n;
 		
 	for( int i = 0; i < x->p; i++)  for( int k = 0; k < z->p; k++)
@@ -505,14 +518,18 @@ SDR* triadicmemory_read_y (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 			v[j] += *(addr + n * j);
 		}
 
-	return binarize(y, v, T->p);
-	}
+	binarize(y, v, T->p);
+
+	free(v);
+
+	return y;
+}
 
 
 
 SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int v[z->n]; for( int t = 0; t < z->n; t++ ) v[t] = 0;
+	int* v = (int*)calloc(z->n, sizeof(int));
 	int n = z->n, nn = y->n * z->n;
 
 	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++)
@@ -521,8 +538,12 @@ SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 		for( int k = 0; k < z->n; k++)
 			v[k] += *(addr + k);
 		}
-	return binarize(z, v, T->p);
-	}
+	binarize(z, v, T->p);
+
+	free(v);
+
+	return z;
+}
 	
 
 

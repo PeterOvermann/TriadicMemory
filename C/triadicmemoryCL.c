@@ -138,8 +138,12 @@ int main(int argc, char *argv[])
 	SDR *y = sdr_new(N);
 	SDR *z = sdr_new(N);
 	
-	while (	fgets(inputline, sizeof(inputline), stdin) != NULL)
+	while (	1 )
 		{
+		printf("Enter data ...\n");
+
+		fgets(inputline, sizeof(inputline), stdin);
+
 		if (! strcmp(inputline, "quit\n"))
 			exit(0);
 		
