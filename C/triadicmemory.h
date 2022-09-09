@@ -65,13 +65,13 @@ void sdr_print0(SDR *);				// print SDR followed by newline (values 0 to N-1)
 
 typedef struct
 	{
-	TMEMTYPE** T;
+	TMEMTYPE** C;		// half storage "cube"
 
-	int 	nx,	// dimension of x
-		ny,	// dimension of y
-		p; 	// target sparsity of y (used only in dyadicmemory_read)
+	int 	nx,		// dimension of x
+		ny,		// dimension of y
+		p, 		// target sparse population of y (used only in dyadicmemory_read)
 	
-	int	overflow; // whether the maximum counter value has been reached
+		overflow; 	// whether the maximum counter value has been reached
 	
 	} DyadicMemory;
 
@@ -89,11 +89,16 @@ SDR* dyadicmemory_read 		(DyadicMemory *, SDR *, SDR *);
 
 typedef struct
 	{
-	TMEMTYPE* m;
-	int n, p;
-	int forgetting; // whether to erase older information (off by default)
+	TMEMTYPE* C;		// storage "cube"
+	
+	int 	nx,		// dimension of x
+		ny,		// dimension of y
+		nz,		// dimension of z
+		p,		// target sparse population
+		
+		overflow, 	// whether the maximum counter value has been reached
+		forgetting; 	// whether to erase older information (off by default)
 
-	int	overflow; // whether the maximum counter value has been reached
 	} TriadicMemory;
 
 TriadicMemory *triadicmemory_new(int n, int p);
@@ -114,4 +119,3 @@ SDR* triadicmemory_read_z  (TriadicMemory *, SDR *, SDR *, SDR *);
 #define QUERY '_'
 
 char* sdr_parse (char *buf, SDR *s);
-
