@@ -71,6 +71,8 @@ typedef struct
 		ny,	// dimension of y
 		p; 	// target sparsity of y (used only in dyadicmemory_read)
 	
+	int	overflow; // whether the maximum counter value has been reached
+	
 	} DyadicMemory;
 
 
@@ -90,6 +92,8 @@ typedef struct
 	TMEMTYPE* m;
 	int n, p;
 	int forgetting; // whether to erase older information (off by default)
+
+	int	overflow; // whether the maximum counter value has been reached
 	} TriadicMemory;
 
 TriadicMemory *triadicmemory_new(int n, int p);
