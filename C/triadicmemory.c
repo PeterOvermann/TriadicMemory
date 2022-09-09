@@ -416,9 +416,8 @@ TriadicMemory *triadicmemory_new(int n, int p)
 	T->forgetting = 0; // forgetting is an experimental feature, disabled by default
 	
 	// allocate and initialize the entire storage cube
-	// limitation: calloc may fail for large n, use virtual memory instead in this case
-	// T->C = (TMEMTYPE*) calloc( T->nx * T->ny * T->nz, sizeof(TMEMTYPE));
-	
+	// limitation: malloc may fail for large n, use virtual memory instead in this case
+	// note: using calloc instead of malloc would decrease write performance
 	T->C = (TMEMTYPE*) malloc( T->nx * T->ny * T->nz * sizeof(TMEMTYPE));
 	for (int i = 0; i < T->nx * T->ny * T->nz; i++) *(T->C + i) = 0;
 	
