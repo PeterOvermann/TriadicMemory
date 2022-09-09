@@ -402,71 +402,79 @@ SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 
 // ---------- Triadic Memory -- stores triple associations (x,y,z}  ----------
 
-	
+
+
 TriadicMemory *triadicmemory_new(int n, int p)
 	{
 	srand_init();
-	
+
 	TriadicMemory *T = malloc(sizeof(TriadicMemory));
-		
-	T->nx = n;
-	T->ny = n;
-	T->nz = n;
+
+	T->n = n;
 	T->p = p;
 	T->forgetting = 0; // forgetting is an experimental feature, disabled by default
-	
-	// allocate and initialize the entire storage cube
-	// limitation: malloc may fail for large n, use virtual memory instead in this case
-	// note: using calloc instead of malloc would decrease write performance
-	T->C = (TMEMTYPE*) malloc( T->nx * T->ny * T->nz * sizeof(TMEMTYPE));
-	for (int i = 0; i < T->nx * T->ny * T->nz; i++) *(T->C + i) = 0;
-	
+
+	// initialize the x-y plane with zero pointers
+	T->M = (TMEMTYPE**) calloc( n*n, sizeof(TMEMTYPE*));
+
 	return T;
 	}
-	
+
 void triadicmemory_write (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int n = T->nz, nn = T->ny * T->nz;
-
 	// the original triadic memory write algorithm
-	
-	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
+	for (int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++)
 		{
-		TMEMTYPE *q = T->C + nn * x->a[i] + n * y->a[j] + z->a[k];
-		
-		if (*q < TMEMTYPE_MAX) ++ *q;  // check for counter overflow (although it's unlikely)
-		else T->overflow = 1;
+		int addr = T->nx * x->a[i] + y->a[j];
+					
+		// delayed allocation of array for z
+		if (! T->M[addr]) T->M[addr] = (TMEMTYPE*) calloc(n, sizeof(TMEMTYPE));
+						
+		TMEMTYPE *Z = T->M[addr];
+		for (int k = 0; k < z->p; k++)
+			{
+			TMEMTYPE *q = Z + z->a[k];
+			if (*q < TMEMTYPE_MAX) ++ *q;  // check for counter overflow (although it's unlikely)
+			else T->overflow = 1;
+			}
 		}
 	
 	// the following is not part of the original triadic memory algorithm
 	// random forgetting, realized by decrementing the same number of memory locations (but not below zero)
 	// this has no measurable effect for an almost empty memory
 	// disabled by default
-	
+
 	if (T->forgetting)
 		{
-		int memsize = T->nx * T->ny * T->nz;
-		for ( int i = 0; i < x->p * y->p * z->p; i++)
+		/* to be implemented
+		int memsize = x->n * y->n * z->n;
+		for (int i = 0; i < x->p * y->p * z->p; i++)
 			{
-			TMEMTYPE *q = T->C + rand() % memsize;
+			TMEMTYPE *q = T->m + rand() % memsize;
 			if (*q > 0) -- *q;
 			}
+		*/
 		}
-	
+
 	}
-	
+
 void triadicmemory_delete (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int n = T->nz, nn = T->ny * T->nz;
+	int n = z->n;
 
-	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
+	for (int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++)
 		{
-		TMEMTYPE *q = T->C + nn * x->a[i] + n * y->a[j] + z->a[k];
-		
-		if (*q > 0) -- *q;	// check for counter underflow
-		}
-	}
+		TMEMTYPE *Z = T->M[n * x->a[i] + x->a[j]];
 	
+		if (Z) for( int k = 0; k < z->p; k++)
+			{
+			TMEMTYPE *q = Z + z->a[k];
+			if (*q > 0 ) -- *q;  // check for counter underflow
+			}
+		}
+
+	}
+
 
 // original triadic memory read algorithm
 // there is one query function for each triple position
@@ -474,56 +482,71 @@ void triadicmemory_delete (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 // the function binarize converts v to an SDR with the specified target population
 // note that the result can have more or less bits that specified
 
-
+/*
 SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
 	int* v = (int*)calloc(x->n, sizeof(int));
-	int n = T->nz, nn = T->ny * T->nz;
-	
+	int n = z->n, nn = y->n * z->n;
+
 	for( int j = 0; j < y->p; j++)  for( int k = 0; k < z->p; k++)
 		{
-		TMEMTYPE *addr = T->C + n * y->a[j] + z->a[k];
-		
+		TMEMTYPE *addr = T->m + n * y->a[j] + z->a[k];
+	
 		for( int i = 0; i < x->n; i++)
 			v[i] += *(addr + nn * i);
 		}
 
 	return binarize(x, v, T->p);
 	}
+	*/
 
+
+SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
+	{
+	int *v = (int*) calloc(y->n, sizeof(int));
+	
+	for (int i = 0; i < x->n; i++) for (int j = 0; j < y->p; j++)
+		{
+		TMEMTYPE *Z = T->M[T->n * i + y->a[j]];
+	
+		if (Z) for (int k = 0; k < z->p; k++)
+			v[i] += *(Z + z->a[k]);
+		}
+
+	return binarize(x, v, T->p);
+	}
 
 SDR* triadicmemory_read_y (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int* v = (int*)calloc(y->n, sizeof(int));
-	int n = T->nz, nn = T->ny * T->nz;
-		
-	for( int i = 0; i < x->p; i++)  for( int k = 0; k < z->p; k++)
+	int *v = (int*) calloc(y->n, sizeof(int));
+	
+	for (int i = 0; i < x->p; i++) for (int j = 0; j < y->n; j++)
 		{
-		TMEMTYPE *addr = T->C + nn * x->a[i] + z->a[k];
-		
-		for( int j = 0; j < y->n; j++)
-			v[j] += *(addr + n * j);
+		TMEMTYPE *Z = T->M[T->n * x->a[i] + j];
+	
+		if (Z) for (int k = 0; k < z->p; k++)
+			v[j] += *(Z + z->a[k]);
 		}
 
 	return binarize(y, v, T->p);
 	}
 
 
-
 SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
 	int* v = (int*)calloc(z->n, sizeof(int));
-	int n = T->nz, nn = T->ny * T->nz;
 
-	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++)
+	for (int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++)
 		{
-		TMEMTYPE *addr = T->C + nn * x->a[i] + n * y->a[j];
-		for( int k = 0; k < z->n; k++)
-			v[k] += *(addr + k);
+		TMEMTYPE *Z = T->M[T->n * x->a[i] + y->a[j]];
+	
+		if (Z) for (int k = 0; k < z->n; k++)
+			v[k] += *(Z + k);
 		}
+	
 	return binarize(z, v, T->p);
 	}
-	
+
 
 
 // ---------- Command Line Functions ----------
