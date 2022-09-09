@@ -47,10 +47,10 @@ int main(int argc, char *argv[])
    
    	TriadicMemory *T = triadicmemory_new(N, P);
    	
-   	T->forgetting = 1;
+   	T->forgetting = 0; // set to 1 to enable forgetting mode
   	
 	printf("Triadic Memory capacity and performance tests\n");
-	printf("The recall error is given as the average Hamming distance\n");
+	printf("Recall errors are given as the average Hamming distance\n");
 	printf("Forgetting = %d\n", T->forgetting);
 	
 	printf("N = %d, P = %d\n\n", N, P);

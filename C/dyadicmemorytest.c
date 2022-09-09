@@ -38,14 +38,15 @@ int main(int argc, char *argv[])
 	{
 	clock_t start;
         
-	int Nx = 1000;		// x dimension
-	int Ny = 1000;		// y dimension
-	int P  = 10;  		// y sparse population
+	int Nx = 2000;		// x dimension
+	int Ny = 3000;		// y dimension
+	int P  = 20;  		// y sparse population
 
 	
    	DyadicMemory *T = dyadicmemory_new(Nx, Ny, P);
   	
 	printf("DyadicMemory capacity and performance tests\n");
+	printf("Recall errors are given as the average Hamming distance\n");
 	printf("Nx = %d, Ny = %d, P = %d\n\n", Nx, Ny, P);
 
   	
@@ -62,7 +63,7 @@ int main(int argc, char *argv[])
 		out[i]= sdr_new(Ny);
 		}
 		
-	for ( int iter = 1; iter <= 10; iter ++)
+	for ( int iter = 1; iter <= 5; iter ++)
 		{
 		printf("iter %.3d | ", iter);
 
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
 			h[i] = sdr_distance(t2[i], out[i]);
 		double mh = 0;
 		for (int i = 0; i < size; i++) mh += h[i];
-		printf("%f average H dist\n",   mh/size);
+		printf("%.3f err\n",   mh/size);
 
 		}
 
