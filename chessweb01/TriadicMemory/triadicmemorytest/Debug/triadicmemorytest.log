@@ -1,0 +1,5 @@
+﻿cl : command line warning D9025: overriding '/sdl' with '/GS-'
+  triadicmemorytest.c
+Q:\DATEN\git-repos\TriadicMemory\C\triadicmemorytest.c(45,2): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+Q:\DATEN\git-repos\TriadicMemory\C\triadicmemorytest.c(46,2): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  triadicmemorytest.vcxproj -> Q:\DATEN\git-repos\TriadicMemory\chessweb01\TriadicMemory\Debug\triadicmemorytest.exe

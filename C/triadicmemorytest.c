@@ -98,7 +98,9 @@ int main(int argc, char *argv[])
 
 
 
-		int h[size];
+		//int h[size];
+		int* h = (int*)malloc(size * sizeof(int));
+
 		double mh;
 
 		// recall z
@@ -153,8 +155,11 @@ int main(int argc, char *argv[])
 			for (int i = 0; i < size; i++) h[i] = sdr_distance(t1[i], out[i]);
 			mh = 0; for (int i = 0; i < size; i++) mh += h[i];
 			printf("%.3f err", mh/size);
+
 			}
-		
+
+		free(h);
+
 		printf("\n");
 		}
 

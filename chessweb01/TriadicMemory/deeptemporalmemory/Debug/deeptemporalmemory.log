@@ -1,0 +1,8 @@
+﻿cl : command line warning D9025: overriding '/sdl' with '/GS-'
+  deeptemporalmemory.c
+Q:\DATEN\git-repos\TriadicMemory\C\deeptemporalmemory.c(225,2): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+Q:\DATEN\git-repos\TriadicMemory\C\deeptemporalmemory.c(226,2): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  triadicmemory.c
+Q:\DATEN\git-repos\TriadicMemory\C\triadicmemory.c(565,3): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  Generating Code...
+  deeptemporalmemory.vcxproj -> Q:\DATEN\git-repos\TriadicMemory\chessweb01\TriadicMemory\Debug\deeptemporalmemory.exe
