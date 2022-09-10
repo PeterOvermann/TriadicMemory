@@ -1,7 +1,1 @@
-﻿cl : command line warning D9025: overriding '/sdl' with '/GS-'
-  sparseassociativememory.c
-Q:\DATEN\git-repos\TriadicMemory\C\sparseassociativememory.c(65,3): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-Q:\DATEN\git-repos\TriadicMemory\C\sparseassociativememory.c(267,33): warning C4018: '<': signed/unsigned mismatch
-Q:\DATEN\git-repos\TriadicMemory\C\sparseassociativememory.c(295,26): warning C4018: '<': signed/unsigned mismatch
-Q:\DATEN\git-repos\TriadicMemory\C\sparseassociativememory.c(168,2): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  sparseassociativememory.vcxproj -> Q:\DATEN\git-repos\TriadicMemory\chessweb01\TriadicMemory\Debug\sparseassociativememory.exe
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(439,5): error MSB8020: The build tools for v143 (Platform Toolset = 'v143') cannot be found. To build using the v143 build tools, please install v143 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution".

@@ -1,4 +1,9 @@
-﻿cl : command line warning D9025: overriding '/sdl' with '/GS-'
+﻿cl : command line  warning D9025: overriding '/sdl' with '/GS-'
   triadicmemory.c
 Q:\DATEN\git-repos\TriadicMemory\C\triadicmemory.c(566,3): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  triadicmemoryCL.c
+Q:\DATEN\git-repos\TriadicMemory\C\triadicmemoryCL.c(97,3): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+Q:\DATEN\git-repos\TriadicMemory\C\triadicmemoryCL.c(132,5): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+Q:\DATEN\git-repos\TriadicMemory\C\triadicmemoryCL.c(133,5): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  Generating Code...
   triadicmemoryCL.vcxproj -> Q:\DATEN\git-repos\TriadicMemory\chessweb01\TriadicMemory\Debug\triadicmemoryCL.exe
