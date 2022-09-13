@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32802.440
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32811.315
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "triadicmemorytest", "triadicmemorytest\triadicmemorytest.vcxproj", "{9871BAE3-1DB8-4FBB-94FC-503D8C615BB8}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sparseassociativememory", "sparseassociativememory\sparseassociativememory.vcxproj", "{03E084CD-730D-43F3-9AAF-40B8FC1E607C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "triadicmemoryCL", "triadicmemoryCL\triadicmemoryCL.vcxproj", "{8BE1F40E-04CB-4000-9379-CCD8FCD2761F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "encoders", "encoders\encoders.vcxproj", "{8BC5DF07-4C24-4610-85CF-2576024BD526}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,14 @@ Global
 		{8BE1F40E-04CB-4000-9379-CCD8FCD2761F}.Release|x64.Build.0 = Release|x64
 		{8BE1F40E-04CB-4000-9379-CCD8FCD2761F}.Release|x86.ActiveCfg = Release|Win32
 		{8BE1F40E-04CB-4000-9379-CCD8FCD2761F}.Release|x86.Build.0 = Release|Win32
+		{8BC5DF07-4C24-4610-85CF-2576024BD526}.Debug|x64.ActiveCfg = Debug|x64
+		{8BC5DF07-4C24-4610-85CF-2576024BD526}.Debug|x64.Build.0 = Debug|x64
+		{8BC5DF07-4C24-4610-85CF-2576024BD526}.Debug|x86.ActiveCfg = Debug|Win32
+		{8BC5DF07-4C24-4610-85CF-2576024BD526}.Debug|x86.Build.0 = Debug|Win32
+		{8BC5DF07-4C24-4610-85CF-2576024BD526}.Release|x64.ActiveCfg = Release|x64
+		{8BC5DF07-4C24-4610-85CF-2576024BD526}.Release|x64.Build.0 = Release|x64
+		{8BC5DF07-4C24-4610-85CF-2576024BD526}.Release|x86.ActiveCfg = Release|Win32
+		{8BC5DF07-4C24-4610-85CF-2576024BD526}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
