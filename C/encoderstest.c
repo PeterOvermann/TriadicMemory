@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 
 		sdr_print(sdr);
 
-		printf("value after decoding from sdr: %f\n\n", x, SDR2Real(sdr, 10000, 10, -10.0, 10.0));
+		printf("value after decoding from sdr: %f\n\n", SDR2Real(sdr, 10000, 10, -10.0, 10.0));
 	}
 
 	sdr_delete(sdr);

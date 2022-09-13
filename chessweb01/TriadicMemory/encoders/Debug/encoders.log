@@ -1,5 +1,3 @@
 ﻿cl : command line  warning D9025: overriding '/sdl' with '/GS-'
   encoderstest.c
-Q:\DATEN\git-repos\TriadicMemory\C\encoderstest.c(23,54): warning C4474: 'printf' : too many arguments passed for format string
-Q:\DATEN\git-repos\TriadicMemory\C\encoderstest.c(23,54): message : placeholders and their parameters expect 1 variadic arguments, but 2 were provided
   encoders.vcxproj -> Q:\DATEN\git-repos\TriadicMemory\chessweb01\TriadicMemory\Debug\encoders.exe
