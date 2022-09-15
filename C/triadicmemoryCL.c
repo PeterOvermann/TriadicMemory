@@ -23,49 +23,6 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 
-
-/*
-
-This command line tool instantiates a new memory instance. It can be used
-to store triples {x,y,z} of sparse distributed representations (SDRs), and to
-recall one part of a triple by specifying the other two parts.
-{x,y,_} recalls the third part, {x,_,z} recalls the second part, {_,y,z} recalls
-the first part.
-
-An SDR is given by a set of p integers in the range from 1 to n.
-Typical values are n = 1000 and p = 10 to 20.
-
-Command line arguments: triadicmemory <n> <p>
-
-Command line usage examples:
-
-Store {x,y,z}:
-{37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, 60 91 94 128 249 517 703 906 962 980}
-
-Recall x:
-{_ , 73 252 418 439 461 469 620 625 902 922,  60 91 94 128 249 517 703 906 962 980}
-
-Recall y:
-{37 195 355 371 471 603 747 914 943 963, _ , 160 91 94 128 249 517 703 906 962 980}
-
-Recall z:
-{37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, _}
-
-Delete {x,y,z}:
--{37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, 60 91 94 128 249 517 703 906 962 980}
-
-Print random SDR:
-random
-
-Print version number:
-version
-
-Terminate process:
-quit
-
-*/
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -76,37 +33,55 @@ quit
 #include "triadicmemory.h"
 
 
-#define SEPARATOR ','
-#define QUERY '_'
-
 #define VERSIONMAJOR 1
-#define VERSIONMINOR 2
+#define VERSIONMINOR 4
 
 
+static void print_help()
+	{
+	printf("triadicmemory %d.%d\n\n", VERSIONMAJOR, VERSIONMINOR);
+	printf("Sparse distributed memory for storing triple associations {x,y,z} of sparse binary hypervectors.\n");
+	printf("A hypervector of dimension n is given by an ordered set of p integers with values from 1 to n which represent its \"1\" bits.\n");
+		
+	printf("\n");
+	printf("Command line arguments:\n\n");
+	printf("triadicmemory n p            (n is the vector dimension, p is the vector's target sparse population)\n\n");
+		
+		
+	printf("Usage examples:\n\n");
+	printf("Store {x,y,z}:\n");
+	printf("{37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, 60 91 94 128 249 517 703 906 962 980}\n\n");
+		
+	printf("Recall x:\n");
+	printf("{_ , 73 252 418 439 461 469 620 625 902 922,  60 91 94 128 249 517 703 906 962 980}\n\n");
+		
+	printf("Recall y:\n\n");
+	printf("{37 195 355 371 471 603 747 914 943 963, _ , 160 91 94 128 249 517 703 906 962 980}\n\n");
+
+	printf("Recall z:\n\n");
+	printf("{37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, _}\n\n");
+
+	printf("Delete {x,y,z} from memory:\n");
+	printf("-{37 195 355 371 471 603 747 914 943 963, 73 252 418 439 461 469 620 625 902 922, 60 91 94 128 249 517 703 906 962 980}\n\n");
+
+	printf("Generate a random vector:\n");
+	printf("random\n\n");
+
+	printf("Print this help text:\n");
+	printf("help\n\n");
+	
+	printf("Show version number:\n");
+	printf("version\n\n");
+
+	printf("Terminate process:\n");
+	printf("quit\n\n");
+	}
+	
+	
 static char* parse (char *buf, SDR *s)
 	{
-	int *i;
-	s->p = 0;
+	buf = sdr_parse(buf, s);
 	
-	while ( *buf != 0 && *buf != SEPARATOR && *buf != '}')
-		{
-		while (isspace(*buf)) buf++;
-		if (! isdigit(*buf)) break;
-		
-		i = s->a + s->p;
-		sscanf( buf, "%d", i);
-		
-		if ( (*i)-- > s->n || *i < 0 ) // subtracting 1 because internal representation range is 0 to N-1
-			{
-			printf("position out of range: %s\n", buf);
-			exit(2);
-			}
-		s->p ++;
-		
-		while (isdigit(*buf)) buf++;
-		while (isspace(*buf)) buf++;
-		}
-		
 	if (*buf == QUERY && s->p == 0)  { s->p = -1; buf++; while (isspace(*buf)) buf++;}
 	
 	if (*buf == SEPARATOR) buf++;
@@ -121,16 +96,14 @@ int main(int argc, char *argv[])
 	
 	if (argc != 3)
 		{
-		printf("usage: triadicmemory n p\n");
-		printf("n is the hypervector dimension, typically 1000\n");
-		printf("p is the target sparse population, typically 10\n");
+		print_help();
 		exit(1);
 		}
         
 	int N, P;  // SDR dimension and target sparse population, received from command line
 
-    sscanf( argv[1], "%d", &N);
-    sscanf( argv[2], "%d", &P);
+	sscanf( argv[1], "%d", &N);
+	sscanf( argv[2], "%d", &P);
    
    	TriadicMemory *T = triadicmemory_new(N, P);
     	
@@ -142,7 +115,10 @@ int main(int argc, char *argv[])
 		{
 		if (! strcmp(inputline, "quit\n"))
 			exit(0);
-		
+	
+		if (! strcmp(inputline, "help\n"))
+			print_help();
+
 		else if (! strcmp(inputline, "random\n"))
 			sdr_print(sdr_random(x, P));
 

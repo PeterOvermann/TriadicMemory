@@ -42,7 +42,7 @@ static void print_help()
 	{
 	printf("dyadicmemory %d.%d\n\n", VERSIONMAJOR, VERSIONMINOR);
 	printf("Sparse distributed memory (SDM) for storing associations x->y of sparse binary hypervectors x and y.\n");
-	printf("A hypervector is given by an ordered set of p integers from 1 to n which represent its \"1\" bits.\n");
+	printf("A hypervector of dimension n is given by an ordered set of p integers with values from 1 to n which represent its \"1\" bits.\n");
 		
 	printf("\n");
 	printf("Command line arguments:\n\n");
