@@ -56,7 +56,7 @@ void sdr_print0(SDR *);				// print SDR followed by newline (values 0 to N-1)
 
 
 #define TMEMTYPE unsigned char
-#define TMEMTYPE_MAX 255
+#define TMEMTYPE_MAX 255			// set this to 1 to simulate 1-bit storage
 
 
 // ---------- DyadicMemory (stores hetero-associations x-> y) ----------
@@ -69,9 +69,7 @@ typedef struct
 
 	int 	nx,		// dimension of x
 		ny,		// dimension of y
-		p, 		// target sparse population of y (used only in dyadicmemory_read)
-	
-		overflow; 	// whether the maximum counter value has been reached
+		p; 		// whether the maximum counter value has been reached
 	
 	} DyadicMemory;
 
@@ -96,7 +94,6 @@ typedef struct
 		nz,		// dimension of z
 		p,		// target sparse population
 		
-		overflow, 	// whether the maximum counter value has been reached
 		forgetting; 	// whether to erase older information (off by default)
 
 	} TriadicMemory;

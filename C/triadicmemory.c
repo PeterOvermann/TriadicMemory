@@ -44,14 +44,14 @@ static int cmpfunc (const void * a, const void * b)
 	
 	
 // convert an array of non-negative integers v to an SDR x with target sparse population pop
-// this is used when querying a dyadic/triadic memory
+// this is used by dyadic/triadic memory query functions
 
-static SDR* binarize (SDR *x, int *v, int pop)
+static SDR* binarize (SDR *x, int *response, int pop)
 	{
 	int *sorted = (int *)malloc(x->n * sizeof(int)), rankedmax;
 	
 	for ( int i=0; i < x->n; i++ )
-		sorted[i] = v[i];
+		sorted[i] = response[i];
 	
 	qsort( sorted, x->n, sizeof(int), cmpfunc);
 	
@@ -62,11 +62,11 @@ static SDR* binarize (SDR *x, int *v, int pop)
 		
 	x->p = 0;
 	for ( int i = 0; i < x->n; i++)
-		if (v[i] >= rankedmax)
+		if (response[i] >= rankedmax)
 			x->a[x->p++] = i;
 
 	free(sorted);
-	free(v);	// v was allocated by the calling function
+	free(response);	//  was calloc'ed by the calling function
 
 	return x;
 	}
@@ -343,7 +343,7 @@ void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 	{
 	if (y->p == 0) return;
 					
-	for( int j = 1; j < x->p; j++ ) for (int i = 0; i < j; i++ )
+	for (int j = 1; j < x->p; j++ ) for (int i = 0; i < j; i++ )
 		{
 		int addr = x->a[i] + x->a[j]*(x->a[j]-1) / 2;
 		
@@ -356,10 +356,9 @@ void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 
 		TMEMTYPE *Y = D->C[addr];
 
-		for( int k = 0; k < y->p; k++)
+		for (int k = 0; k < y->p; k++)
 			if (*( Y + y->a[k]) < TMEMTYPE_MAX) // check for counter overflow
 				++ *( Y + y->a[k] );
-			else D->overflow = 1;
 							
 		}
 	}
@@ -369,11 +368,11 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 	{
 	if (y->p == 0) return;
 					
-	for( int j = 1; j < x->p; j++ ) for ( int i = 0; i < j; i++ )
+	for (int j = 1; j < x->p; j++ ) for (int i = 0; i < j; i++ )
 		{
 		TMEMTYPE *Y = D->C[x->a[i] + x->a[j]*(x->a[j]-1) / 2];
 
-		if (Y) for( int k = 0; k < y->p; k++ )
+		if (Y) for (int k = 0; k < y->p; k++ )
 			if (*( Y + y->a[k]) > 0)	// check for counter underflow
 				-- *( Y + y->a[k] );
 
@@ -383,18 +382,18 @@ void dyadicmemory_delete (DyadicMemory *D, SDR *x, SDR *y)
 
 SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 	{
-	int* v = (int*)calloc(D->ny, sizeof(int));
+	int* response = (int*)calloc(D->ny, sizeof(int));
 
-	for( int j = 1; j < x->p; j++ ) for ( int i = 0; i < j; i++ )
+	for (int j = 1; j < x->p; j++ ) for ( int i = 0; i < j; i++ )
 		{
 		TMEMTYPE *Y = D->C[x->a[i] + x->a[j]*(x->a[j]-1) / 2];
 
-		if (Y) for( int k = 0; k < D->ny; k++)
-			v[k] += Y[k];
+		if (Y) for (int k = 0; k < D->ny; k++)
+			response[k] += Y[k];
 
 		}
 						
-	return binarize(y, v, D->p);
+	return binarize(y, response, D->p);
 	}
 	
 
@@ -429,12 +428,11 @@ void triadicmemory_write (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 
 	// the original triadic memory write algorithm
 	
-	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
+	for (int i = 0; i < x->p; i++) for (int j = 0; j < y->p; j++) for (int k = 0; k < z->p; k++)
 		{
 		TMEMTYPE *q = T->C + nn * x->a[i] + n * y->a[j] + z->a[k];
 		
 		if (*q < TMEMTYPE_MAX) ++ *q;  // check for counter overflow (although it's unlikely)
-		else T->overflow = 1;
 		}
 	
 	// the following is not part of the original triadic memory algorithm
@@ -445,7 +443,7 @@ void triadicmemory_write (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	if (T->forgetting)
 		{
 		int memsize = T->nx * T->ny * T->nz;
-		for ( int i = 0; i < x->p * y->p * z->p; i++)
+		for (int i = 0; i < x->p * y->p * z->p; i++)
 			{
 			TMEMTYPE *q = T->C + rand() % memsize;
 			if (*q > 0) -- *q;
@@ -458,10 +456,9 @@ void triadicmemory_delete (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
 	int n = T->nz, nn = T->ny * T->nz;
 
-	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++) for( int k = 0; k < z->p; k++)
+	for (int i = 0; i < x->p; i++) for (int j = 0; j < y->p; j++) for (int k = 0; k < z->p; k++)
 		{
 		TMEMTYPE *q = T->C + nn * x->a[i] + n * y->a[j] + z->a[k];
-		
 		if (*q > 0) -- *q;	// check for counter underflow
 		}
 	}
@@ -469,60 +466,60 @@ void triadicmemory_delete (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 
 // original triadic memory read algorithm
 // there is one query function for each triple position
-// weights are collected into an response vector v, which stores non-negative integers
-// the function binarize converts v to an SDR with the specified target population
+// weights are collected into an response vector, which stores non-negative integers
+// the function binarize converts the response vector to an SDR with the specified target population
 // note that the result can have more or less bits that specified
 
 
 SDR* triadicmemory_read_x (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int* v = (int*)calloc(T->nx, sizeof(int));
+	int* response = (int*)calloc(T->nx, sizeof(int));
 	int n = T->nz, nn = T->ny * T->nz;
 	
-	for( int j = 0; j < y->p; j++)  for( int k = 0; k < z->p; k++)
+	for (int j = 0; j < y->p; j++) for (int k = 0; k < z->p; k++)
 		{
 		TMEMTYPE *addr = T->C + n * y->a[j] + z->a[k];
 		
-		for( int i = 0; i < T->nx; i++)
-			v[i] += *(addr + nn * i);
+		for (int i = 0; i < T->nx; i++)
+			response[i] += addr[nn*i];
 		}
 
-	return binarize(x, v, T->p);
+	return binarize(x, response, T->p);
 	}
 
 
 SDR* triadicmemory_read_y (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int* v = (int*)calloc(T->ny, sizeof(int));
+	int* response = (int*)calloc(T->ny, sizeof(int));
 	int n = T->nz, nn = T->ny * T->nz;
 		
-	for( int i = 0; i < x->p; i++)  for( int k = 0; k < z->p; k++)
+	for (int i = 0; i < x->p; i++) for (int k = 0; k < z->p; k++)
 		{
 		TMEMTYPE *addr = T->C + nn * x->a[i] + z->a[k];
 		
-		for( int j = 0; j < T->ny; j++)
-			v[j] += *(addr + n * j);
+		for (int j = 0; j < T->ny; j++)
+			response[j] += addr[n*j];
 		}
 
-	return binarize(y, v, T->p);
+	return binarize(y, response, T->p);
 	}
 
 
 
 SDR* triadicmemory_read_z (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
-	int* v = (int*)calloc(T->nz, sizeof(int));
+	int* response = (int*)calloc(T->nz, sizeof(int));
 	int n = T->nz, nn = T->ny * T->nz;
 
-	for( int i = 0; i < x->p; i++) for( int j = 0; j < y->p; j++)
+	for (int i = 0; i < x->p; i++) for (int j = 0; j < y->p; j++)
 		{
 		TMEMTYPE *addr = T->C + nn * x->a[i] + n * y->a[j];
 		
-		for( int k = 0; k < T->nz; k++)
-			v[k] += *(addr + k);
+		for (int k = 0; k < T->nz; k++)
+			response[k] += addr[k];
 		}
 		
-	return binarize(z, v, T->p);
+	return binarize(z, response, T->p);
 	}
 	
 
