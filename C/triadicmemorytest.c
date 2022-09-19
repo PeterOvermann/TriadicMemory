@@ -36,15 +36,15 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 int main(int argc, char *argv[])
 	{
-	
-	clock_t start;
-        
 	int N = 1000;		// SDR dimension
 	int P = 10;  		// SDR target sparse population
 
-	sscanf( argv[1], "%d", &N);
-	sscanf( argv[2], "%d", &P);
-   
+    	int size 		= 100000;
+    	int iterations 		= 25;
+    	int tridirectional 	= 1;
+
+  	clock_t start;
+ 
    	TriadicMemory *T = triadicmemory_new(N, P);
    	
    	T->forgetting = 0; // set to 1 to enable forgetting mode
@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
 	printf("N = %d, P = %d\n\n", N, P);
 
   	
-    	int size = 100000;
 	
 	SDR **t1 	= malloc(size * sizeof(SDR*));
 	SDR **t2 	= malloc(size * sizeof(SDR*));
@@ -71,7 +70,7 @@ int main(int argc, char *argv[])
 		out[i]= sdr_new(N);
 		}
 		
-	for ( int iter = 1; iter <= 30; iter ++)
+	for (int iter = 1; iter <= iterations; iter ++)
 		{
 		printf("iter %.3d | ", iter);
 
@@ -90,13 +89,9 @@ int main(int argc, char *argv[])
 		printf("write ");
 		start = clock();
 		for (int i = 0; i < size; i++)
-			
 			triadicmemory_write( T, t1[i],t2[i],t3[i]);
-
 	
 		printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
-
-
 
 		int h[size];
 		double mh;
@@ -104,7 +99,6 @@ int main(int argc, char *argv[])
 		// recall z
 
 		printf("read z ");
-	
 		start = clock();
 		
 		for (int i = 0; i < size; i++)
@@ -118,14 +112,11 @@ int main(int argc, char *argv[])
 		printf("%.3f err | ", mh/size);
 
 
-		if (0) // also recall y and x
+		if (tridirectional) // also recall y and x
 			{
-
-
 			// recall y
 
 			printf("read y ");
-	
 			start = clock();
 		
 			for (int i = 0; i < size; i++)
@@ -141,7 +132,6 @@ int main(int argc, char *argv[])
 			// recall x
 
 			printf("read x ");
-	
 			start = clock();
 		
 			for (int i = 0; i < size; i++)

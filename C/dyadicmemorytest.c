@@ -36,21 +36,24 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 int main(int argc, char *argv[])
 	{
+	int Nx = 1000;		// x dimension
+	int Ny = 1000;		// y dimension
+	int P  = 10;  		// y sparse population
+
+    	int size = 100000; 	// number of items in test data
+    	int iterations = 20;
+
 	clock_t start;
         
-	int Nx = 2000;		// x dimension
-	int Ny = 3000;		// y dimension
-	int P  = 20;  		// y sparse population
 
 	
    	DyadicMemory *T = dyadicmemory_new(Nx, Ny, P);
   	
-	printf("DyadicMemory capacity and performance tests\n");
+	printf("Dyadic Memory capacity and performance tests\n");
 	printf("Recall errors are given as the average Hamming distance\n");
-	printf("Nx = %d, Ny = %d, P = %d\n\n", Nx, Ny, P);
+	printf("Nx = %d, Ny = %d, Py = %d\n\n", Nx, Ny, P);
 
   	
-    	int size = 100000; // test data number of associations
 	
 	SDR **t1 	= malloc(size * sizeof(SDR*));
 	SDR **t2 	= malloc(size * sizeof(SDR*));
@@ -63,7 +66,7 @@ int main(int argc, char *argv[])
 		out[i]= sdr_new(Ny);
 		}
 		
-	for ( int iter = 1; iter <= 5; iter ++)
+	for ( int iter = 1; iter <= iterations; iter ++)
 		{
 		printf("iter %.3d | ", iter);
 
@@ -81,17 +84,13 @@ int main(int argc, char *argv[])
 		printf("write ");
 		start = clock();
 		for (int i = 0; i < size; i++)
-			
 			dyadicmemory_write( T, t1[i], t2[i]);
-
 	
 		printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
-
 
 		// recall test data
 
 		printf("read ");
-	
 		start = clock();
 		int h[size];
 		for (int i = 0; i < size; i++)
@@ -105,7 +104,6 @@ int main(int argc, char *argv[])
 		double mh = 0;
 		for (int i = 0; i < size; i++) mh += h[i];
 		printf("%.3f err\n",   mh/size);
-
 		}
 
 	printf("finished\n");
