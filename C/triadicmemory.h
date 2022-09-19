@@ -69,7 +69,7 @@ typedef struct
 
 	int 	nx,		// dimension of x
 		ny,		// dimension of y
-		p; 		// whether the maximum counter value has been reached
+		p; 		// target sparse population of y
 	
 	} DyadicMemory;
 
