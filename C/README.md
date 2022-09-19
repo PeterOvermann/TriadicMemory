@@ -4,7 +4,7 @@
 #### triadicmemory.c and triadicmemory.h
 
 Reference implementations of the Dyadic/Triadic Memory algorithms and various SDR utilities.
-Can be compiled as a library.
+Can be compiled as a library. Uses 1-bit storage locations. The original implementation with 8-bit counters is archived [here](Version 1).
 
 #### triadicmemoryCL.c
 
