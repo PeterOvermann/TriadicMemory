@@ -2,12 +2,12 @@
 
 This repository is a collection of associative memory algorithms operating on sparse distributed representations, which is our brain's data structure.
 
-Our goal is to provide a library of highly efficient software components, enabling practical applications of associative content-addressable memories.
+Our objective is to build a library of highly efficient software components, enabling practical applications of associative content-addressable memories.
 
-The triadic memory algorithm, a new kind of tridirectional associative memory, was discovered in 2021. Dyadic memory, which is based on the same algorithmic idea, is a hetero-associative memory also known as Sparse Distributed Memory. 
+The Triadic Memory algorithm, a new kind of tridirectional associative memory, was discovered in 2021. Dyadic Memory, which is based on the same algorithmic idea, is a hetero-associative memory also known as Sparse Distributed Memory. 
 
 Machine learning applications can be realized by creating circuits from the algorithmic components in this repository. An example
-is the Deep Temporal Memory algorithm, a recurring neural network based on multiple triadic memory instances and feedback lines.
+is the Deep Temporal Memory algorithm, a recurring neural network based on multiple Triadic Memory instances and feedback lines.
 
 ### Resources
 
@@ -35,11 +35,9 @@ Triadic Memory is an associative memory that stores ordered **triples** of spars
 
 As a content-addressable triple store, Triadic Memory is naturally suited for storing [semantic information](Examples/Triadic%20Memory%20-%20Semantic%20Triples%20and%20Analogies.pdf).
 
-Triadic memory allows tri-directional queries: Any part of an SDR triple can be recalled from the other two parts.One can test if a specific association is already stored in memory. This remarkable property, absent in hetero-associative memories, makes Triadic Memory suitable for self-supervised machine learning tasks.
+Triadic memory allows tridirectional queries: Any part of an SDR triple can be recalled from the other two parts. The algorithm learns new information in one shot. Stored data can be recalled from incomplete or noisy input data.
 
-Triadic Memory learns new information in one shot. Stored data can be recalled from incomplete or noisy input data.
-
-A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervectors with dimension `n` and sparse population `p`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million triples.
+A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervectors with dimension `n` and sparse population `p`. At a typical sparsity of 1 percent, it can therefore store and perfectly retrieve one million triples. The usable capacity is even higher, as associative memories are inherently tolerant to noise and errors.
 
 The original Mathematica code can be found [here](Mathematica/triadicmemory.m). The [plain C](C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
 
@@ -66,9 +64,9 @@ It can also be used for learning separate terminated sequences.
 
 Temporal Memory algorithms are based on circuits of two or more Triadic Memory instances with at least one feedback loop, resembling the architecture of recurrent neural networks. 
 
-The [elementary Temporal Memory](Examples/Temporal%20Memory%20Elementary%20Algorithm.pdf) uses two Triadic Memory units arranged in the form of an Elman network.
+The [Elementary Temporal Memory](Examples/Temporal%20Memory%20Elementary%20Algorithm.pdf) uses two Triadic Memory units arranged in the form of an Elman network.
 
-The [Deep Temporal Memory algorithm](Examples/Deep%20Temporal%20Memory%20-%20Introduction.pdf) is a circuit of hierarchically arranged triadic memory units with multiple feedback loops. It can recognize longer and more complex temporal patterns than the elementary version based on just two memory units. 
+The [Deep Temporal Memory algorithm](Examples/Deep%20Temporal%20Memory%20-%20Introduction.pdf) is a circuit of hierarchically arranged Triadic Memory units with multiple feedback loops. It can recognize longer and more complex temporal patterns than the elementary version based on just two memory units. 
 
 Trained with a dataset from the [SPMF](Examples/Deep%20Temporal%20Memory%20-%20SPMF%20Sequence%20Example.pdf) project, Deep Temporal Memory achieves a prediction accuracy of 99.5 percent.
 
