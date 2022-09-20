@@ -11,8 +11,8 @@ is the Deep Temporal Memory algorithm, a recurring neural network based on multi
 
 ### Resources
 
-- Application [examples](Examples)
-- Discussion of Triadic Memory at Numenta's [HTM Forum](https://discourse.numenta.org/t/triadic-memory-a-fundamental-algorithm-for-cognitive-computing/9763/229)
+- [examples](Application Examples)
+- Discussion of Triadic Memory at Numenta's [HTM Forum](https://discourse.numenta.org/t/triadic-memory-a-fundamental-algorithm-for-cognitive-computing/9763)
 - Triadic Memory [paper](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf)
 
 
