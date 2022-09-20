@@ -27,6 +27,8 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ---------- SDR data type and utility functions ----------
 
 	
+#include <stdint.h>
+
 typedef struct
 	{
 	int 	*a,	// indices of non-zero positions, stored in array of size n

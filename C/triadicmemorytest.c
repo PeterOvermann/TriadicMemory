@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 	
 		printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
 
-		int h[size];
+		int* h = (int *)malloc(size * sizeof(int));
 		double mh;
 
 		// recall z
@@ -145,6 +145,8 @@ int main(int argc, char *argv[])
 			printf("%.3f err", mh/size);
 			}
 		
+		free(h);
+
 		printf("\n");
 		}
 

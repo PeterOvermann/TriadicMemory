@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
 		printf("read ");
 		start = clock();
-		int h[size];
+		int* h = (int *)malloc(size * sizeof(int));
 		for (int i = 0; i < size; i++)
 			dyadicmemory_read ( T, t1[i], out[i] );
 		
@@ -104,6 +104,8 @@ int main(int argc, char *argv[])
 		double mh = 0;
 		for (int i = 0; i < size; i++) mh += h[i];
 		printf("%.3f err\n",   mh/size);
+
+		free(h);
 		}
 
 	printf("finished\n");
