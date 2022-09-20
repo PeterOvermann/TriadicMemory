@@ -1,16 +1,19 @@
 # Triadic Memory: Cognitive Computing with Associative Memory Algorithms
 
 This repository is a collection of associative memory algorithms operating on sparse distributed representations, which is our brain's data structure.
+
 Our goal is to provide a library of highly efficient software components, enabling practical applications of associative content-addressable memories.
 
-The Triadic Memory algorithm was discovered in 2021 and first published [here](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf).
-Subsequently, a variety of related algorithms have been derived from Triadic Memory.
+The triadic memory algorithm, a new kind of tridirectional associative memory, was discovered in 2021. Dyadic memory, which is based on the same algorithmic idea, is a hetero-associative memory also known as Sparse Distributed Memory. 
 
 Machine learning applications can be realized by creating circuits from the algorithmic components in this repository. An example
 is the Deep Temporal Memory algorithm, a recurring neural network based on multiple triadic memory instances and feedback lines.
 
+### Resources
 
-Various application examples can be found [here](Examples).
+- Application [examples](Examples).
+- Discussion of Triadic Memory at Numenta's [HTM Forum](https://discourse.numenta.org/t/triadic-memory-a-fundamental-algorithm-for-cognitive-computing/9763/229)
+- Triadic Memory [paper](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf)
 
 
 ## Implementations 
@@ -42,25 +45,19 @@ A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervect
 
 The original Mathematica code can be found [here](Mathematica/triadicmemory.m). The [plain C](C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
 
-Performance-optimized implementations are available for [Rust](https://gitlab.com/nebkor/triadic-rust/), [Python](Python/sdrsdm.py), the [Julia](Julia/triadicmemory.jl) language, [Chez Scheme](ChezScheme/triadicmemory.ss), 
-[Javascript](Javascript/TriadicMemory.js) and [Odin](Odin/triadic/triadic_memory.odin). 
-
-
 
 ## Dyadic Memory
 
-Dyadic Memory realizes an associative memory for sparse hypervectors which has the functionality
+Dyadic Memory realizes a hetero-associative memory for sparse hypervectors which has the functionality
 of a [Sparse Distributed Memory](https://en.wikipedia.org/wiki/Sparse_distributed_memory) (SDM) as proposed by [Pentti Kanerva](https://en.wikipedia.org/wiki/Pentti_Kanerva) in 1988.
 
-The present, highly efficient algorithm was discovered in 2021 and is based on a neural network with combinatorial connectivity.
+The present, highly efficient algorithm was discovered in 2021 and is based on a neural network with one hidden layer and combinatorial connectivity.
 The original implementation was written in [Mathematica](Mathematica/dyadicmemory.m) language and consists of just 10 lines of code. 
 
 The memory stores and retrieves heteroassociations `x -> y` of sparse binary hypervectors `x` and `y`.
 Sparse binary hypervectors are also known as Sparse Distributed Representations (SDR).
 
 The [plain C](C/triadicmemory.c) implementation best illustrates the algorithm in procedural language. This version works with vector dimensions up to `n = 20,000` and can be used in an asymmetric configuration where `x` and `y` have different dimensions.
-
-An Odin implementation is available [here](Odin/triadic/triadic_memory.odin) and a Numba-accelerated Python version [here](Python/sdrsdm.py).
 
 
 
