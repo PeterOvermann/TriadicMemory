@@ -19,13 +19,12 @@ Implementations of Triadic Memory and related algorithms are available in a grow
 
 - [C](C)
 - [Chez Scheme](ChezScheme)
-- Java (looking for contributors)
 - [Javascript](Javascript)
 - [Julia](Julia)
 - [Mathematica](Mathematica), with executable [examples](Mathematica/Notebooks)
 - [Odin](Odin)
 - [Python](Python)
-- Scala (looking for contributors)
+- [Rust](https://gitlab.com/nebkor/triadic-rust/)
 
 
 
@@ -43,7 +42,7 @@ A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervect
 
 The original Mathematica code can be found [here](Mathematica/triadicmemory.m). The [plain C](C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
 
-Performance-optimized implementations are available for [Python](Python/sdrsdm.py), the [Julia](Julia/triadicmemory.jl) language, [Chez Scheme](ChezScheme/triadicmemory.ss), 
+Performance-optimized implementations are available for [Rust](https://gitlab.com/nebkor/triadic-rust/), [Python](Python/sdrsdm.py), the [Julia](Julia/triadicmemory.jl) language, [Chez Scheme](ChezScheme/triadicmemory.ss), 
 [Javascript](Javascript/TriadicMemory.js) and [Odin](Odin/triadic/triadic_memory.odin). 
 
 
