@@ -33,6 +33,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "triadicmemory.h"
 
 
+#define PrintOpsPerSecond printf("%d | ", (int)round((double)items * CLOCKS_PER_SEC / ((double) (clock() - start))) )
 
 int main(int argc, char *argv[])
 	{
@@ -40,26 +41,23 @@ int main(int argc, char *argv[])
 	int Ny = 1000;		// y dimension
 	int P  = 10;  		// y sparse population
 
-    	int size = 100000; 	// number of items in test data
-    	int iterations = 20;
+    	int items = 100000; 	// number of items in test data
+    	int iterations = 10;
 
 	clock_t start;
-        
 
+  	int* h = (int *)malloc(items * sizeof(int)); // stores Hamming distances for test set
+	double meanhammingdistance;
 	
    	DyadicMemory *T = dyadicmemory_new(Nx, Ny, P);
   	
-	printf("Dyadic Memory capacity and performance tests\n");
-	printf("Recall errors are given as the average Hamming distance\n");
-	printf("Nx = %d, Ny = %d, Py = %d\n\n", Nx, Ny, P);
-
-  	
+	printf("Dyadic Memory performance and capacity test\n");
 	
-	SDR **t1 	= malloc(size * sizeof(SDR*));
-	SDR **t2 	= malloc(size * sizeof(SDR*));
-	SDR **out 	= malloc(size * sizeof(SDR*));
+	SDR **t1 	= malloc(items * sizeof(SDR*));
+	SDR **t2 	= malloc(items * sizeof(SDR*));
+	SDR **out 	= malloc(items * sizeof(SDR*));
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < items; i++)
 		{
 		t1[i] = sdr_new(Nx);
 		t2[i] = sdr_new(Ny);
@@ -68,42 +66,39 @@ int main(int argc, char *argv[])
 		
 	for ( int iter = 1; iter <= iterations; iter ++)
 		{
-		printf("iter %.3d | ", iter);
+		printf("| iter %.3d | nx=%d | ny=%d | p=%d | %d items | write/sec ", iter, Nx, Ny, P, items);
 
 		// create random test data
-		printf("%d items | ", size);
-		for (int i = 0; i < size; i++)
+		
+		for (int i = 0; i < items; i++)
 			{
 			t1[i] = sdr_random(t1[i],P);
 			t2[i] = sdr_random(t2[i],P);
 			}
 
-	
 		// store test data
 	
-		printf("write ");
 		start = clock();
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < items; i++)
 			dyadicmemory_write( T, t1[i], t2[i]);
 	
-		printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
+		PrintOpsPerSecond;
 
 		// recall test data
 
-		printf("read ");
+		printf("read/sec ");
 		start = clock();
-		int h[size];
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < items; i++)
 			dyadicmemory_read ( T, t1[i], out[i] );
 		
-		printf("%.2fs | ", ((double) (clock() - start)) / CLOCKS_PER_SEC);
+		PrintOpsPerSecond;
 
 		// calculate hamming distances
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < items; i++)
 			h[i] = sdr_distance(t2[i], out[i]);
-		double mh = 0;
-		for (int i = 0; i < size; i++) mh += h[i];
-		printf("%.3f err\n",   mh/size);
+
+		meanhammingdistance = 0; for (int i = 0; i < items; i++) meanhammingdistance += h[i];
+		printf("%.3f avg dist |\n",   meanhammingdistance/items);
 		}
 
 	printf("finished\n");
