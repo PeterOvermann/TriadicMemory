@@ -11,14 +11,12 @@ is the Deep Temporal Memory algorithm, a recurring neural network based on multi
 
 ### Resources
 
-- Application [examples](Examples).
+- Application [examples](Examples)
 - Discussion of Triadic Memory at Numenta's [HTM Forum](https://discourse.numenta.org/t/triadic-memory-a-fundamental-algorithm-for-cognitive-computing/9763/229)
 - Triadic Memory [paper](https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf)
 
 
-## Implementations 
-
-Implementations of Triadic Memory and related algorithms are available in a growing number of programming languages:
+### Implementations 
 
 - [C](C)
 - [Chez Scheme](ChezScheme)
@@ -31,7 +29,7 @@ Implementations of Triadic Memory and related algorithms are available in a grow
 
 
 
-## Triadic Memory
+### Triadic Memory
 
 Triadic Memory is an associative memory that stores ordered **triples** of sparse binary hypervectors (also called sparse distributed representations, or SDRs).
 
@@ -46,7 +44,7 @@ A Triadic Memory has the capacity to store `(n/p)^3` random triples of hypervect
 The original Mathematica code can be found [here](Mathematica/triadicmemory.m). The [plain C](C/triadicmemory.c) implementation can be compiled as a command line program or as a library. It's also a good starting point for people wanting to port the algorithm to another programming language.
 
 
-## Dyadic Memory
+### Dyadic Memory
 
 Dyadic Memory realizes a hetero-associative memory for sparse hypervectors which has the functionality
 of a [Sparse Distributed Memory](https://en.wikipedia.org/wiki/Sparse_distributed_memory) (SDM) as proposed by [Pentti Kanerva](https://en.wikipedia.org/wiki/Pentti_Kanerva) in 1988.
@@ -61,7 +59,7 @@ The [plain C](C/triadicmemory.c) implementation best illustrates the algorithm i
 
 
 
-## Deep Temporal Memory
+### Deep Temporal Memory
 
 A temporal memory processes a stream of SDRs, at each step making a prediction for the following step based on previously seen information.
 It can also be used for learning separate terminated sequences.
