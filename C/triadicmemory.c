@@ -2,8 +2,12 @@
 /*
 triadicmemory.c
 
-C-language reference implementation of Triadic Memory and related algorithms published in
+C-language implementation of Triadic Memory and related algorithms published in
+
    https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
+   
+This version is based on 1-bit storage locations, as opposed to the reference implementation
+which is based on 8-bit memory counters.
 
 Copyright (c) 2022 Peter Overmann
 
@@ -329,8 +333,8 @@ DyadicMemory *dyadicmemory_new(int nx, int ny, int p)
 	{
 	DyadicMemory *D = malloc(sizeof(DyadicMemory));
 	
-	D->nx 		= nx;	// dimension of nx
-	D->ny 		= ny;	// dimension of ny
+	D->nx 		= nx;	// dimension of x
+	D->ny 		= ny;	// dimension of y
 	D->p  		= p; 	// sparsity target for y
 	
 	// allocate and initialize nx(nx-1)/2 bit-pair addresses for x
@@ -397,14 +401,14 @@ TriadicMemory *triadicmemory_new3 (int nx, int px, int ny, int py, int nz, int p
 	
 	TriadicMemory *T = malloc(sizeof(TriadicMemory));
 		
-	T->nx = nx;
+	T->nx = nx;		// vector dimensions of x, y, and z
 	T->ny = ny;
 	T->nz = nz;
-	T->px = px;
+	T->px = px;		// target sparse populations of x, y, and z
 	T->py = py;
 	T->pz = pz;
 
-	T->forgetting = 0; // forgetting is an experimental feature, disabled by default
+	T->forgetting = 0; 	// random forgetting is an experimental feature, disabled by default
 	
 	// allocate and initialize the entire storage cube, 1 bit per location
 	// limitation: malloc may fail for large n, use virtual memory instead in this case
@@ -413,6 +417,7 @@ TriadicMemory *triadicmemory_new3 (int nx, int px, int ny, int py, int nz, int p
 	
 	return T;
 	}
+	
 	
 void triadicmemory_write (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 	{
@@ -427,10 +432,9 @@ void triadicmemory_write (TriadicMemory *T, SDR *x, SDR *y, SDR *z)
 		}
 
 	
-	// the following is not part of the original triadic memory algorithm
+	// the following is not part of the original triadic memory algorithm and disabled by default
 	// random forgetting, realized by decrementing the same number of memory locations (but not below zero)
 	// this has no measurable effect for an almost empty memory
-	// disabled by default
 	
 	if (T->forgetting)
 		{
