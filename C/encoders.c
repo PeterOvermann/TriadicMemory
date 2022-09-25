@@ -64,6 +64,11 @@ SDR* Real2SDR(SDR* s, double x, int n, int p, double xmin, double xmax)
 	return s;
 }
 
+SDR* Int2SDR(SDR* s, int x, int n, int p, int xmin, int xmax)
+{
+	return Real2SDR(s, (double)x, n, p, (double)xmin, (double)xmax);
+}
+
 /*
 Mathematica:
 ------------
@@ -99,4 +104,9 @@ double SDR2Real(SDR* s, int n, int p, double xmin, double xmax)
 	double Boole = (n - p) % 2 == 0 ? 0.0 : 1.0;
 
 	return Round((Mean - ((double)p + 1.0) / 2.0) / ((double)n - (double)p), 1.0 / ((double)n - (double)p - Boole)) * (xmax - xmin) + xmin;
+}
+
+int SDR2Int(SDR* s, int n, int p, int xmin, int xmax) 
+{
+	return (int)ceil(SDR2Real(s, n, p, (double)xmin, (double)xmax));
 }

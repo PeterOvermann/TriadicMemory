@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
 	sscanf( argv[1], "%d", &N);
 	sscanf( argv[2], "%d", &P);
     
-    	DeepTemporalMemory *T = deeptemporalmemory_new (N, P);
+	DeepTemporalMemory *T = deeptemporalmemory_new (N, P);
    
 	SDR *inp = sdr_new(N);
 	SDR *out = sdr_new(N);

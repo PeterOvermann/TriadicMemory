@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
 	sscanf( argv[1], "%d", &N);
 	sscanf( argv[2], "%d", &P);
     
-    	TemporalMemory *T = temporalmemory_new (N, P);
+    TemporalMemory *T = temporalmemory_new (N, P);
    
 	SDR *inp = sdr_new(N);
 	SDR *out = sdr_new(N);
