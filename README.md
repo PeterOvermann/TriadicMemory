@@ -19,7 +19,7 @@ is the Deep Temporal Memory algorithm, a recurring neural network based on multi
 
 ### Implementations 
 
-- [C](C)
+- [C](C) reference implementation
 - [Chez Scheme](ChezScheme)
 - [Javascript](Javascript)
 - [Julia](Julia)
