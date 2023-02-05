@@ -9,4 +9,6 @@ all:
 	cc -Ofast temporalmemory.c  	triadicmemory.c 	-o /usr/local/bin/temporalmemory
 	cc -Ofast deeptemporalmemory.c  triadicmemory.c 	-o /usr/local/bin/deeptemporalmemory
 	
-
+	cc -Ofast dyadicmemorytest.c  	triadicmemory.c 	-o /usr/local/bin/dyadicmemorytest
+	cc -Ofast triadicmemorytest.c  	triadicmemory.c 	-o /usr/local/bin/triadicmemorytest
+	
