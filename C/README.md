@@ -21,3 +21,8 @@ Elementary Temporal Memory algorithm and command line tool wrapper. Depends on t
 #### deeptemporalmemory.c
 
 Deep Temporal Memory algorithm and command line tool wrapper. Depends on triadicmemory.c and triadicmemory.h.
+
+
+#### triadicmemorytest.c and dyadicmemorytest.c
+
+Performance and capacity tests. Results [here](https://github.com/PeterOvermann/TriadicMemory/blob/main/Benchmarks.md)
