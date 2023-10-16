@@ -102,7 +102,7 @@ def sdr_distance(n1, n2):
     """
     return 1.0 - 2.0 * sdr_overlap(n1, n2) / (len(n1) + len(n2)) 
 
-@numba.jit
+@numba.jit(nopython=True)
 def random_sdr(sdr_size, sdr_len):
     out = np.zeros(sdr_len, dtype = np.uint32)
     r = np.random.randint(0,sdr_size)
@@ -113,7 +113,7 @@ def random_sdr(sdr_size, sdr_len):
     out.sort()
     return out
     
-@numba.jit
+@numba.jit(nopython=True)
 def near_sdr(sdr, sdr_size, switch = 3):
     """
     returns a sdr close to input sdr by switching switch bits

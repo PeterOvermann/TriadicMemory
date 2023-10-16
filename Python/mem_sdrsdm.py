@@ -3,6 +3,7 @@ This code is an implementation of the Triadic Memory and Dyadic Memory algorithm
 
 Copyright (c) 2021-2022 Peter Overmann
 Copyright (c) 2022 Cezar Totth
+Copyright (c) 2023 Clément Michaud
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
@@ -22,27 +23,22 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import numpy as np
 import numba
 
-@numba.jit(nopython=True)
-def xaddr(x, N):
+def xaddr(x):
     addr = []
     for i in range(1,len(x)):
         for j in range(i):
-            addr.append(x[i]*(x[i]-1)//2 + x[j]) 
-    return addr
+            yield x[i] * (x[i] - 1) // 2 + x[j]
 
-
-@numba.jit(nopython=True)
-def store_xy(mem, N, x, y):
+def store_xy(mem, x, y):
     """
     Stores Y under key X
     Y and X have to be sorted sparsely encoded SDRs
     """ 
-    for addr in xaddr(x, N):
+    for addr in xaddr(x):
         for j in y:
-            mem[addr,j] = 1
+            mem[addr][j] = 1
 
-@numba.jit(nopython=True)
-def store_xyz(mem, x, y, z): 
+def store_xyz(mem, x, y, z):
     """
     Stores X, Y, Z triplet in mem
     All X, Y, Z have to be sparse encoded SDRs
@@ -50,44 +46,43 @@ def store_xyz(mem, x, y, z):
     for ax in x:
         for ay in y:
             for az in z:
-                mem[ax, ay, az] = 1
+                mem['x'][ay][az][ax] = 1
+                mem['y'][ax][az][ay] = 1
+                mem['z'][ax][ay][az] = 1
 
-    
-@numba.jit(nopython=True)
 def query(mem, N, P, x):
     """
     Query in DiadicMemory
     """
-    sums = np.zeros(mem.shape[1],dtype=np.uint32)
-    for addr in xaddr(x, N):
-        sums += mem[addr]
+    sums = np.zeros(N, dtype=np.uint32)
+    for addr in xaddr(x):
+        for k, v in mem[addr].items():
+            sums[k] += v
     return sums2sdr(sums, P)
 
-@numba.jit(nopython=True)
-def queryZ(mem, P, x, y):
-    N = mem.shape[0]
-    sums = np.zeros(N, dtype = np.uint32)
+def queryZ(mem, N, P, x, y):
+    sums = np.zeros(N, dtype=np.uint32)
     for ax in x:
         for ay in y:
-            sums += mem[ax, ay, :]
+            # print(ax, ay, mem['z'][ax][ay])
+            for k, v in mem['z'][ax][ay].items():
+                sums[k] += v
     return sums2sdr(sums, P)
 
-@numba.jit(nopython=True)
-def queryX(mem, P, y, z):
-    N = mem.shape[0]
-    sums = np.zeros(N, dtype = np.uint32)
+def queryX(mem, N, P, y, z):
+    sums = np.zeros(N, dtype=np.uint32)
     for ay in y:
         for az in z:
-            sums += mem[:, ay, az]
+            for k, v in mem['x'][ay][az].items():
+                sums[k] += v
     return sums2sdr(sums, P)
 
-@numba.jit(nopython=True)
-def queryY(mem, P, x, z):
-    N = mem.shape[0]
-    sums = np.zeros(N, dtype = np.uint32)
+def queryY(mem, N, P, x, z):
+    sums = np.zeros(N, dtype=np.uint32)
     for ax in x:
         for az in z:
-            sums += mem[ax,:,az]
+            for k, v in mem['y'][ax][az].items():
+                sums[k] += v
     return sums2sdr(sums,P)
 
 @numba.jit(nopython=True)
@@ -103,8 +98,16 @@ def sums2sdr(sums, P):
 
 class TriadicMemory:
     def __init__(self, N, P):
-        self.mem = np.zeros((N,N,N), dtype=np.uint8)
+        self.mem = {
+            # We store the data 3 times to be able to query any of the variable but
+            # if one knows which variable is to be queried, we can get rid of 2/3 of
+            # the memory used.
+            'x': defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))),
+            'y': defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))),
+            'z': defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))),
+        } 
         self.P = P
+        self.N = N
 
     def store(self, x, y, z):
         store_xyz(self.mem, x, y, z)
@@ -114,27 +117,34 @@ class TriadicMemory:
         # The queried member must be provided as None
         # the other two members have to be encoded as sorted sparse SDRs
         if z is None:
-            return queryZ(self.mem, self.P, x, y)
+            return queryZ(self.mem, self.N, self.P, x, y)
         elif x is None:
-            return queryX(self.mem, self.P, y, z)
+            return queryX(self.mem, self.N, self.P, y, z)
         elif y is None:
-            return queryY(self.mem, self.P, x, z)
+            return queryY(self.mem, self.N, self.P, x, z)
 
     def query_X(self, y, z):
-        return queryX(self.mem,self.P,y,z)
+        return queryX(self.mem, self.N, self.P, y, z)
 
     def query_Y(self, x, z):
-        return queryY(self.mem, self.P, x, z)
+        return queryY(self.mem, self.N, self.P, x, z)
 
     def query_Z(self, x, y):
-        return queryZ(self.mem, self.P, x,y)
+        return queryZ(self.mem, self.N, self.P, x, y)
 
     def query_x_with_P(self, y, z, P): 
-        return queryX(self.mem, P, y, z)
+        return queryX(self.mem, self.N, P, y, z)
 
-    @property
-    def N(self):
-        return self.mem.shape[0]
+    def size(self):
+        # TODO: computing the size everytime might not be very efficient,
+        # instead we could probably keep track of how many bits are stored.
+        size = 0
+        for x in self.mem['x'].values():
+            for v1 in x.values():
+                size += len(v1)
+        return size * 3
+
+from collections import defaultdict
 
 class DiadicMemory:
     """
@@ -145,14 +155,18 @@ class DiadicMemory:
         N is SDR vector size, e.g. 1000
         P is the count of solid bits e.g. 10
         """
-        self.mem = np.zeros((N*(N-1)//2, N), dtype = np.uint8)
-        print(f"DiadicMemory size {self.mem.size/1000000} M bytes")
+        self.mem = defaultdict(lambda: defaultdict(lambda: 0))
         self.N = N
         self.P = P
 
     def store(self, x, y):
-        store_xy(self.mem, self.N, x, y)
+        store_xy(self.mem, x, y)
 
     def query(self, x):
         return query(self.mem, self.N, self.P, x)
 
+    def size(self):
+        size = 0
+        for v in self.mem.values():
+            size += len(v)
+        return size
