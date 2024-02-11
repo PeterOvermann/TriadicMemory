@@ -3,7 +3,7 @@ deeptemporalmemory.c
 Deep Temporal Memory Implementation Template and Command Line Tool Wrapper
 https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
 
-Copyright (c) 2022 Peter Overmann
+Copyright (c) 2022-2024 Peter Overmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,

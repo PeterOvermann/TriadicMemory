@@ -4,7 +4,7 @@ dyadicmemoryCL.c
 Dyadic Memory Command Line wrapper
 
 
-Copyright (c) 2022 Peter Overmann
+Copyright (c) 2022-2024 Peter Overmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
@@ -36,7 +36,7 @@ static int VERSIONMAJOR = 2;
 static int VERSIONMINOR = 0;
 
 
-static void print_help()
+static void print_help(void)
 	{
 	printf("dyadicmemory %d.%d\n\n", VERSIONMAJOR, VERSIONMINOR);
 	printf("Sparse distributed memory (SDM) for storing associations x->y of sparse binary hypervectors x and y.\n");

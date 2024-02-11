@@ -9,7 +9,7 @@ C-language implementation of Triadic Memory and related algorithms published in
 This version is based on 1-bit storage locations, as opposed to the reference implementation
 which is based on 8-bit memory counters.
 
-Copyright (c) 2022 Peter Overmann
+Copyright (c) 2022-2024 Peter Overmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
@@ -77,7 +77,7 @@ static SDR* binarize (SDR *x, int *response, int pop)
 
 
 
-static void srand_init()
+static void srand_init(void)
 	{
 	static int initialized = 0;
 	if (! initialized)
@@ -367,9 +367,8 @@ void dyadicmemory_write (DyadicMemory *D, SDR *x, SDR *y)
 		}
 	}
 	
-	
 
-SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
+static SDR* dm_query (DyadicMemory *D, SDR *x, SDR *y, int p)
 	{
 	int* response = (int*)calloc(D->ny, sizeof(int));
 
@@ -382,9 +381,20 @@ SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
 
 		}
 						
-	return binarize(y, response, D->p);
+	return binarize(y, response, p);
 	}
 	
+
+SDR* dyadicmemory_read (DyadicMemory *D, SDR *x, SDR *y)
+	{
+	return dm_query (D, x, y, D->p);	
+	}
+
+SDR* dyadicmemory_read_p (DyadicMemory *D, SDR *x, SDR *y, int p)
+	{
+	return dm_query (D, x, y, p);	
+	}
+
 
 
 // ---------- Triadic Memory -- stores triple associations (x,y,z}  ----------

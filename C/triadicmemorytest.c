@@ -4,7 +4,7 @@ triadicmemorytest.c
 Triadic Memory setup for capacity and performance tests
 
 
-Copyright (c) 2022 Peter Overmann
+Copyright (c) 2022-24 Peter Overmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,

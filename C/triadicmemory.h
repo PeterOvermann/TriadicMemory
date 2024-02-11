@@ -4,7 +4,7 @@ triadicmemory.h
 C-language reference implementation of Triadic Memory and related algorithms published in
    https://github.com/PeterOvermann/Writings/blob/main/TriadicMemory.pdf
 
-Copyright (c) 2022 Peter Overmann
+Copyright (c) 2022-2024 Peter Overmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the “Software”), to deal in the Software without restriction,
@@ -71,7 +71,7 @@ typedef struct
 	{
 	byte **C;		// pointers to base triangle of half storage "cube"
 
-	int 	nx, ny,		// vector dimensions x
+	int 	nx, ny,		// vector dimensions of x and y
 		p; 		// target sparse population of y
 	
 	} DyadicMemory;
@@ -81,6 +81,7 @@ DyadicMemory *dyadicmemory_new (int nx, int ny, int p);
 
 void dyadicmemory_write 	(DyadicMemory *, SDR *, SDR *);
 SDR* dyadicmemory_read 		(DyadicMemory *, SDR *, SDR *);
+SDR* dyadicmemory_read_p 	(DyadicMemory *, SDR *, SDR *, int);
 
 
 
